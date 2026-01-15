@@ -1,5 +1,19 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.2.0
+
+Added external dependency research capabilities to implementation planning.
+
+**Changed:**
+- **writing-implementation-plans**: Added tiered external dependency research workflow. Phases involving external libraries now trigger research via `internet-researcher` (for docs/standards) with escalation to `remote-code-researcher` (for source code) when documentation is insufficient.
+
+**New capabilities:**
+- Decision framework for when to research external dependencies
+- Tiered research approach: docs first, source code when needed
+- External dependency findings section in phase output templates
+- Updated per-phase workflow to include research step
+- New rationalizations to prevent skipping external research
+
 ## ed3d-plan-and-execute 1.1.0
 
 Corrects design plan level of detail. These changes were a missed port from the internal plugin marketplace and were intended for 1.0.0. This release represents the plugin "as intended."
