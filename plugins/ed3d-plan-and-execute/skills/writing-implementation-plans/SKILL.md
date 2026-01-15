@@ -75,7 +75,6 @@ Options:
 
 **Provide the agent with design assumptions so it can report discrepancies:**
 
-
 Dispatch one subagent codebase-investigator to understand testing behavior for this project.
 - **DO NOT prescribe new requirements around testing. Follow how the codebase does it.**
    - For example: do NOT stipulate TDD unless you understand the scope of the problem to be a predominantly functional one OR you receive direction from a human otherwise and do not assume that mocking databases or other external dependencies is acceptable. 
@@ -116,6 +115,71 @@ Review investigator findings and note any differences from design assumptions.
 - "No changes needed to `config.py`" (investigator confirmed already correct)
 
 **If codebase state differs from design assumptions:** Document the difference and adjust the implementation plan accordingly.
+
+### 4. External Dependency Research
+
+**When phases involve external libraries or dependencies, research them before writing tasks.**
+
+Use a tiered approach—start with documentation, escalate to source code only when needed.
+
+#### Tier 1: Internet Researcher (default)
+
+Use `internet-researcher` for:
+- Official documentation and API references
+- Common usage patterns and examples
+- Standard specifications (OAuth2, JWT, HTTP, etc.)
+- Best practices and known gotchas
+
+**This handles ~80% of external dependency questions.** Most integration work follows documented patterns.
+
+#### Tier 2: Remote Code Researcher (escalation)
+
+Use `remote-code-researcher` when:
+- Documentation doesn't cover your edge case
+- You need to understand internal implementation for extension/customization
+- Docs describe *what* but you need to know *how*
+- Behavior differs from docs and you need ground truth
+- You're extending or hooking into library internals
+
+#### Decision Framework
+
+```
+Phase involves external dependency?
+├─ No → codebase-investigator only
+└─ Yes → What do we need to know?
+    ├─ API usage, standard patterns → internet-researcher
+    ├─ Standard/spec implementation → internet-researcher
+    ├─ Implementation internals, extension points → remote-code-researcher
+    └─ Both local state + external info → combined-researcher
+```
+
+#### When to Dispatch
+
+**Dispatch internet-researcher when phase mentions:**
+- External packages/libraries to integrate
+- Third-party APIs to call
+- Standards to implement (OAuth, JWT, OpenAPI, etc.)
+
+**Escalate to remote-code-researcher when:**
+- Internet-researcher returns "docs don't cover this"
+- Task requires extending library behavior
+- Task requires matching internal patterns not in docs
+- You need to understand error handling, edge cases, or internals
+
+#### Reporting Findings
+
+Include external research findings alongside codebase verification:
+
+```markdown
+**External dependency investigation findings:**
+- ✓ Stripe SDK uses `stripe.customers.create()` with params: {email, name, metadata}
+- ✓ OAuth2 refresh flow per RFC 6749 Section 6
+- ✗ Design assumed sync API, but library is async-only
+- + Error handling uses typed exception hierarchy (StripeError subclasses)
+- 📖 Source: [Official docs | RFC spec | Source code @ commit]
+```
+
+**Standards vs Implementation:** Standards questions (e.g., "how does OAuth2 work") are internet-researcher territory. Implementation questions (e.g., "how does auth0-js store tokens") may require remote-code-researcher.
 
 ## Bite-Sized Task Granularity
 
@@ -221,8 +285,12 @@ Mark each phase as in_progress when working on it, completed when written to dis
 3. **Verify codebase state** for files mentioned in this phase:
    - Dispatch codebase-investigator with design assumptions for this phase
    - Review investigator findings for discrepancies
-4. **Write implementation tasks** for this phase (in memory, not to file) based on actual codebase state
-5. **Present to user** - Output the complete phase plan in your message text:
+4. **Research external dependencies** if phase involves them (see Section 4):
+   - Dispatch internet-researcher for docs/standards/API patterns
+   - Escalate to remote-code-researcher if docs are insufficient
+   - Document findings for inclusion in phase output
+5. **Write implementation tasks** for this phase (in memory, not to file) based on actual codebase state and external research
+6. **Present to user** - Output the complete phase plan in your message text:
 
 ```markdown
 **Phase [N]: [Phase Name]**
@@ -233,7 +301,13 @@ Mark each phase as in_progress when working on it, completed when written to dis
 - + Found additional: [unexpected things discovered]
 - ✓ Dependency confirmed: [library@version]
 
-**Implementation tasks based on actual codebase state:**
+**External dependency findings:** (if applicable)
+- ✓ [Library] API: [what docs/source revealed]
+- ✓ Standard: [spec reference and key details]
+- ✗ Design assumption incorrect: [what design said] - ACTUALLY: [reality per docs/source]
+- 📖 Source: [Official docs | RFC spec | Source code @ commit]
+
+**Implementation tasks based on actual codebase state and external research:**
 
 ### Task 1: [Component Name]
 
@@ -284,9 +358,12 @@ Mark each phase as in_progress when working on it, completed when written to dis
 3. **Verify codebase state** for files mentioned in this phase:
    - Dispatch codebase-investigator with design assumptions for this phase
    - Review investigator findings for discrepancies
-4. **Write implementation tasks** for this phase based on actual codebase state
-5. **Write directly to disk** at `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
-6. **Mark phase as completed** in TodoWrite, continue to next phase
+4. **Research external dependencies** if phase involves them (see Section 4):
+   - Dispatch internet-researcher for docs/standards/API patterns
+   - Escalate to remote-code-researcher if docs are insufficient
+5. **Write implementation tasks** for this phase based on actual codebase state and external research
+6. **Write directly to disk** at `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
+7. **Mark phase as completed** in TodoWrite, continue to next phase
 
 **Do NOT emit phase content to the user before writing.** This conserves tokens.
 
@@ -417,6 +494,10 @@ These are violations of the skill requirements:
 | "Functionality phase but design forgot tests" | Surface to user. Functionality needs tests. Design gap, not your call to skip. |
 | "Plan looks complete, skip validation" | Always validate. Gaps found now are cheaper than gaps found during execution. |
 | "Validation is overkill for simple plans" | Simple plans validate quickly. Complex plans need it more. Always validate. |
+| "I know how this library works from training" | Research it. APIs change. Use internet-researcher for docs, remote-code-researcher for internals. |
+| "Docs are probably accurate enough" | Usually yes. But if extending/customizing library behavior, verify with source code. |
+| "I'll clone the repo to check the docs" | No. Use internet-researcher for docs. Only clone (remote-code-researcher) for source code investigation. |
+| "Phase has external deps but I'll skip research" | Research is mandatory when phase involves external dependencies. Surface unknowns now. |
 
 **All of these mean: STOP. Follow the requirements exactly.**
 
@@ -473,7 +554,8 @@ Which approach should I take?
 **For each phase:**
 - [ ] Mark phase as in_progress in TodoWrite
 - [ ] Dispatch codebase-investigator with design assumptions for this phase
-- [ ] Write complete tasks with exact paths and code based on investigator findings
+- [ ] **If phase involves external dependencies:** Research them (internet-researcher first, escalate to remote-code-researcher if needed)
+- [ ] Write complete tasks with exact paths and code based on investigator and research findings
 - [ ] **If interactive mode:** Output complete phase plan, use AskUserQuestion for approval
 - [ ] **If batch mode:** Skip user presentation, write directly to disk
 - [ ] Write plan to `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
