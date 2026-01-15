@@ -52,7 +52,7 @@
         {
             "name": "ed3d-research-agents",
             "description": "Agents used for research across multiple data sources.",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "./plugins/ed3d-research-agents",
             "author": {
                 "name": "Ed",
