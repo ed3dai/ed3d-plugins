@@ -81,10 +81,17 @@ The first defines what the boundary looks like. The second implements behavior �
 ```markdown
 # [Feature Name] Design
 
-## Overview
-[High-level description in 2-3 sentences]
+## Definition of Done
+[What success looks like — the deliverables and success criteria confirmed in Phase 3]
 
-[Goals and success criteria from brainstorming Phase 1]
+## Summary
+[1-2 paragraph overview of the approach — what is being built and how]
+
+## Glossary
+[Domain terms and third-party concepts referenced in this document]
+
+- **[Term]**: [Brief explanation]
+- **[Library/Framework concept]**: [What it is and why it matters here]
 
 ## Architecture
 [Approach selected in brainstorming Phase 2]
@@ -123,6 +130,14 @@ Break implementation into discrete phases (<=8 recommended):
 
 [Don't include hypothetical "nice to have" features]
 ```
+
+## Legibility Header
+
+The first three sections (Definition of Done, Summary, Glossary) form the **legibility header**. These sections help human reviewers quickly understand what the document is about before diving into technical details.
+
+**The legibility header is generated AFTER writing the body.** This avoids summarizing something that hasn't been written yet and ensures the header accurately reflects the full document.
+
+See "After Writing: Generating the Legibility Header" below for the extraction process.
 
 ## Implementation Phases: Critical Requirements
 
@@ -370,7 +385,90 @@ Divergence justified by: Legacy code violates FCIS pattern, difficult to test, h
 - Hypothetical future requirements
 - Generic platitudes ("should be secure", "needs good testing")
 
-## After Writing
+## After Writing: Generating the Legibility Header
+
+After writing the body (Architecture through Additional Considerations), generate the legibility header using a subagent with fresh context.
+
+**Why a subagent?**
+- Fresh context avoids "context rot" from the long brainstorming/writing session
+- Acts as a forcing function: if the subagent can't extract a coherent summary, the document is unclear
+- Mirrors the experience of a human reviewer seeing the document for the first time
+
+**Step 1: Write the body first**
+
+Write the document with placeholder sections for the legibility header:
+
+```markdown
+# [Feature Name] Design
+
+## Definition of Done
+[TO BE GENERATED]
+
+## Summary
+[TO BE GENERATED]
+
+## Glossary
+[TO BE GENERATED]
+
+## Architecture
+[... actual content ...]
+```
+
+**Step 2: Dispatch extraction subagent**
+
+Use the Task tool to extract the legibility header:
+
+```
+<invoke name="Task">
+<parameter name="subagent_type">ed3d-basic-agents:sonnet-general-purpose</parameter>
+<parameter name="description">Extracting legibility header from design document</parameter>
+<parameter name="prompt">
+Read the design document at [file path].
+
+Extract three sections to insert at the top of the document:
+
+1. **Definition of Done**: What are the deliverables? What does success look like?
+   Write 2-4 sentences covering the primary deliverables and success criteria.
+
+2. **Summary**: Write 1-2 paragraphs summarizing what is being built and the
+   high-level approach. This should be understandable to someone unfamiliar
+   with the codebase.
+
+3. **Glossary**: List domain terms from the application and third-party concepts
+   (libraries, frameworks, patterns) that a reviewer needs to understand this
+   document. Format as:
+   - **[Term]**: [Brief explanation]
+
+   Include only terms that appear in the document and would benefit from
+   explanation.
+
+4. **Omitted Terms**: List terms you considered but skipped as too obvious or
+   generic. Only include borderline cases — terms that a less technical reviewer
+   might not know. Format as a simple comma-separated list.
+
+Return all four sections. The first three are markdown ready to insert; the
+fourth is for transparency about what was excluded.
+</parameter>
+</invoke>
+```
+
+**Step 3: Review omitted terms with user**
+
+Before inserting the extracted sections, briefly mention the omitted terms to the user:
+
+"Glossary includes [X terms]. Omitted as likely obvious: [list from subagent]. Let me know if any of those should be included."
+
+Don't wait for approval — proceed to insert the sections. The user can hit escape and ask for adjustments if needed.
+
+**Step 4: Insert extracted sections**
+
+Replace the placeholder sections (Definition of Done, Summary, Glossary) with the subagent's output. Do not insert the Omitted Terms section — that was for your transparency message only.
+
+**Step 5: Review and adjust**
+
+Briefly review the extracted sections for accuracy. The subagent may miss nuance from the conversation — adjust if needed, but prefer the subagent's version when it's accurate (it reflects what the document actually says, not what you remember).
+
+## After Legibility Header: Commit
 
 **Commit the design document:**
 
@@ -395,6 +493,9 @@ EOF
 
 | Excuse | Reality |
 |--------|---------|
+| "I'll write the summary first since I know what I'm building" | Write body first. Summarize what you wrote, not what you planned. |
+| "I can write the legibility header myself, don't need subagent" | Subagent has fresh context and acts as forcing function. Use it. |
+| "Glossary isn't needed, terms are obvious" | Obvious to you after brainstorming. Not to fresh reviewer. Include it. |
 | "Design is simple, don't need phases" | Phases make implementation manageable. Always include. |
 | "Phases are obvious, don't need detail" | writing-plans needs component descriptions. Provide them. |
 | "Can have 10 phases if needed" | Hard limit is 8. Scope or split. |
@@ -417,15 +518,17 @@ EOF
 This skill receives validated design from brainstorming:
 
 ```
-Brainstorming Phase 3 completes
+Brainstorming (Phase 4) completes
   -> Validated design exists in conversation
   -> User approved incrementally
+  -> Definition of Done confirmed in Phase 3
 
 Writing Design Plans (this skill)
-  -> Extract design from conversation
-  -> Structure with required sections
+  -> Write body: Architecture, Existing Patterns, Implementation Phases
   -> Add exact paths from investigation
   -> Create discrete phases (<=8)
+  -> Dispatch subagent to extract legibility header
+  -> Insert Definition of Done, Summary, Glossary at top
   -> Commit to git
 
 Writing Plans (next step)
@@ -434,4 +537,4 @@ Writing Plans (next step)
   -> Expects exact paths and structure
 ```
 
-**Purpose:** Create contract between design and implementation. Writing-plans relies on this structure.
+**Purpose:** Create contract between design and implementation. Writing-plans relies on this structure. The legibility header ensures human reviewers can quickly understand the document.

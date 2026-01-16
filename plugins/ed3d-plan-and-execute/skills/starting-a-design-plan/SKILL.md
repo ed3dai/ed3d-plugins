@@ -7,7 +7,7 @@ description: Use when beginning any design process - orchestrates gathering cont
 
 ## Overview
 
-Orchestrate the complete design workflow from initial idea to implementation-ready documentation through five structured phases: context gathering, clarification, brainstorming, design documentation, and planning handoff.
+Orchestrate the complete design workflow from initial idea to implementation-ready documentation through six structured phases: context gathering, clarification, definition of done, brainstorming, design documentation, and planning handoff.
 
 **Core principle:** Progressive information gathering -> clear understanding -> creative exploration -> validated design -> documented plan.
 
@@ -19,9 +19,10 @@ Orchestrate the complete design workflow from initial idea to implementation-rea
 |-------|---------------|--------|
 | **1. Context Gathering** | Ask for freeform description, constraints, goals, URLs, files | Initial context bundle |
 | **2. Clarification** | Invoke asking-clarifying-questions skill | Disambiguated requirements |
-| **3. Brainstorming** | Invoke brainstorming skill | Validated design (in conversation) |
-| **4. Design Documentation** | Invoke writing-design-plans skill | Committed design document |
-| **5. Planning Handoff** | Offer to invoke writing-plans skill | Implementation plan (optional) |
+| **3. Definition of Done** | Synthesize and confirm deliverables before brainstorming | Confirmed success criteria |
+| **4. Brainstorming** | Invoke brainstorming skill | Validated design (in conversation) |
+| **5. Design Documentation** | Invoke writing-design-plans skill | Committed design document |
+| **6. Planning Handoff** | Offer to invoke writing-plans skill | Implementation plan (optional) |
 
 ## The Process
 
@@ -31,9 +32,10 @@ Use TodoWrite to create todos for each phase:
 
 - Phase 1: Context Gathering (initial information collected)
 - Phase 2: Clarification (requirements disambiguated)
-- Phase 3: Brainstorming (design validated)
-- Phase 4: Design Documentation (design written to docs/design-plans/)
-- Phase 5: Planning Handoff (implementation plan offered/created)
+- Phase 3: Definition of Done (deliverables confirmed)
+- Phase 4: Brainstorming (design validated)
+- Phase 5: Design Documentation (design written to docs/design-plans/)
+- Phase 6: Planning Handoff (implementation plan offered/created)
 
 Mark each phase as in_progress when working on it, completed when finished.
 
@@ -89,15 +91,59 @@ The clarification skill will:
 - Clarify assumptions ("integrate with X" -> which version?)
 - Understand constraints ("must use Y" -> why?)
 
-**Output:** Clear understanding of what user means, ready for brainstorming.
+**Output:** Clear understanding of what user means, ready to confirm Definition of Done.
 
 Mark Phase 2 as completed when requirements are disambiguated.
 
-### Phase 3: Brainstorming
+### Phase 3: Definition of Done
 
-With clear understanding from Phase 2, explore design alternatives and validate the approach.
+Before brainstorming the *how*, lock in the *what*. Brainstorming explores texture and approach — it assumes the goal is already clear.
 
 Mark Phase 3 as in_progress in TodoWrite.
+
+**Synthesize the Definition of Done from context gathered so far:**
+
+From Phases 1-2 (Context Gathering and Clarification), you should be able to infer or extract:
+- What the deliverables are (what gets built/changed)
+- What success looks like (how we know it's done)
+- What's explicitly out of scope
+
+**If the Definition of Done is clear:**
+
+State it back to the user and confirm using AskUserQuestion:
+
+```
+Question: "Before we explore approaches, let me confirm what success looks like:"
+Options:
+  - "Yes, that's right" (Definition of Done is accurate)
+  - "Needs adjustment" (User will clarify what's missing or wrong)
+```
+
+Present the Definition of Done as a brief statement (2-4 sentences) covering:
+- Primary deliverable(s)
+- Success criteria
+- Key exclusions (if any were discussed)
+
+**If the Definition of Done is unclear:**
+
+Ask targeted questions to nail it down. Use AskUserQuestion when there are discrete options, or open-ended questions when you need the user to describe their vision.
+
+Examples of clarifying questions:
+- "What's the primary deliverable here — is it [X] or [Y]?"
+- "How will you know this is done? What would you test or demonstrate?"
+- "You mentioned [feature]. Is that in scope for this design, or a future addition?"
+
+**Do not proceed to brainstorming until Definition of Done is confirmed.**
+
+The Definition of Done will be included at the top of the design document for reviewer legibility.
+
+Mark Phase 3 as completed when user confirms the Definition of Done.
+
+### Phase 4: Brainstorming
+
+With clear understanding from Phases 1-3, explore design alternatives and validate the approach.
+
+Mark Phase 4 as in_progress in TodoWrite.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:brainstorming
 
@@ -106,6 +152,7 @@ Announce: "I'm using the brainstorming skill to explore design alternatives and 
 **Pass context to brainstorming:**
 - Information gathered in Phase 1
 - Clarifications from Phase 2
+- Confirmed Definition of Done from Phase 3
 - This reduces Phase 1 of brainstorming (Understanding) since much is already known
 
 The brainstorming skill will:
@@ -116,13 +163,13 @@ The brainstorming skill will:
 
 **Output:** Validated design held in conversation context.
 
-Mark Phase 3 as completed when design is validated.
+Mark Phase 4 as completed when design is validated.
 
-### Phase 4: Design Documentation
+### Phase 5: Design Documentation
 
 Write the validated design to a permanent, structured document.
 
-Mark Phase 4 as in_progress in TodoWrite.
+Mark Phase 5 as in_progress in TodoWrite.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:writing-design-plans
 
@@ -137,13 +184,13 @@ The writing-design-plans skill will:
 
 **Output:** Committed design document ready for implementation planning.
 
-Mark Phase 4 as completed when design document is committed.
+Mark Phase 5 as completed when design document is committed.
 
-### Phase 5: Planning Handoff
+### Phase 6: Planning Handoff
 
 After design is documented, guide user to create implementation plan in fresh context.
 
-Mark Phase 5 as in_progress in TodoWrite.
+Mark Phase 6 as in_progress in TodoWrite.
 
 **Do NOT create implementation plan directly.** The user needs to compact context first.
 
@@ -176,15 +223,17 @@ The start-implementation-plan command will create detailed tasks, set up a branc
 - /compact must run first to free up context
 - Implementation planning needs fresh context for codebase investigation
 
-Mark Phase 5 as completed after providing instructions.
+Mark Phase 6 as completed after providing instructions.
 
 ## When to Revisit Earlier Phases
 
 You can and should go backward when:
 - Phase 2 reveals fundamental gaps -> Return to Phase 1
-- Phase 3 uncovers new constraints -> Return to Phase 1 or 2
-- User questions approach during Phase 3 -> Return to Phase 2
-- Design documentation reveals missing details -> Return to Phase 3
+- Phase 3 reveals unclear deliverables -> Return to Phase 2 for more clarification
+- Phase 4 uncovers new constraints -> Return to Phase 1, 2, or 3
+- User questions approach during Phase 4 -> Return to Phase 2
+- Phase 4 changes the Definition of Done -> Return to Phase 3 to reconfirm
+- Design documentation reveals missing details -> Return to Phase 4
 
 **Don't force forward linearly** when going backward gives better results.
 
@@ -194,21 +243,23 @@ You can and should go backward when:
 |--------|---------|
 | "User provided details, can skip context gathering" | Always run Phase 1. Ask for what's missing. |
 | "Requirements are clear, skip clarification" | Clarification prevents misunderstandings. Always run Phase 2. |
-| "Simple idea, skip brainstorming" | Brainstorming explores alternatives. Always run Phase 3. |
-| "Design is in conversation, don't need documentation" | Documentation is contract with writing-implementation-plans. Always run Phase 4. |
+| "I know what done looks like, skip confirmation" | Confirm Definition of Done explicitly. Always run Phase 3. |
+| "Simple idea, skip brainstorming" | Brainstorming explores alternatives. Always run Phase 4. |
+| "Design is in conversation, don't need documentation" | Documentation is contract with writing-implementation-plans. Always run Phase 5. |
 | "Can invoke implementation planning directly" | Must compact first. Provide two-command workflow. |
-| "I can combine phases for efficiency" | Each phase has distinct purpose. Run all five. |
+| "I can combine phases for efficiency" | Each phase has distinct purpose. Run all six. |
 | "User knows what they want, less structure needed" | Structure ensures nothing is missed. Follow all phases. |
 
-**All of these mean: STOP. Run all five phases in order.**
+**All of these mean: STOP. Run all six phases in order.**
 
 ## Key Principles
 
 | Principle | Application |
 |-----------|-------------|
-| **Never skip brainstorming** | Even with detailed specs, always run Phase 3 (may be shorter) |
+| **Never skip brainstorming** | Even with detailed specs, always run Phase 4 (may be shorter) |
 | **Progressive prompting** | Ask for less if user already provided some context |
 | **Clarify before ideating** | Phase 2 prevents building the wrong thing |
+| **Lock in the goal before exploring** | Phase 3 confirms what "done" means before brainstorming the how |
 | **All brains in skills** | This skill orchestrates; sub-skills contain domain expertise |
-| **TodoWrite tracking** | YOU MUST create and update todos for all five phases |
+| **TodoWrite tracking** | YOU MUST create and update todos for all phases |
 | **Flexible progression** | Go backward when needed to fill gaps |
