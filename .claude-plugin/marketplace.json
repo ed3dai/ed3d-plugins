@@ -21,7 +21,7 @@
         {
             "name": "ed3d-plan-and-execute",
             "description": "Planning and execution workflows for Claude Code. Based on obra/superpowers.",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": "./plugins/ed3d-plan-and-execute",
             "author": {
                 "name": "Ed",

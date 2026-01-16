@@ -1,5 +1,19 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.3.0
+
+Adds legibility header to design plans for human reviewers.
+
+**New:**
+- **Phase 3: Definition of Done** — New checkpoint after clarification to confirm deliverables before brainstorming
+- **Legibility header** — Design plans now include Definition of Done, Summary, and Glossary sections at the top
+- **Subagent extraction** — Uses fresh-context subagent to generate legibility header after writing body
+- **Glossary transparency** — Subagent reports omitted "obvious" terms so user can request additions
+
+**Changed:**
+- Phases renumbered 1-6 (was 1, 2, 2b, 3, 4, 5)
+- Task invocations in skills now use XML block format
+
 ## ed3d-plan-and-execute 1.1.0
 
 Corrects design plan level of detail. These changes were a missed port from the internal plugin marketplace and were intended for 1.0.0. This release represents the plugin "as intended."

@@ -24,8 +24,28 @@ This format keeps the model on-rails better than fenced code blocks with plain t
 
 **Do not** write Task invocations as prose like "Use the Task tool with subagent_type X and prompt Y". Use the XML block format.
 
-### Version Updates Require Marketplace Sync
+### Version Updates Require Marketplace and Changelog Sync
 
-When updating a plugin's version in its `.claude-plugin/plugin.json`, you must also update the corresponding version in `.claude-plugin/marketplace.json` at the repo root.
+When updating a plugin's version in its `.claude-plugin/plugin.json`, you must also:
 
-Both files must stay in sync. The marketplace.json is the source of truth for plugin discovery.
+1. Update the corresponding version in `.claude-plugin/marketplace.json` at the repo root
+2. Add a changelog entry to `CHANGELOG.md` at the repo root
+
+Changelog entries go at the top (after the `# Changelog` heading) and follow the format:
+
+```markdown
+## [plugin-name] [version]
+
+Brief description of the release.
+
+**New:**
+- New features or additions
+
+**Changed:**
+- Modifications to existing behavior
+
+**Fixed:**
+- Bug fixes
+```
+
+Only include sections that apply. Keep entries concise.
