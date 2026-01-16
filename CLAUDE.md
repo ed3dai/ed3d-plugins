@@ -23,3 +23,9 @@ Can be multiple lines.
 This format keeps the model on-rails better than fenced code blocks with plain text descriptions.
 
 **Do not** write Task invocations as prose like "Use the Task tool with subagent_type X and prompt Y". Use the XML block format.
+
+### Version Updates Require Marketplace Sync
+
+When updating a plugin's version in its `.claude-plugin/plugin.json`, you must also update the corresponding version in `.claude-plugin/marketplace.json` at the repo root.
+
+Both files must stay in sync. The marketplace.json is the source of truth for plugin discovery.
