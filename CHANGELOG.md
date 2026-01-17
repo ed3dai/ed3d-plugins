@@ -11,6 +11,7 @@ Improves resolution of Definition of Done in design plans.
 
 **Fixed:**
 - Corrected stale skill name references ("subagent-driven-development", "executing-plans") to "executing-an-implementation-plan"
+- Reinforced that Minor issues from code review must be fixed (model was skipping them)
 
 ## ed3d-plan-and-execute 1.3.0
 
