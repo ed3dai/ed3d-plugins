@@ -190,7 +190,8 @@ That skill handles:
 
   Work from: [directory]
 
-  Fix ALL issues. The goal is zero issues on re-review.
+  Fix ALL issues — including every Minor issue. The goal is ZERO issues on re-review.
+  Minor issues are not optional. Do not skip them.
 </parameter>
 </invoke>
 ```
@@ -202,7 +203,9 @@ After bug-fixer completes, re-review per the `requesting-code-review` skill. Con
 - Ignore APPROVED/BLOCKED status - count issues only
 - **Three-strike rule:** If same issues persist after three review cycles, stop and ask human for help
 
-**Exit condition:** Zero issues in all categories.
+**Minor issues are NOT optional.** Do not rationalize skipping them with "they're just style issues" or "we can fix those later." The reviewer flagged them for a reason. Fix every single one.
+
+**Exit condition:** Zero issues in all categories — including Minor.
 
 **After review passes:** Mark task complete, proceed to next task.
 

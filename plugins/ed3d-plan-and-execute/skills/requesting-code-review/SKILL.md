@@ -101,7 +101,8 @@ Regardless of category (Critical, Important, or Minor), dispatch bug-fixer:
 
   Work from: [directory]
 
-  Fix ALL issues. The goal is zero issues on re-review.
+  Fix ALL issues — including every Minor issue. The goal is ZERO issues on re-review.
+  Minor issues are not optional. Do not skip them.
 </parameter>
 </invoke>
 ```
@@ -189,8 +190,11 @@ HEAD_SHA: [sha]
 
 **Never:**
 - Skip review because "it's simple"
-- Proceed with unfixed Critical issues
+- Proceed with ANY unfixed issues (Critical, Important, OR Minor)
 - Argue with valid technical feedback without evidence
+- Rationalize skipping Minor issues ("they're just style", "we can fix later")
+
+**Minor issues are NOT optional.** The code reviewer flagged them for a reason. Fix all of them. "Minor" means lower severity, not "ignorable."
 
 **If reviewer wrong:**
 - Push back with technical reasoning
