@@ -117,7 +117,30 @@ After planning is complete, hand off to execution.
 
 **Do NOT invoke execute-plan directly.** The user needs to /clear context first.
 
-Instead, provide copy-paste instructions:
+**Step 1: Capture and verify absolute paths**
+
+Before outputting the handoff instructions, you MUST run these commands to get real, verified paths:
+
+```bash
+# Get absolute path to current working tree root
+git rev-parse --show-toplevel
+```
+
+Capture this output as `WORKING_ROOT`.
+
+Then construct and verify the implementation plan path exists:
+
+```bash
+# Verify implementation plan directory exists
+# Replace YYYY-MM-DD-feature-name with the actual plan directory name
+ls -d "${WORKING_ROOT}/docs/implementation-plans/YYYY-MM-DD-feature-name"
+```
+
+**Both commands must succeed.** If the plan directory doesn't exist, something went wrong during planning — investigate before proceeding.
+
+**Step 2: Provide copy-paste instructions with verified absolute paths**
+
+Use the actual paths you captured and verified in Step 1. Example output:
 
 ```
 Implementation plan complete!
@@ -127,20 +150,21 @@ Ready to execute? This requires fresh context to work effectively.
 **IMPORTANT: Copy the command below BEFORE running /clear (it will erase this conversation).**
 
 (1) Copy this command now:
-```
-/ed3d-ed3d-plan-and-execute:execute-implementation-plan @docs/implementation-plans/YYYY-MM-DD-<feature-name> .
-```
-(the `.` at the end is necessary or else Claude Code will eat the command and do the wrong thing.)
+
+/execute-implementation-plan @/Users/ed/project/.worktrees/oauth2-feature/docs/implementation-plans/2025-01-17-oauth2-feature/ /Users/ed/project/.worktrees/oauth2-feature/
 
 (2) Clear your context:
-```
+
 /clear
-```
 
 (3) Paste and run the copied command.
 
 The execute-implementation-plan command will implement the plan task-by-task with code review between tasks.
 ```
+
+**Use the real paths from Step 1, not placeholders.** The example above shows the format — substitute your actual verified paths.
+
+**Why absolute paths:** After /clear, Claude Code returns to the original session directory (often the repo root, not the worktree). Absolute paths ensure execution happens in the correct directory regardless of where /clear returns.
 
 **Why /clear instead of continuing:**
 - Execution needs fresh context to work effectively
@@ -153,7 +177,10 @@ The execute-implementation-plan command will implement the plan task-by-task wit
 |---------|-----|
 | Invoking execute-implementation-plan directly | Provide copy-paste instructions instead |
 | Not warning user to copy command before /clear | Always warn: "Copy this BEFORE running /clear" |
-| Not specifying full path to plan | Include directory path (not phase_01.md — pass the directory so all phases execute) |
+| Using relative paths in handoff command | Run bash commands to get absolute paths, verify they exist |
+| Outputting placeholder paths like `[WORKING_ROOT]` | Output real paths from `git rev-parse --show-toplevel` and `ls -d` |
+| Not verifying plan directory exists | Always `ls -d` the full plan path before outputting command |
+| Passing phase_01.md instead of directory | Pass the directory so all phases execute |
 | Forgetting to mention /clear | Always tell user to /clear before execute |
 
 ## Integration with Workflow
@@ -177,7 +204,9 @@ Starting Implementation Plan (this skill)
     -> Write to docs/implementation-plans/
 
   -> Phase 3: Execution Handoff
-    -> Provide /execute-implementation-plan command (tell user to copy first)
+    -> Run `git rev-parse --show-toplevel` to get absolute working root
+    -> Verify plan directory exists with `ls -d`
+    -> Output command with verified absolute paths (tell user to copy first)
     -> Provide /clear command
     -> User copies command, clears, then pastes
 

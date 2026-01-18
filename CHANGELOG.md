@@ -1,5 +1,17 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.3.3
+
+Fixes execution handoff to use absolute paths, preventing wrong-directory issues after /clear.
+
+**Fixed:**
+- Execution handoff now captures absolute paths via `git rev-parse --show-toplevel` and verifies plan directory exists before outputting command
+- After `/clear`, users land in the original session directory (often repo root, not worktree) — absolute paths ensure execution happens in the correct directory regardless
+
+**Changed:**
+- `/execute-implementation-plan` command now accepts two arguments: `[absolute-plan-dir]` and `[absolute-working-dir]`
+- Command verifies both paths exist and changes to working directory before engaging skill
+
 ## ed3d-plan-and-execute 1.3.2
 
 Fixes execution handoff to pass plan directory instead of single phase file.
