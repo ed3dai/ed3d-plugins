@@ -23,15 +23,15 @@ Transform rough ideas into fully-formed designs through structured questioning a
 
 ## The Process
 
-**REQUIRED: Create TodoWrite tracker at start**
+**REQUIRED: Create task tracker at start**
 
-Use TodoWrite to create todos for each phase:
+Use TaskCreate to create todos for each phase (or TodoWrite in older Claude Code versions):
 
 - Phase 1: Understanding (purpose, constraints, criteria gathered)
 - Phase 2: Exploration (2-3 approaches proposed and evaluated)
 - Phase 3: Design Presentation (design validated in sections)
 
-Mark each phase as in_progress when working on it, completed when finished.
+Use TaskUpdate to mark each phase as in_progress when working on it, completed when finished (or TodoWrite in older versions).
 
 ## Research Agents
 
@@ -125,7 +125,7 @@ Then use WebFetch to read the official docs
    - Review investigator's findings before proceeding
 
 2. **Then gather requirements:**
-   - Mark Phase 1 as in_progress in TodoWrite
+   - Use TaskUpdate to mark Phase 1 as in_progress
    - Ask ONE question at a time to refine the idea
    - **Use AskUserQuestion tool** when you have multiple choice options
    - **Use agents** when you need to verify technical information
@@ -198,7 +198,7 @@ No reasonably secure system would do either options #2 or #3. The way this quest
    - Review research findings before proposing
 
 2. **Then propose approaches:**
-   - Mark Phase 2 as in_progress in TodoWrite
+   - Use TaskUpdate to mark Phase 2 as in_progress
    - Propose 2-3 different approaches based on research
    - At least one approach should follow codebase patterns (if they exist)
    - For each: Core architecture, trade-offs, complexity assessment
@@ -221,7 +221,7 @@ Options:
 
 ## Phase 3: Design Presentation
 
-- Mark Phase 3 as in_progress in TodoWrite
+- Use TaskUpdate to mark Phase 3 as in_progress
 - Present in 200-300 word sections
 - Cover: Architecture, components, data flow, error handling, testing
 - **Use research agents if you need to verify technical details during presentation**
@@ -319,7 +319,7 @@ These are violations of the skill requirements:
 | "Idea is simple, can skip exploring alternatives" | Always propose 2-3 approaches. Comparison reveals issues. |
 | "Partner knows what they want, can skip questions" | Questions reveal hidden constraints. Always ask. |
 | "I'll present whole design at once for efficiency" | Incremental validation catches problems early. |
-| "Checklist is just a suggestion" | Create TodoWrite todos. Track progress properly. |
+| "Checklist is just a suggestion" | Create task todos with TaskCreate. Track progress properly. |
 | "I can research this quickly myself" | Use agents or web tools. You'll hallucinate or consume excessive context. |
 | "Agent didn't find it on first try, must not exist" | Be persistent. Refine query and try again. |
 | "Partner said yes, done with brainstorming" | Design is in conversation. Next step is documentation. |
@@ -342,7 +342,7 @@ These are violations of the skill requirements:
 | **YAGNI ruthlessly** | Remove unnecessary features from all designs |
 | **Explore alternatives** | YOU MUST propose 2-3 approaches before settling |
 | **Incremental validation** | Present design in sections, validate each - never all at once |
-| **TodoWrite tracking** | YOU MUST create TodoWrite todos at start, update as you progress |
+| **Task tracking** | YOU MUST create task todos at start with TaskCreate, update with TaskUpdate as you progress (or TodoWrite in older versions) |
 | **Flexible progression** | Go backward when needed - flexibility > rigidity |
 | **Internet research matters** | Use research agents or web tools for external knowledge and current information |
 

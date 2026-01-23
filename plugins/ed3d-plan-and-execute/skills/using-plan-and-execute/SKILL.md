@@ -1,6 +1,6 @@
 ---
 name: using-plan-and-execute
-description: Use when starting any conversation - establishes mandatory workflows for finding and using skills, including using Read tool before announcing usage, following brainstorming before coding, and creating TodoWrite todos for checklists
+description: Use when starting any conversation - establishes mandatory workflows for finding and using skills, including using Read tool before announcing usage, following brainstorming before coding, and creating task todos for checklists
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -48,7 +48,7 @@ If a skill for your task exists, you must use it or you will fail at your task.
 
 ## Skills with Checklists
 
-If a skill has a checklist, YOU MUST create TodoWrite todos for EACH item.
+If a skill has a checklist, YOU MUST create task todos for EACH item using TaskCreate (or TodoWrite in older Claude Code versions).
 
 **Don't:**
 - Work through checklist mentally
@@ -56,7 +56,7 @@ If a skill has a checklist, YOU MUST create TodoWrite todos for EACH item.
 - Batch multiple items into one todo
 - Mark complete without doing them
 
-**Why:** Checklists without TodoWrite tracking = steps get skipped. Every time. The overhead of TodoWrite is tiny compared to the cost of missing steps.
+**Why:** Checklists without task tracking = steps get skipped. Every time. The overhead of task management is tiny compared to the cost of missing steps.
 
 ## Announcing Skill Usage
 
@@ -94,6 +94,6 @@ Your human partner's specific instructions describe WHAT to do, not HOW.
 3. Announce you're using it
 4. Follow what it says
 
-**Skill has checklist?** TodoWrite for every item.
+**Skill has checklist?** TaskCreate for every item (or TodoWrite in older versions).
 
 **Finding a relevant skill = mandatory to read and use it. Not optional.**

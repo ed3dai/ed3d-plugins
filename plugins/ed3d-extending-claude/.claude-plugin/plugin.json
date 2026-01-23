@@ -1,7 +1,7 @@
 {
     "name": "ed3d-extending-claude",
     "description": "Knowledge skills for extending Claude Code: creating plugins, commands, agents, skills, hooks, and MCP servers",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": {
         "name": "Ed",
         "email": "ed@ed3d.net"

@@ -68,7 +68,7 @@ head -10 [plan-directory]/phase_01.md
 grep -E "START_TASK_|START_SUBCOMPONENT_" [plan-directory]/phase_01.md
 ```
 
-The header includes the title (`# [Phase Title]`) and `**Goal:**` line. Extract the title for the TodoWrite entry.
+The header includes the title (`# [Phase Title]`) and `**Goal:**` line. Extract the title for the task entry.
 
 The grep output shows the task structure, e.g.:
 ```
@@ -84,9 +84,9 @@ Examples of headers you might see:
 - `# Document Infrastructure Implementation Plan` — Phase 1 implied
 - `# Phase 4: Link Resolution` — Phase number explicit
 
-### 2. Create Phase-Level TodoWrite
+### 2. Create Phase-Level Task List
 
-Create TodoWrite with **three entries per phase**. Include the title from the header:
+Use TaskCreate to create **three task entries per phase** (or TodoWrite in older Claude Code versions). Include the title from the header:
 
 ```
 - [ ] Phase 1a: Read /absolute/path/to/phase_01.md — Document Infrastructure Implementation Plan
@@ -98,7 +98,7 @@ Create TodoWrite with **three entries per phase**. Include the title from the he
 ...
 ```
 
-**Why absolute paths in TodoWrite:** After compaction, context may be summarized. The absolute path in the todo item ensures you always know exactly which file to read.
+**Why absolute paths in task entries:** After compaction, context may be summarized. The absolute path in the task entry ensures you always know exactly which file to read.
 
 **Why include the title:** Gives visibility into what each phase covers without loading full content.
 
@@ -327,7 +327,7 @@ You: I'm using the `executing-an-implementation-plan` skill.
 [Discover phases: phase_01.md, phase_02.md, phase_03.md]
 [Read first 3 lines of each to get titles]
 
-[Create TodoWrite:]
+[Create tasks with TaskCreate:]
 - [ ] Phase 1a: Read /path/to/phase_01.md — Project Setup
 - [ ] Phase 1b: Execute tasks
 - [ ] Phase 1c: Code review

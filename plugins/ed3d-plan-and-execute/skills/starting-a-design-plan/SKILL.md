@@ -26,9 +26,9 @@ Orchestrate the complete design workflow from initial idea to implementation-rea
 
 ## The Process
 
-**REQUIRED: Create TodoWrite tracker at start**
+**REQUIRED: Create task tracker at start**
 
-Use TodoWrite to create todos for each phase:
+Use TaskCreate to create todos for each phase (or TodoWrite in older Claude Code versions):
 
 - Phase 1: Context Gathering (initial information collected)
 - Phase 2: Clarification (requirements disambiguated)
@@ -37,13 +37,13 @@ Use TodoWrite to create todos for each phase:
 - Phase 5: Design Documentation (design written to docs/design-plans/)
 - Phase 6: Planning Handoff (implementation plan offered/created)
 
-Mark each phase as in_progress when working on it, completed when finished.
+Use TaskUpdate to mark each phase as in_progress when working on it, completed when finished (or TodoWrite in older versions).
 
 ### Phase 1: Context Gathering
 
 **Never skip this phase.** Even if the user provides detailed information, ask for anything missing.
 
-Mark Phase 1 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 1 as in_progress.
 
 **Ask the user to provide (freeform, not AskUserQuestion):**
 
@@ -78,7 +78,7 @@ Mark Phase 1 as completed when you have initial context.
 
 ### Phase 2: Clarification
 
-Mark Phase 2 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 2 as in_progress.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:asking-clarifying-questions
 
@@ -99,7 +99,7 @@ Mark Phase 2 as completed when requirements are disambiguated.
 
 Before brainstorming the *how*, lock in the *what*. Brainstorming explores texture and approach — it assumes the goal is already clear.
 
-Mark Phase 3 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 3 as in_progress.
 
 **Synthesize the Definition of Done from context gathered so far:**
 
@@ -170,7 +170,7 @@ Mark Phase 3 as completed when user confirms the Definition of Done AND the file
 
 With clear understanding from Phases 1-3, explore design alternatives and validate the approach.
 
-Mark Phase 4 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 4 as in_progress.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:brainstorming
 
@@ -196,7 +196,7 @@ Mark Phase 4 as completed when design is validated.
 
 Append the validated design to the document created in Phase 3.
 
-Mark Phase 5 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 5 as in_progress.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:writing-design-plans
 
@@ -224,7 +224,7 @@ Mark Phase 5 as completed when design document is committed.
 
 After design is documented, guide user to create implementation plan in fresh context.
 
-Mark Phase 6 as in_progress in TodoWrite.
+Use TaskUpdate to mark Phase 6 as in_progress.
 
 **Do NOT create implementation plan directly.** The user needs to /clear context first.
 
@@ -296,5 +296,5 @@ You can and should go backward when:
 | **Clarify before ideating** | Phase 2 prevents building the wrong thing |
 | **Lock in the goal before exploring** | Phase 3 confirms what "done" means before brainstorming the how |
 | **All brains in skills** | This skill orchestrates; sub-skills contain domain expertise |
-| **TodoWrite tracking** | YOU MUST create and update todos for all phases |
+| **Task tracking** | YOU MUST create todos with TaskCreate and update with TaskUpdate for all phases (or TodoWrite in older versions) |
 | **Flexible progression** | Go backward when needed to fill gaps |

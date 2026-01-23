@@ -1,5 +1,29 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.5.1
+
+Updates task tracking references for compatibility with new Claude Code task system.
+
+**Changed:**
+- All references to `TodoWrite` now prefer `TaskCreate`/`TaskUpdate`/`TaskList` (the new task tools in Claude Code)
+- Backwards-compatibility notes added for older Claude Code versions that still use `TodoWrite`
+
+## ed3d-extending-claude 1.0.1
+
+Updates task tracking references for compatibility with new Claude Code task system.
+
+**Changed:**
+- Tool tables and examples now reference `TaskCreate`/`TaskUpdate` instead of `TodoWrite`
+- Backwards-compatibility notes added for older Claude Code versions
+
+## ed3d-house-style 1.0.1
+
+Updates task tracking references for compatibility with new Claude Code task system.
+
+**Changed:**
+- Persuasion principles documentation now references `TaskCreate`/`TaskUpdate` instead of `TodoWrite`
+- Backwards-compatibility notes added for older Claude Code versions
+
 ## ed3d-plan-and-execute 1.5.0
 
 Promotes experimental execution workflow to stable.

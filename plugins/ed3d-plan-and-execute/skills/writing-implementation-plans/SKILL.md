@@ -327,9 +327,9 @@ When tasks form a logical subcomponent (e.g., types → implementation → tests
 
 **Workflow depends on review mode selected above.**
 
-**Step 0: Create TodoWrite tracker**
+**Step 0: Create task tracker**
 
-After verifying scope (≤8 phases), create a TodoWrite todo list with one item per phase:
+After verifying scope (≤8 phases), use TaskCreate to create a todo list with one item per phase (or TodoWrite in older Claude Code versions):
 
 ```markdown
 - [ ] Phase 1: [Phase Name]
@@ -338,7 +338,7 @@ After verifying scope (≤8 phases), create a TodoWrite todo list with one item 
 ...
 ```
 
-Mark each phase as in_progress when working on it, completed when written to disk.
+Use TaskUpdate to mark each phase as in_progress when working on it, completed when written to disk (or TodoWrite in older versions).
 
 ---
 
@@ -346,7 +346,7 @@ Mark each phase as in_progress when working on it, completed when written to dis
 
 **Workflow for EACH phase:**
 
-1. **Mark phase as in_progress** in TodoWrite
+1. **Use TaskUpdate to mark phase as in_progress**
 2. **Read design phase** from original plan
 3. **Verify codebase state** for files mentioned in this phase:
    - Dispatch codebase-investigator with design assumptions for this phase
@@ -410,7 +410,7 @@ Mark each phase as in_progress when working on it, completed when written to dis
 7. **If approved:**
    - Write to `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
    - Plan document contains ONLY the implementation tasks (no verification findings)
-   - Mark phase as completed in TodoWrite, continue to next phase
+   - Use TaskUpdate to mark phase as completed, continue to next phase
 8. **If needs revision:** Keep as in_progress, revise based on feedback, present again
 
 ---
@@ -419,7 +419,7 @@ Mark each phase as in_progress when working on it, completed when written to dis
 
 **Workflow for EACH phase:**
 
-1. **Mark phase as in_progress** in TodoWrite
+1. **Use TaskUpdate to mark phase as in_progress**
 2. **Read design phase** from original plan
 3. **Verify codebase state** for files mentioned in this phase:
    - Dispatch codebase-investigator with design assumptions for this phase
@@ -429,7 +429,7 @@ Mark each phase as in_progress when working on it, completed when written to dis
    - Escalate to remote-code-researcher if docs are insufficient
 5. **Write implementation tasks** for this phase based on actual codebase state and external research
 6. **Write directly to disk** at `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
-7. **Mark phase as completed** in TodoWrite, continue to next phase
+7. **Use TaskUpdate to mark phase as completed**, continue to next phase
 
 **Do NOT emit phase content to the user before writing.** This conserves tokens.
 
@@ -619,17 +619,17 @@ Which approach should I take?
 **Before starting:**
 - [ ] Count phases - refuse if >8
 - [ ] Ask user for review mode (batch vs interactive)
-- [ ] Create TodoWrite with all phases
+- [ ] Create task list with TaskCreate for all phases
 
 **For each phase:**
-- [ ] Mark phase as in_progress in TodoWrite
+- [ ] Use TaskUpdate to mark phase as in_progress
 - [ ] Dispatch codebase-investigator with design assumptions for this phase
 - [ ] **If phase involves external dependencies:** Research them (internet-researcher first, escalate to remote-code-researcher if needed)
 - [ ] Write complete tasks with exact paths and code based on investigator and research findings
 - [ ] **If interactive mode:** Output complete phase plan, use AskUserQuestion for approval
 - [ ] **If batch mode:** Skip user presentation, write directly to disk
 - [ ] Write plan to `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
-- [ ] Mark phase as completed in TodoWrite
+- [ ] Use TaskUpdate to mark phase as completed
 
 **For each task:**
 - [ ] Exact file paths with line numbers for modifications
