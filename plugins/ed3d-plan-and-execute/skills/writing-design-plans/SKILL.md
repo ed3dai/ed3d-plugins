@@ -112,8 +112,11 @@ The file is created by starting-a-design-plan Phase 3. This skill appends to tha
 
 ## Implementation Phases
 
-Break implementation into discrete phases (<=8 recommended):
+Break implementation into discrete phases (<=8 recommended).
 
+**REQUIRED: Wrap each phase in HTML comment markers:**
+
+<!-- START_PHASE_1 -->
 ### Phase 1: [Name]
 **Goal:** What this phase achieves
 
@@ -122,11 +125,16 @@ Break implementation into discrete phases (<=8 recommended):
 **Dependencies:** What must exist first
 
 **Done when:** How to verify this phase is complete (see Phase Verification below)
+<!-- END_PHASE_1 -->
 
+<!-- START_PHASE_2 -->
 ### Phase 2: [Name]
 [Same structure]
+<!-- END_PHASE_2 -->
 
 ...continue for each phase...
+
+**Why markers:** These enable writing-implementation-plans to parse phases individually, reducing context usage and enabling granular task tracking across compaction boundaries.
 
 ## Additional Considerations
 [Error handling, edge cases, future extensibility - only if relevant]
@@ -177,7 +185,8 @@ See "After Writing: Generating Summary and Glossary" below for the extraction pr
 
 Good structure (component-level):
 ```
-Phase 2: Core Services
+<!-- START_PHASE_2 -->
+### Phase 2: Core Services
 **Goal:** Token generation and session management
 
 **Components:**
@@ -188,6 +197,7 @@ Phase 2: Core Services
 **Dependencies:** Phase 1 (project setup)
 
 **Done when:** Token generation/validation works, sessions can be created/invalidated, all tests pass
+<!-- END_PHASE_2 -->
 ```
 
 Bad structure (task-level — this belongs in implementation plans):
@@ -232,6 +242,7 @@ Good Phase definitions:
 
 **Infrastructure phase example:**
 ```markdown
+<!-- START_PHASE_1 -->
 ### Phase 1: Project Setup
 **Goal:** Initialize project structure and dependencies
 
@@ -243,10 +254,12 @@ Good Phase definitions:
 **Dependencies:** None (first phase)
 
 **Done when:** `npm install` succeeds, `npm run build` succeeds
+<!-- END_PHASE_1 -->
 ```
 
 **Functionality phase example:**
 ```markdown
+<!-- START_PHASE_2 -->
 ### Phase 2: Token Generation Service
 **Goal:** JWT token generation and validation for service-to-service auth
 
@@ -257,6 +270,7 @@ Good Phase definitions:
 **Dependencies:** Phase 1 (project setup)
 
 **Done when:** Tokens can be generated, validated, and rejected when invalid/expired
+<!-- END_PHASE_2 -->
 ```
 
 Bad Phase definitions:
@@ -525,6 +539,7 @@ EOF
 | "We'll add tests after the code works" | Phase isn't done until its tests pass. Tests are deliverables, not afterthoughts. |
 | "Infrastructure needs unit tests too" | No. Infrastructure verified operationally. Don't over-engineer. |
 | "Phase 3 tests will cover Phase 2 code" | Each phase tests its own deliverables. Later phases may extend tests, but don't defer. |
+| "Phase markers are just noise" | Markers enable granular parsing. Implementation planning depends on them. Always include. |
 
 **All of these mean: STOP. Follow the structure exactly.**
 

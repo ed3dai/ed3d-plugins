@@ -1,5 +1,30 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.6.0
+
+Adds granular task tracking to implementation plan writing to survive context compaction.
+
+**New in `writing-implementation-plans`:**
+- **Granular per-phase tasks:** Instead of one task per phase, now creates sub-tasks for each step:
+  - Phase NA: Read `<!-- START_PHASE_N -->` section from design plan
+  - Phase NB: Dispatch codebase-investigator to verify current state
+  - Phase NC: Research external dependencies (if applicable)
+  - Phase ND: Write phase file to disk
+- **Finalization task:** Explicitly states "fix ALL issues including minor ones" — model cannot rationalize skipping minor issues
+- **Plan validation as tracked task:** Must complete with zero issues before handoff
+
+**New in `writing-design-plans`:**
+- **Phase markers:** Design plans now require `<!-- START_PHASE_N -->` / `<!-- END_PHASE_N -->` markers around each implementation phase, enabling granular parsing
+
+**New in `starting-an-implementation-plan`:**
+- **Orchestration tasks:** Now tracks Branch setup, Create implementation plan, Re-read skill, Execution handoff
+- **Restore context step:** Re-reads skill before handoff to restore instructions post-compaction
+- **Terminology clarification:** Renamed "Phase 1/2/3" to descriptive names (Branch Setup, Planning, Execution Handoff) to avoid confusion with implementation plan phases
+
+**Fixed:**
+- Code reviewer step was being forgotten after compaction — now tracked as explicit Finalization task
+- Minor issues were being skipped — task text now makes fixing them mandatory
+
 ## ed3d-plan-and-execute 1.5.1
 
 Updates task tracking references for compatibility with new Claude Code task system.

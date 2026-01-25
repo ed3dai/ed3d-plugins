@@ -31,13 +31,28 @@ If `docs/design-plans/` doesn't exist or is empty, ask the user to provide the p
 
 ## The Process
 
-This skill has three phases:
+This skill has three steps:
 
 1. **Branch Setup:** Select and create branch for implementation
 2. **Planning:** Create detailed implementation plan
 3. **Execution Handoff:** Direct user to execute the plan
 
-### Phase 1: Branch Setup
+**Step 0: Create orchestration task tracker**
+
+Use TaskCreate to track the orchestration steps:
+
+```markdown
+- [ ] Branch setup
+- [ ] Create implementation plan
+- [ ] Re-read starting-an-implementation-plan skill (restore context)
+- [ ] Execution handoff
+```
+
+The "Create implementation plan" task wraps the granular tasks created by writing-implementation-plans. The "Re-read skill" step ensures context is restored after potential compaction before handoff.
+
+### Branch Setup
+
+Mark "Branch setup" task as in_progress.
 
 Before planning, set up the branch and workspace for implementation work.
 
@@ -94,9 +109,11 @@ Options:
    - Announce: "Created and checked out branch `[branch-name]` from `origin/[main-or-master]`"
 4. **If branch creation fails:** Report error to user and ask if they want to use current branch instead
 
-**THEN proceed to Phase 2.**
+Mark "Branch setup" task as completed. **THEN proceed to Planning.**
 
-### Phase 2: Planning
+### Planning
+
+Mark "Create implementation plan" task as in_progress.
 
 **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:writing-implementation-plans
 
@@ -111,7 +128,30 @@ The writing-implementation-plans skill will:
 
 **Output:** Complete implementation plan written to files, on appropriate branch.
 
-### Phase 3: Execution Handoff
+Mark "Create implementation plan" task as completed.
+
+### Restore Context (Before Handoff)
+
+Mark "Re-read starting-an-implementation-plan skill (restore context)" task as in_progress.
+
+**CRITICAL: Re-read this skill before proceeding to handoff.**
+
+After potentially long planning work (especially if context compaction occurred), re-read this skill file to ensure you have accurate instructions for the execution handoff:
+
+```bash
+# Re-read this skill to restore context
+cat /path/to/plugins/ed3d-plan-and-execute/skills/starting-an-implementation-plan/SKILL.md
+```
+
+Or use the Read tool on the skill file path.
+
+**Why this matters:** After compaction, you may have lost details about the handoff process. Re-reading ensures you provide correct absolute paths and instructions.
+
+Mark "Re-read starting-an-implementation-plan skill" task as completed.
+
+### Execution Handoff
+
+Mark "Execution handoff" task as in_progress.
 
 After planning is complete, hand off to execution.
 
@@ -171,6 +211,8 @@ The execute-implementation-plan command will implement the plan task-by-task wit
 - Long conversations accumulate context that degrades quality
 - /clear gives the execution phase a clean slate
 
+Mark "Execution handoff" task as completed.
+
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -182,6 +224,8 @@ The execute-implementation-plan command will implement the plan task-by-task wit
 | Not verifying plan directory exists | Always `ls -d` the full plan path before outputting command |
 | Passing phase_01.md instead of directory | Pass the directory so all phases execute |
 | Forgetting to mention /clear | Always tell user to /clear before execute |
+| Skipping "Re-read skill" step before handoff | Always re-read this skill to restore context post-compaction |
+| Not creating orchestration tasks at start | Create Branch setup, Planning, Re-read, Handoff tasks in Step 0 |
 
 ## Integration with Workflow
 
@@ -192,23 +236,32 @@ Design Plan (in docs/design-plans/)
   -> User runs /start-implementation-plan with design path
 
 Starting Implementation Plan (this skill)
-  -> Phase 1: Branch Setup
-    -> Ask if user wants worktree
-    -> If yes: invoke using-git-worktrees, create at .worktrees/[friendly-name]
-    -> If no: ask which branch, create branch from main/master if needed
+  -> Step 0: Create orchestration tasks
+    -> [ ] Branch setup
+    -> [ ] Create implementation plan
+    -> [ ] Re-read skill (restore context)
+    -> [ ] Execution handoff
 
-  -> Phase 2: Planning
+  -> Branch Setup [tracked task]
+    -> Ask if user wants worktree
+    -> If yes: invoke using-git-worktrees
+    -> If no: ask which branch, create if needed
+
+  -> Planning [tracked task wrapping granular tasks]
     -> Invoke writing-implementation-plans
-    -> Detailed task planning
-    -> Phase-by-phase validation
+    -> Creates granular tasks per phase (NA, NB, NC, ND)
+    -> Creates Finalization task (code review, fix ALL issues)
     -> Write to docs/implementation-plans/
 
-  -> Phase 3: Execution Handoff
-    -> Run `git rev-parse --show-toplevel` to get absolute working root
-    -> Verify plan directory exists with `ls -d`
-    -> Output command with verified absolute paths (tell user to copy first)
+  -> Restore Context [tracked task]
+    -> Re-read this skill file
+    -> Ensures handoff instructions are accurate post-compaction
+
+  -> Execution Handoff [tracked task]
+    -> Run `git rev-parse --show-toplevel` for absolute paths
+    -> Verify plan directory exists
+    -> Output command with verified absolute paths
     -> Provide /clear command
-    -> User copies command, clears, then pastes
 
 Execute Implementation Plan (next step)
   -> Reads implementation plan
@@ -216,4 +269,4 @@ Execute Implementation Plan (next step)
   -> Code review between tasks
 ```
 
-**Purpose:** Bridge design and execution with appropriate branch isolation and context management.
+**Purpose:** Bridge design and execution with appropriate branch isolation, granular task tracking that survives compaction, and context restoration.
