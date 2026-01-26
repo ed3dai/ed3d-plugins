@@ -1,5 +1,12 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.8.0
+
+Per-phase code reviews now use project-specific implementation guidance.
+
+**Changed:**
+- `executing-an-implementation-plan`: Per-phase code reviews now receive the `.ed3d/implementation-plan-guidance.md` file (when it exists) so reviewers apply project-specific coding standards, testing requirements, and review criteria during each phase—not just during the final all-phases review
+
 ## ed3d-plan-and-execute 1.7.2
 
 - `/how-to-customize` given more specific instructions to actually repeat the information verbatim.
