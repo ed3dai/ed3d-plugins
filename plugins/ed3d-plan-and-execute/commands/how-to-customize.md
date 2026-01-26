@@ -2,6 +2,8 @@
 description: Explains how to customize design and implementation plans with project-specific guidance
 ---
 
+Read back the below information EXACTLY AND VERBATIM. Do not summarize.
+
 # Customizing Plan-and-Execute
 
 You can provide project-specific guidance that shapes how design and implementation plans are created for your project.
