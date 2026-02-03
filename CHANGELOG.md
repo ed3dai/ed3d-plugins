@@ -1,5 +1,12 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.9.4
+
+Activates relevant skills during implementation planning based on technology stack.
+
+**Changed:**
+- `writing-implementation-plans`: After codebase investigation, activate skills matching the technologies involved (TypeScript, React, database, etc.) if not already active
+
 ## ed3d-plan-and-execute 1.9.3
 
 Adds guidance to prevent over-testing and testing implementation details.
