@@ -95,6 +95,17 @@ ls [project-root]/.ed3d/implementation-plan-guidance.md
 
 If the file exists, note its **absolute path** for use during code reviews. If it doesn't exist, proceed without it—do not pass a nonexistent path to reviewers.
 
+**Check for test requirements:**
+
+Check if `test-requirements.md` exists in the plan directory:
+
+```bash
+# Check for test requirements (note the absolute path for later use)
+ls [plan-directory]/test-requirements.md
+```
+
+If the file exists, note its **absolute path** for use during final review. The test requirements document specifies what automated tests must exist for each acceptance criterion.
+
 ### 2. Create Phase-Level Task List
 
 Use TaskCreate to create **three task entries per phase** (or TodoWrite in older Claude Code versions). Include the title from the header:
@@ -220,6 +231,8 @@ Mark "Phase Nc: Code review" as in_progress.
 
 The implementation guidance file contains project-specific coding standards, testing requirements, and review criteria. When provided, the code reviewer should read it and apply those standards during review.
 
+**Note:** Test requirements validation happens at final review, not per-phase. Per-phase reviews focus on code quality and whether the phase includes tests for its functionality.
+
 **If code reviewer returns a context limit error:**
 
 The phase changed too much for a single review. Chunk the review:
@@ -308,14 +321,110 @@ After all phases complete, invoke the `ed3d-extending-claude:project-claude-libr
 **If librarian reports no updates needed:** Proceed to final review.
 **If librarian subagent is unavailable:** skip this entire step. Say aloud that you're skipping it because the `ed3d-extending-claude` plugin is not available.
 
-### 5. Final Review
+### 5. Final Review Sequence
 
-After all phases complete, use the `requesting-code-review` skill for final review:
-- Reviews entire implementation
-- Checks all plan requirements met
-- Validates overall architecture
+After all phases complete, run a sequence of specialized agents:
+
+```
+Code Review → Test Analysis (Coverage + Plan)
+```
+
+#### 5a. Final Code Review
+
+Use the `requesting-code-review` skill for final code review:
+
+**Context to provide:**
+- WHAT_WAS_IMPLEMENTED: Summary of all phases completed
+- PLAN_OR_REQUIREMENTS: Reference to the full implementation plan directory
+- BASE_SHA: commit before first phase started
+- HEAD_SHA: current commit
+- IMPLEMENTATION_GUIDANCE: absolute path (if exists)
 
 Continue the review loop until zero issues remain.
+
+#### 5b. Test Analysis
+
+**Only after final code review passes with zero issues.**
+
+**Skip this step if test-requirements.md does not exist.**
+
+The test-analyst agent performs two sequential tasks with shared analysis:
+1. Validate coverage against acceptance criteria
+2. Generate human test plan (only if coverage passes)
+
+Dispatch the test-analyst agent:
+
+```
+<invoke name="Task">
+<parameter name="subagent_type">ed3d-plan-and-execute:test-analyst</parameter>
+<parameter name="description">Analyzing test coverage and generating test plan</parameter>
+<parameter name="prompt">
+Analyze test implementation against acceptance criteria.
+
+TEST_REQUIREMENTS_PATH: [absolute path to test-requirements.md]
+WORKING_DIRECTORY: [project root]
+BASE_SHA: [commit before first phase]
+HEAD_SHA: [current commit]
+
+Phase 1: Validate that automated tests exist for all acceptance criteria.
+Phase 2: If coverage passes, generate human test plan using your analysis.
+
+Return coverage validation result. If PASS, include the human test plan.
+</parameter>
+</invoke>
+```
+
+**If analyst returns coverage FAIL:**
+
+1. Dispatch bug-fixer to add missing tests:
+   ```
+   <invoke name="Task">
+   <parameter name="subagent_type">ed3d-plan-and-execute:task-bug-fixer</parameter>
+   <parameter name="description">Adding missing test coverage</parameter>
+   <parameter name="prompt">
+   Add missing tests identified by the test analyst.
+
+   Missing coverage:
+   [list from analyst output]
+
+   For each missing test:
+   1. Read the acceptance criterion carefully
+   2. Create the test file at the expected location
+   3. Write tests that verify the criterion's actual behavior—not just code that passes, but code that would fail if the criterion weren't met
+   4. Run tests to confirm they pass
+   5. Commit the new tests
+
+   Work from: [directory]
+   </parameter>
+   </invoke>
+   ```
+
+2. Re-run test-analyst
+3. Repeat until coverage PASS or three attempts fail (then escalate to human)
+
+**If analyst returns coverage PASS:**
+
+The response will include the human test plan. Extract the "Human Test Plan" section.
+
+**Write the test plan:**
+
+```bash
+# Create test-plans directory if needed
+mkdir -p docs/test-plans
+
+# The filename uses the implementation plan directory name
+# e.g., impl plan dir: docs/implementation-plans/2025-01-24-oauth/
+#       test plan:     docs/test-plans/2025-01-24-oauth.md
+```
+
+Write the test plan content to `docs/test-plans/[impl-plan-dir-name].md`, then commit:
+
+```bash
+git add docs/test-plans/[impl-plan-dir-name].md
+git commit -m "docs: add test plan for [feature name]"
+```
+
+Announce: "Human test plan written to `docs/test-plans/[impl-plan-dir-name].md`"
 
 ### 6. Complete Development
 

@@ -1,5 +1,25 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.9.0
+
+Adds test planning workflow: acceptance criteria, test requirements, and human test plans.
+
+**New:**
+- **Acceptance Criteria** in design plans — Definition of Done translated into specific, verifiable criteria; human validates before design documentation completes
+- **Test Requirements** in implementation plans — Acceptance criteria mapped to automated tests (with expected file paths) or documented as requiring human verification; written to `test-requirements.md`
+- **test-analyst agent** — Validates test coverage against acceptance criteria after final code review; generates human test plan when coverage passes
+- **Human Test Plans** — Written to `docs/test-plans/[design-plan-name].md` with specific verification steps, end-to-end scenarios, and traceability to Definition of Done
+
+**Changed:**
+- `writing-design-plans`: New section for generating and validating Acceptance Criteria after Implementation Phases
+- `writing-implementation-plans`: New Test Requirements task after Finalization; Opus subagent generates `test-requirements.md`
+- `executing-an-implementation-plan`: Final review sequence now includes test-analyst for coverage validation and test plan generation
+
+**Test traceability chain:**
+```
+Definition of Done → Acceptance Criteria → Test Requirements → Automated Tests → Human Test Plan
+```
+
 ## ed3d-plan-and-execute 1.8.0
 
 Per-phase code reviews now use project-specific implementation guidance.

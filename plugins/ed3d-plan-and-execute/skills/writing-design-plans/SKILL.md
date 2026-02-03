@@ -140,9 +140,14 @@ Break implementation into discrete phases (<=8 recommended).
 [Error handling, edge cases, future extensibility - only if relevant]
 
 [Don't include hypothetical "nice to have" features]
+
+## Acceptance Criteria
+[Generated from Definition of Done + Implementation Phases - see below]
 ```
 
-**Then this skill generates** Summary and Glossary to replace the placeholders.
+**Then this skill:**
+1. Generates Acceptance Criteria and gets human validation
+2. Generates Summary and Glossary to replace the placeholders
 
 ## Legibility Header
 
@@ -406,6 +411,40 @@ Divergence justified by: Legacy code violates FCIS pattern, difficult to test, h
 - Hypothetical future requirements
 - Generic platitudes ("should be secure", "needs good testing")
 
+## After Body: Generating and Validating Acceptance Criteria
+
+After appending the body, generate Acceptance Criteria and get human validation BEFORE Summary/Glossary.
+
+Acceptance Criteria translate the Definition of Done into specific, verifiable items that become the basis for test requirements during implementation.
+
+**Step 1: Generate via subagent**
+
+```
+<invoke name="Task">
+<parameter name="subagent_type">ed3d-basic-agents:sonnet-general-purpose</parameter>
+<parameter name="description">Generating Acceptance Criteria from Definition of Done</parameter>
+<parameter name="prompt">
+Read the design document at [file path].
+
+Generate an Acceptance Criteria section from the Definition of Done and Implementation Phases.
+
+Structure as:
+- Per-phase criteria (what must be true when each phase completes)
+- End-to-end criteria (cross-phase integration, user journeys)
+
+Each criterion must be observable and testable - "User can X" or "API returns Y", not "code is clean." Map every DoD item to at least one criterion.
+
+Return the Acceptance Criteria section in markdown.
+</parameter>
+</invoke>
+```
+
+**Step 2: Get human validation**
+
+Present generated criteria, then AskUserQuestion: "Approve to continue, or describe revisions needed."
+
+Loop until approved. Then append to document and proceed to Summary/Glossary.
+
 ## After Writing: Generating Summary and Glossary
 
 After appending the body (Architecture through Additional Considerations), generate Summary and Glossary using a subagent with fresh context.
@@ -442,6 +481,9 @@ The document already exists with Definition of Done. Append the body sections:
 
 ## Additional Considerations
 [... append actual content ...]
+
+## Acceptance Criteria
+[... appended after human validation ...]
 ```
 
 **Step 2: Dispatch extraction subagent**
@@ -540,6 +582,10 @@ EOF
 | "Infrastructure needs unit tests too" | No. Infrastructure verified operationally. Don't over-engineer. |
 | "Phase 3 tests will cover Phase 2 code" | Each phase tests its own deliverables. Later phases may extend tests, but don't defer. |
 | "Phase markers are just noise" | Markers enable granular parsing. Implementation planning depends on them. Always include. |
+| "Acceptance criteria are just the Definition of Done restated" | Criteria must be specific and verifiable. "System is secure" becomes "API rejects invalid tokens with 401." |
+| "User approved DoD, don't need to validate criteria" | Criteria translate DoD into testable items. User must confirm this translation is correct. |
+| "I'll skip criteria validation to save time" | Implementation planning depends on validated criteria. Skipping creates downstream confusion. |
+| "Criteria are obvious from the phases" | Obvious to you. User must confirm they agree on what 'done' means before proceeding. |
 
 **All of these mean: STOP. Follow the structure exactly.**
 
@@ -558,17 +604,21 @@ Brainstorming (Phase 4) completes
   -> User approved incrementally
 
 Writing Design Plans (this skill)
-  -> Append body: Architecture, Existing Patterns, Implementation Phases
+  -> Append body: Architecture, Existing Patterns, Implementation Phases, Additional Considerations
   -> Add exact paths from investigation
   -> Create discrete phases (<=8)
+  -> Generate Acceptance Criteria from DoD + Phases
+  -> USER VALIDATES Acceptance Criteria
+  -> Append Acceptance Criteria to document
   -> Dispatch subagent to generate Summary and Glossary
   -> Replace placeholders with generated content
   -> Commit to git
 
-Writing Plans (next step)
+Writing Implementation Plans (next step)
   -> Reads this design document
   -> Uses phases as basis for detailed tasks
+  -> Uses Acceptance Criteria to generate test-requirements.md
   -> Expects exact paths and structure
 ```
 
-**Purpose:** Create contract between design and implementation. Writing-plans relies on this structure. The legibility header ensures human reviewers can quickly understand the document.
+**Purpose:** Create contract between design and implementation. Writing-plans relies on this structure. The legibility header ensures human reviewers can quickly understand the document. Acceptance Criteria provide traceability for test requirements.

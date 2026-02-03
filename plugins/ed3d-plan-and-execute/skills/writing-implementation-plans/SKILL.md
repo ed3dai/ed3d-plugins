@@ -337,6 +337,8 @@ Before creating tasks, capture absolute paths:
 - `DESIGN_PATH`: Absolute path to design plan (e.g., `/Users/ed/project/docs/design-plans/2025-01-24-feature.md`)
 - `PLAN_DIR`: Absolute path to implementation plan directory (e.g., `/Users/ed/project/docs/implementation-plans/2025-01-24-feature/`)
 
+**Read the Acceptance Criteria section from the design plan.** These criteria define what "done" means for the entire implementation. Some criteria apply to specific phases; others span multiple phases. When writing each phase, ensure tasks satisfy the relevant acceptance criteria—the tests you specify should verify those criteria.
+
 **For each phase N, create these tasks with dependencies:**
 
 ```markdown
@@ -395,6 +397,9 @@ TaskCreate: "Phase 3D: Write /Users/ed/project/docs/implementation-plans/2025-01
 
 TaskCreate: "Finalization: Run code-reviewer over all phase files, fix ALL issues including minor ones"
   → TaskUpdate: addBlockedBy: [1D, 2D, 3D]
+
+TaskCreate: "Test Requirements: Generate test-requirements.md from Acceptance Criteria"
+  → TaskUpdate: addBlockedBy: [Finalization]
 ```
 
 **Why absolute paths in task descriptions:** After compaction, the task list is all that remains. Absolute paths ensure you know exactly which files to read/write without relying on context.
@@ -428,7 +433,7 @@ Use TaskUpdate to mark each sub-task as in_progress when starting, completed whe
    - Mark task NC as completed
    - (Skip if no external deps - still mark completed with note "N/A")
 
-4. **Write implementation tasks** for this phase (in memory, not to file) based on actual codebase state and external research
+4. **Write implementation tasks** for this phase (in memory, not to file) based on actual codebase state, external research, and the design's Acceptance Criteria—ensure tasks and tests satisfy the relevant criteria for this phase
 
 5. **Present to user** - Output the complete phase plan in your message text:
 
@@ -515,7 +520,8 @@ Use TaskUpdate to mark each sub-task as in_progress when starting, completed whe
 
 4. **Task ND: Write phase file**
    - Mark task ND as in_progress
-   - Write implementation tasks based on actual codebase state and external research
+   - Write implementation tasks based on actual codebase state, external research, and Acceptance Criteria
+   - Ensure tasks and tests satisfy the relevant acceptance criteria for this phase
    - Write directly to disk at `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
    - Mark task ND as completed, continue to next phase
 
@@ -660,6 +666,10 @@ These are violations of the skill requirements:
 | "Docs are probably accurate enough" | Usually yes. But if extending/customizing library behavior, verify with source code. |
 | "I'll clone the repo to check the docs" | No. Use internet-researcher for docs. Only clone (remote-code-researcher) for source code investigation. |
 | "Phase has external deps but I'll skip research" | Research is mandatory when phase involves external dependencies. Surface unknowns now. |
+| "Test requirements can be generated during execution" | No. Test requirements must exist before execution starts. Code reviewer uses them. |
+| "Acceptance Criteria are clear, don't need test requirements" | Test requirements map criteria to specific tests. Execution needs this mapping. |
+| "I'll skip test requirements, user chose batch mode" | Batch mode skips interactive approval. Test requirements are still generated and written. |
+| "Test requirements task is optional" | No. It's a tracked task with dependencies. Must complete before execution handoff. |
 
 **All of these mean: STOP. Follow the requirements exactly.**
 
@@ -712,7 +722,8 @@ Which approach should I take?
 - [ ] Count phases - refuse if >8
 - [ ] Ask user for review mode (batch vs interactive)
 - [ ] Capture absolute paths: DESIGN_PATH and PLAN_DIR
-- [ ] Create granular task list with TaskCreate (NA, NB, NC, ND per phase + Finalization)
+- [ ] Read Acceptance Criteria section from design plan
+- [ ] Create granular task list with TaskCreate (NA, NB, NC, ND per phase + Finalization + Test Requirements)
 - [ ] Set up dependencies with TaskUpdate addBlockedBy (see Step 0)
 - [ ] Task descriptions include absolute paths (not relative)
 
@@ -738,6 +749,15 @@ Which approach should I take?
 - [ ] Fix ALL issues including Minor ones
 - [ ] Re-run code-reviewer until APPROVED with zero issues
 - [ ] Mark Finalization task as completed
+- [ ] Proceed to Test Requirements
+
+**Test Requirements (after Finalization):**
+- [ ] Mark Test Requirements task as in_progress
+- [ ] Dispatch Opus subagent to generate test requirements from Acceptance Criteria
+- [ ] **If interactive mode:** Present to user, use AskUserQuestion for approval
+- [ ] **If batch mode:** Write directly without asking
+- [ ] Write test-requirements.md to PLAN_DIR
+- [ ] Mark Test Requirements task as completed
 - [ ] Proceed to execution handoff
 
 ## Plan Validation (Finalization Task)
@@ -823,11 +843,46 @@ Do NOT rationalize skipping minor issues. Do NOT mark Finalization as completed 
 
 Mark the Finalization task as completed.
 
-Proceed to execution handoff.
+Proceed to Test Requirements generation.
+
+## Test Requirements Generation
+
+**Tracked task: "Test Requirements: Generate test-requirements.md from Acceptance Criteria"**
+
+Mark in_progress after Finalization completes.
+
+Test requirements map acceptance criteria to specific automated tests, and identify criteria requiring human verification. The test-analyst agent uses this during execution to validate coverage.
+
+**Step 1: Generate via subagent**
+
+```
+<invoke name="Task">
+<parameter name="subagent_type">ed3d-basic-agents:opus-general-purpose</parameter>
+<parameter name="description">Generating test requirements from Acceptance Criteria</parameter>
+<parameter name="prompt">
+Read the design at [DESIGN_PATH] and implementation phases in [PLAN_DIR].
+
+Generate test-requirements.md mapping each acceptance criterion to:
+- Automated tests: criterion, test type (unit/integration/e2e), expected test file path
+- Human verification: criteria that can't be automated, with justification and verification approach
+
+Rationalize against implementation decisions made during planning. Every acceptance criterion must map to either an automated test or documented human verification.
+</parameter>
+</invoke>
+```
+
+**Step 2: Handle based on review mode**
+
+- **Interactive mode:** Present to user, AskUserQuestion for approval. This is the LAST interactive item.
+- **Batch mode:** Write directly, announce completion.
+
+**Step 3: Write and complete**
+
+Write to `[PLAN_DIR]/test-requirements.md`. Mark task completed. Proceed to execution handoff.
 
 ## Execution Handoff
 
-After validation passes, announce:
+After Test Requirements generation completes, announce:
 
-**"Plan complete and validated. Saved to [count] files in `docs/implementation-plans/YYYY-MM-DD-<feature-name>`. The first file is `<full-path>`.**
+**"Implementation plan complete and validated. Saved to [count] phase files + test-requirements.md in `docs/implementation-plans/YYYY-MM-DD-<feature-name>/`. The first phase file is `<full-path>`. Test requirements are in `<full-path>/test-requirements.md`."**
 

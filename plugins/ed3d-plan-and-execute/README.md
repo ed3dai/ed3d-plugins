@@ -53,7 +53,9 @@ The key insight: **design plans tell you where you're going; implementation plan
 
 4. **Design Documentation** - The validated design gets written to `docs/design-plans/YYYY-MM-DD-<topic>.md` with explicit implementation phases (≤8).
 
-**Output:** A committed design document with clear phases, explicit file paths, and "done when" criteria for each phase.
+4. **Acceptance Criteria** - Definition of Done gets translated into specific, verifiable criteria. You validate these before documentation completes.
+
+**Output:** A committed design document with clear phases, explicit file paths, "done when" criteria, and validated acceptance criteria.
 
 ---
 
@@ -75,7 +77,9 @@ The key insight: **design plans tell you where you're going; implementation plan
 
 4. **Plan Validation** - A code reviewer validates that the implementation plan fully covers the design before you start.
 
-**Output:** Implementation plan files in `docs/implementation-plans/YYYY-MM-DD-<feature>/` with one file per phase.
+5. **Test Requirements** - Acceptance criteria are mapped to specific automated tests (with expected file paths) or documented as requiring human verification. This becomes `test-requirements.md` in the plan directory.
+
+**Output:** Implementation plan files in `docs/implementation-plans/YYYY-MM-DD-<feature>/` with one file per phase plus `test-requirements.md`.
 
 ---
 
@@ -105,9 +109,11 @@ After all tasks:
 
 6. **Final Review** - Full implementation reviewed against all requirements.
 
-7. **Completion Options** - Merge to main, create PR, keep branch, or discard.
+7. **Test Analysis** - A test-analyst validates that automated tests cover all acceptance criteria. Missing coverage triggers a fix loop. Once coverage passes, a human test plan is generated.
 
-**Output:** Working, reviewed code on your feature branch with clean commits.
+8. **Completion Options** - Merge to main, create PR, keep branch, or discard.
+
+**Output:** Working, reviewed code on your feature branch with clean commits, plus a human test plan in `docs/test-plans/`.
 
 ---
 
@@ -164,6 +170,7 @@ The plugin uses specialized subagents for different roles:
 | **task-implementor-fast** | ed3d-plan-and-execute | Implements tasks with TDD, runs verification, commits |
 | **code-reviewer** | ed3d-plan-and-execute | Enforces quality standards, blocks on issues |
 | **task-bug-fixer** | ed3d-plan-and-execute | Fixes issues identified by code reviewer |
+| **test-analyst** | ed3d-plan-and-execute | Validates test coverage against acceptance criteria, generates human test plans |
 | **project-claude-librarian** | ed3d-extending-claude | Updates CLAUDE.md files when contracts change |
 
 You interact with the main orchestrating agent. It dispatches subagents and shows you their full responses.
