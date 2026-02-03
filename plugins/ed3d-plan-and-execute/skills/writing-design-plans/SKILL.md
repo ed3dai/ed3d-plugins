@@ -451,26 +451,30 @@ Each criterion must be **observable and testable**:
 
 ### Structure
 
-Group criteria by Definition of Done item, then add cross-cutting criteria:
+Number each acceptance criterion and its cases for traceability:
 
 ```markdown
 ## Acceptance Criteria
 
-### [DoD Item 1: e.g., "Users can authenticate"]
-- **Success:** User with valid credentials receives auth token
-- **Success:** Token contains correct user ID and permissions
-- **Failure:** Invalid password returns 401 with generic error (no password hint)
-- **Failure:** Locked account returns 403 with lockout duration
-- **Edge:** Empty password field shows validation error before submission
+### AC1: Users can authenticate
+- **AC1.1 Success:** User with valid credentials receives auth token
+- **AC1.2 Success:** Token contains correct user ID and permissions
+- **AC1.3 Failure:** Invalid password returns 401 with generic error (no password hint)
+- **AC1.4 Failure:** Locked account returns 403 with lockout duration
+- **AC1.5 Edge:** Empty password field shows validation error before submission
 
-### [DoD Item 2: e.g., "Sessions persist across page refresh"]
+### AC2: Sessions persist across page refresh
+- **AC2.1 Success:** ...
+- **AC2.2 Failure:** ...
 ...
 
-### Cross-Cutting
-- Token expiration triggers re-authentication prompt (not silent failure)
-- All API errors include correlation ID for debugging
+### AC[N]: Cross-Cutting Behaviors
+- **AC[N].1:** Token expiration triggers re-authentication prompt (not silent failure)
+- **AC[N].2:** All API errors include correlation ID for debugging
 - ...
 ```
+
+**Why numbered:** Implementation phases reference specific ACs they implement (e.g., "This phase implements AC1.1, AC1.3, AC2.1"). Numbered IDs enable precise traceability from design → implementation → tests.
 
 ### Validation
 

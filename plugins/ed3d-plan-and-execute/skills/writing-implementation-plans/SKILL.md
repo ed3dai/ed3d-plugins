@@ -266,7 +266,27 @@ The execution agent uses these markers to identify related tasks. The tests task
 **Codebase verified:** [Date/time of verification]
 
 ---
+
+## Acceptance Criteria Coverage
+
+This phase implements and tests:
+
+### AC1: [Criterion heading from design plan]
+- **AC1.1 Success:** [Copied literally from design plan]
+- **AC1.3 Failure:** [Copied literally from design plan]
+
+### AC2: [Criterion heading from design plan]
+- **AC2.1 Success:** [Copied literally from design plan]
+
+---
 ```
+
+**AC Coverage rules:**
+- Copy AC text literally from the design plan—do not paraphrase
+- Include ONLY the ACs this phase implements and tests
+- Include both the criterion heading (AC1, AC2) and the specific cases (AC1.1, AC1.3)
+- Tasks in this phase must produce tests that verify these specific cases
+- An AC case may appear in multiple phases if partially addressed, but final phase must complete it
 
 ## Task and Subcomponent Markers
 
@@ -337,7 +357,10 @@ Before creating tasks, capture absolute paths:
 - `DESIGN_PATH`: Absolute path to design plan (e.g., `/Users/ed/project/docs/design-plans/2025-01-24-feature.md`)
 - `PLAN_DIR`: Absolute path to implementation plan directory (e.g., `/Users/ed/project/docs/implementation-plans/2025-01-24-feature/`)
 
-**Read the Acceptance Criteria section from the design plan.** These criteria define what "done" means for the entire implementation. Some criteria apply to specific phases; others span multiple phases. When writing each phase, ensure tasks satisfy the relevant acceptance criteria—the tests you specify should verify those criteria.
+**Read the Acceptance Criteria section from the design plan.** Acceptance criteria are numbered (AC1, AC1.1, AC1.2, etc.) and define what "done" means. When writing each phase:
+1. Identify which ACs this phase implements (look at design phase's "Done when" + component responsibilities)
+2. Copy those AC entries literally into the phase's "Acceptance Criteria Coverage" header section
+3. Ensure tasks produce tests that verify each listed AC case
 
 **For each phase N, create these tasks with dependencies:**
 
@@ -433,7 +456,10 @@ Use TaskUpdate to mark each sub-task as in_progress when starting, completed whe
    - Mark task NC as completed
    - (Skip if no external deps - still mark completed with note "N/A")
 
-4. **Write implementation tasks** for this phase (in memory, not to file) based on actual codebase state, external research, and the design's Acceptance Criteria—ensure tasks and tests satisfy the relevant criteria for this phase
+4. **Write implementation tasks** for this phase (in memory, not to file):
+   - Identify which ACs this phase covers based on design phase's scope
+   - Include the "Acceptance Criteria Coverage" section with literal AC copies
+   - Write tasks that implement and test each listed AC case
 
 5. **Present to user** - Output the complete phase plan in your message text:
 
@@ -520,8 +546,9 @@ Use TaskUpdate to mark each sub-task as in_progress when starting, completed whe
 
 4. **Task ND: Write phase file**
    - Mark task ND as in_progress
-   - Write implementation tasks based on actual codebase state, external research, and Acceptance Criteria
-   - Ensure tasks and tests satisfy the relevant acceptance criteria for this phase
+   - Identify which ACs this phase covers based on design phase's scope
+   - Include the "Acceptance Criteria Coverage" section with literal AC copies from design
+   - Write implementation tasks that implement and test each listed AC case
    - Write directly to disk at `docs/implementation-plans/YYYY-MM-DD-<feature-name>/phase_##.md`
    - Mark task ND as completed, continue to next phase
 
