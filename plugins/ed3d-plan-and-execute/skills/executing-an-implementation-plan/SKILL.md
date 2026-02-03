@@ -339,6 +339,7 @@ Use the `requesting-code-review` skill for final code review:
 - BASE_SHA: commit before first phase started
 - HEAD_SHA: current commit
 - IMPLEMENTATION_GUIDANCE: absolute path (if exists)
+- AC_COVERAGE_CHECK: "Verify all acceptance criteria from the design plan are covered by at least one phase. Flag any ACs not addressed."
 
 Continue the review loop until zero issues remain.
 
