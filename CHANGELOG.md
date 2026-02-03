@@ -1,5 +1,22 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.9.1
+
+Strengthens acceptance criteria generation and adds traceability to implementation plans.
+
+**Changed:**
+- `writing-design-plans`: Acceptance Criteria now generated inline (no subagent needed) with detailed guidance on enumerating success cases, failure cases, and edge cases for each DoD item
+- `writing-design-plans`: AC uses numbered format (AC1, AC1.1, AC1.2) for precise traceability
+- `writing-design-plans`: AC section moved to legibility header (between DoD and Glossary)
+- `writing-implementation-plans`: Phase headers now include "Acceptance Criteria Coverage" section listing which ACs the phase implements
+- `writing-implementation-plans`: AC entries copied literally from design plan—no paraphrasing
+- `starting-a-design-plan`: Initial document template includes AC placeholder
+
+**Traceability chain:**
+```
+Design: AC1.1, AC1.2, AC1.3 → Phase header: "implements AC1.1, AC1.3" → Tasks produce tests for AC1.1, AC1.3
+```
+
 ## ed3d-plan-and-execute 1.9.0
 
 Adds test planning workflow: acceptance criteria, test requirements, and human test plans.
