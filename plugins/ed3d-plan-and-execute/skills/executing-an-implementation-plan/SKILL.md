@@ -223,11 +223,19 @@ Mark "Phase Nc: Code review" as in_progress.
 
 **MANDATORY:** Use the `requesting-code-review` skill for the review loop.
 
+**Review file naming:** Use the implementation plan directory name and phase number:
+```bash
+mkdir -p /tmp/code-reviews
+# e.g. /tmp/code-reviews/2026-02-16-agent-eval-phase-03-review-cycle-1.md
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-dir-name]-phase-[NN]-review-cycle-1.md"
+```
+
 **Context to provide:**
 - WHAT_WAS_IMPLEMENTED: Summary of all tasks in this phase
 - PLAN_OR_REQUIREMENTS: All tasks from this phase
 - BASE_SHA: commit before phase started
 - HEAD_SHA: current commit
+- REVIEW_OUTPUT_FILE: path from above
 - IMPLEMENTATION_GUIDANCE: absolute path to `.ed3d/implementation-plan-guidance.md` (**only if it exists**—omit entirely if the file doesn't exist)
 
 The implementation guidance file contains project-specific coding standards, testing requirements, and review criteria. When provided, the code reviewer should read it and apply those standards during review.
@@ -352,11 +360,17 @@ Code Review → Test Analysis (Coverage + Plan)
 
 Use the `requesting-code-review` skill for final code review:
 
+**Review file naming for final review:**
+```bash
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-dir-name]-final-review-cycle-1.md"
+```
+
 **Context to provide:**
 - WHAT_WAS_IMPLEMENTED: Summary of all phases completed
 - PLAN_OR_REQUIREMENTS: Reference to the full implementation plan directory
 - BASE_SHA: commit before first phase started
 - HEAD_SHA: current commit
+- REVIEW_OUTPUT_FILE: path from above
 - IMPLEMENTATION_GUIDANCE: absolute path (if exists)
 - AC_COVERAGE_CHECK: "Verify all acceptance criteria (using scoped format `{slug}.AC*`) from the design plan are covered by at least one phase. Flag any ACs not addressed."
 

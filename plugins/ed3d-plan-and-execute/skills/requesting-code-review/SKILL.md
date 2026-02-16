@@ -55,8 +55,10 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or commit before task
 HEAD_SHA=$(git rev-parse HEAD)
 
 # Generate unique review output file
+# Use the implementation plan name and phase for traceability
 mkdir -p /tmp/code-reviews
-REVIEW_OUTPUT_FILE="/tmp/code-reviews/review-$(date +%s).md"
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-name]-[phase]-review-cycle-1.md"
+# e.g. /tmp/code-reviews/2026-02-16-agent-eval-phase-03-review-cycle-1.md
 ```
 
 **Dispatch code-reviewer subagent:**
@@ -125,7 +127,8 @@ After fixes, proceed to Step 3.
 
 **Generate a new review output file path** (each cycle gets its own file):
 ```bash
-REVIEW_OUTPUT_FILE="/tmp/code-reviews/review-$(date +%s).md"
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-name]-[phase]-review-cycle-N.md"
+# e.g. /tmp/code-reviews/2026-02-16-agent-eval-phase-03-review-cycle-2.md
 ```
 
 ```
