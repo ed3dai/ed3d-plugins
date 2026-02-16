@@ -810,12 +810,20 @@ After all phase D tasks are completed, mark the Finalization task as in_progress
 
 ### Step 1: Dispatch code-reviewer
 
+**Generate a review output file path:**
+```bash
+mkdir -p /tmp/code-reviews
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-dir-name]-plan-validation-cycle-1.md"
+```
+
 ```
 <invoke name="Task">
 <parameter name="subagent_type">ed3d-plan-and-execute:code-reviewer</parameter>
 <parameter name="description">Validating implementation plan against design</parameter>
 <parameter name="prompt">
   Review the implementation plan for completeness and alignment with the design.
+
+  REVIEW_OUTPUT_FILE: [path from above]
 
   DESIGN_PLAN: [path to design plan, e.g., docs/design-plans/YYYY-MM-DD-feature.md]
 
@@ -868,24 +876,20 @@ Do NOT rationalize skipping minor issues. Do NOT mark Finalization as completed 
 
 **If reviewer returns NEEDS_REVISION or reports ANY issues:**
 
-1. **Create a task for EACH issue** (survives compaction):
+The code-reviewer agent creates a task for each issue it finds (tasks survive compaction with full issue details). You do not need to create issue tasks yourself.
+
+1. **Create a re-review task** and set dependencies:
    ```
-   TaskCreate: "Finalization fix [Critical]: <VERBATIM issue description from reviewer>"
-   TaskCreate: "Finalization fix [Important]: <VERBATIM issue description from reviewer>"
-   TaskCreate: "Finalization fix [Minor]: <VERBATIM issue description from reviewer>"
-   ...one task per issue...
    TaskCreate: "Finalization: Re-review after fixes"
-   TaskUpdate: set "Re-review" blocked by all fix tasks
+   TaskUpdate: set "Re-review" blocked by all fix tasks (from code-reviewer)
    ```
 
-   **Copy issue descriptions VERBATIM**, even if long. After compaction, the task description is all that remains — it must contain the full issue details to understand what to fix.
-
-2. Review the gaps, misalignments, and issues identified
+2. Review the gaps, misalignments, and issues identified (read the review output file)
 3. Fix ALL of them - Critical, Important, AND Minor
 4. Update the relevant phase files
 5. Mark each fix task complete as you address it
-6. Re-run code-reviewer validation
-7. If more issues found, create new individual fix tasks and repeat
+6. Re-run code-reviewer validation (increment cycle number in file path)
+7. If more issues found, the reviewer creates new fix tasks — repeat
 8. Mark "Re-review" complete when zero issues
 
 **Common rationalizations to REJECT:**

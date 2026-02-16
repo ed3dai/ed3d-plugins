@@ -254,17 +254,13 @@ The phase changed too much for a single review. Chunk the review:
 
 **When issues are found:**
 
-1. **Create a task for EACH issue** (survives compaction):
-   ```
-   TaskCreate: "Phase N fix [Critical]: <VERBATIM issue description from reviewer>"
-   TaskCreate: "Phase N fix [Important]: <VERBATIM issue description from reviewer>"
-   TaskCreate: "Phase N fix [Minor]: <VERBATIM issue description from reviewer>"
-   ...one task per issue...
-   TaskCreate: "Phase N: Re-review after fixes"
-   TaskUpdate: set "Re-review" blocked by all fix tasks
-   ```
+The code-reviewer agent creates a task for each issue it finds (tasks survive compaction with full issue details). You do not need to create issue tasks yourself.
 
-   **Copy issue descriptions VERBATIM**, even if long. After compaction, the task description is all that remains — it must contain the full issue details for the bug-fixer to understand what to fix.
+1. **Create a re-review task** and set dependencies:
+   ```
+   TaskCreate: "Phase N: Re-review after fixes"
+   TaskUpdate: set "Re-review" blocked by all fix tasks (from code-reviewer)
+   ```
 
 2. **Dispatch `task-bug-fixer`** with the phase file and review output file:
 

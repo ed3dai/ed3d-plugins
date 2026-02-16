@@ -80,7 +80,7 @@ REVIEW_OUTPUT_FILE="/tmp/code-reviews/[plan-name]-[phase]-review-cycle-1.md"
 </invoke>
 ```
 
-**Code reviewer returns:** A compact summary with issue counts and the file path. The full structured review is written to the file.
+**Code reviewer returns:** A compact summary with issue counts, the file path, and the number of tasks created. The full structured review is written to the file. When issues are found, the reviewer creates a task per issue via TaskCreate — these tasks survive compaction with full issue details.
 
 **Note the REVIEW_OUTPUT_FILE path** from the summary — you'll pass it to the bug-fixer in Step 2.
 

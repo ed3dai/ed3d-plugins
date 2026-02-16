@@ -21,7 +21,7 @@ You are reviewing code changes for production readiness.
 
 **Output file:** {REVIEW_OUTPUT_FILE}
 
-If a REVIEW_OUTPUT_FILE path is provided above, write the full structured review to that file and return only a compact summary. See your agent instructions for details.
+Write the full structured review to this file and return only a compact summary. See your agent instructions for details. Never return the full review inline.
 
 ## Git Range to Review
 
