@@ -17,6 +17,12 @@ You are reviewing code changes for production readiness.
 
 {PLAN_REFERENCE}
 
+## Review Output
+
+**Output file:** {REVIEW_OUTPUT_FILE}
+
+If a REVIEW_OUTPUT_FILE path is provided above, write the full structured review to that file and return only a compact summary. See your agent instructions for details.
+
 ## Git Range to Review
 
 **Base:** {BASE_SHA}

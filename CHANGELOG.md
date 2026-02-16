@@ -1,5 +1,16 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.11.0
+
+File-based code review output to reduce token usage in long sessions.
+
+**Changed:**
+- `code-reviewer` agent: writes full structured review to `REVIEW_OUTPUT_FILE` when provided, returns only a compact summary to the orchestrator
+- `task-bug-fixer` agent: reads review issues from `REVIEW_OUTPUT_FILE` instead of receiving them inline in the prompt
+- `requesting-code-review` skill: generates unique review file paths, passes them to code-reviewer and bug-fixer, re-review cycles reference prior review files
+- `executing-an-implementation-plan` skill: bug-fixer dispatch passes review file path instead of inline issues
+- `requesting-code-review/code-reviewer.md` template: includes `REVIEW_OUTPUT_FILE` parameter
+
 ## ed3d-extending-claude 1.0.4
 
 Add model-level testing guidance to testing-skills-with-subagents.

@@ -49,10 +49,14 @@ The review process is a loop: review → fix → re-review → until zero issues
 
 ## Step 1: Initial Review
 
-**Get git SHAs:**
+**Get git SHAs and generate review file path:**
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or commit before task
 HEAD_SHA=$(git rev-parse HEAD)
+
+# Generate unique review output file
+mkdir -p /tmp/code-reviews
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/review-$(date +%s).md"
 ```
 
 **Dispatch code-reviewer subagent:**
@@ -69,11 +73,14 @@ HEAD_SHA=$(git rev-parse HEAD)
   BASE_SHA: [commit before work]
   HEAD_SHA: [current commit]
   DESCRIPTION: [brief summary]
+  REVIEW_OUTPUT_FILE: [path from above]
 </parameter>
 </invoke>
 ```
 
-**Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment
+**Code reviewer returns:** A compact summary with issue counts and the file path. The full structured review is written to the file.
+
+**Note the REVIEW_OUTPUT_FILE path** from the summary — you'll pass it to the bug-fixer in Step 2.
 
 ## Step 2: Handle Reviewer Response
 
@@ -81,7 +88,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 All categories empty → proceed to next task.
 
 ### If Any Issues Found
-Regardless of category (Critical, Important, or Minor), dispatch bug-fixer:
+Regardless of category (Critical, Important, or Minor), dispatch bug-fixer with the review file:
 
 ```
 <invoke name="Task">
@@ -90,15 +97,17 @@ Regardless of category (Critical, Important, or Minor), dispatch bug-fixer:
 <parameter name="prompt">
   Fix issues from code review.
 
-  Code reviewer found these issues:
-  [list all issues - Critical, Important, and Minor]
+  REVIEW_OUTPUT_FILE: [path to the review file from Step 1]
+
+  Read the review file above for the full list of issues to fix.
 
   Your job is to:
-  1. Understand root cause of each issue
-  2. Apply fixes systematically (Critical → Important → Minor)
-  3. Verify with tests/build/lint
-  4. Commit your fixes
-  5. Report back with evidence
+  1. Read the review file to understand all issues
+  2. Understand root cause of each issue
+  3. Apply fixes systematically (Critical → Important → Minor)
+  4. Verify with tests/build/lint
+  5. Commit your fixes
+  6. Report back with evidence
 
   Work from: [directory]
 
@@ -114,6 +123,11 @@ After fixes, proceed to Step 3.
 
 **CRITICAL:** Track prior issues across review cycles.
 
+**Generate a new review output file path** (each cycle gets its own file):
+```bash
+REVIEW_OUTPUT_FILE="/tmp/code-reviews/review-$(date +%s).md"
+```
+
 ```
 <invoke name="Task">
 <parameter name="subagent_type">ed3d-plan-and-execute:code-reviewer</parameter>
@@ -126,12 +140,14 @@ After fixes, proceed to Step 3.
   BASE_SHA: [commit before this fix cycle]
   HEAD_SHA: [current commit after fixes]
   DESCRIPTION: Re-review after bug fixes (review cycle N)
+  REVIEW_OUTPUT_FILE: [new path from above]
 
-  PRIOR_ISSUES_TO_VERIFY_FIXED:
-  [list all outstanding issues from previous reviews]
+  PRIOR_REVIEW_FILE: [path to the previous cycle's review file]
+
+  Read the prior review file for issues to verify are fixed.
 
   Verify:
-  1. Each prior issue listed above is actually resolved
+  1. Each prior issue listed in the file is actually resolved
   2. No regressions introduced by the fixes
   3. Any new issues in the changed code
 
@@ -145,7 +161,7 @@ After fixes, proceed to Step 3.
 - When re-reviewer doesn't mention an issue → keep on list (silence ≠ fixed)
 - When re-reviewer finds new issues → add to list
 
-Loop back to Step 2 if any issues remain.
+Loop back to Step 2 if any issues remain. Pass the latest REVIEW_OUTPUT_FILE to the bug-fixer.
 
 ## Handling Failures
 

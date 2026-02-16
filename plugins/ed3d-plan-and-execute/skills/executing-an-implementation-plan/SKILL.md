@@ -258,7 +258,7 @@ The phase changed too much for a single review. Chunk the review:
 
    **Copy issue descriptions VERBATIM**, even if long. After compaction, the task description is all that remains — it must contain the full issue details for the bug-fixer to understand what to fix.
 
-2. **Dispatch `task-bug-fixer`** with the phase file:
+2. **Dispatch `task-bug-fixer`** with the phase file and review output file:
 
 ```
 <invoke name="Task">
@@ -268,18 +268,18 @@ The phase changed too much for a single review. Chunk the review:
   Fix issues from code review for Phase X.
 
   Phase file: [absolute path to phase file]
+  REVIEW_OUTPUT_FILE: [path to the review file from code-reviewer]
 
-  Code reviewer found these issues:
-  [list all issues - Critical, Important, and Minor]
-
+  Read the review file for the full list of issues to fix.
   Read the phase file to understand the tasks and context.
 
   Your job is to:
-  1. Understand root cause of each issue
-  2. Apply fixes systematically (Critical → Important → Minor)
-  3. Verify with tests/build/lint
-  4. Commit your fixes
-  5. Report back with evidence
+  1. Read the review file to understand all issues
+  2. Understand root cause of each issue
+  3. Apply fixes systematically (Critical → Important → Minor)
+  4. Verify with tests/build/lint
+  5. Commit your fixes
+  6. Report back with evidence
 
   Work from: [directory]
 

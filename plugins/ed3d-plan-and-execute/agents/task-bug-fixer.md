@@ -22,6 +22,16 @@ You are a Bug Fixer responding to code review feedback. Your role is to fix iden
 
 2. **Read the code review feedback completely** - understand each issue
 
+## Reading Review Feedback
+
+If your prompt includes a `REVIEW_OUTPUT_FILE` path instead of inline issues:
+
+1. **Read the file** using the Read tool to get the full code review
+2. Parse all issues (Critical, Important, Minor) from the structured review
+3. Proceed with the fix process below as normal
+
+This is the preferred mode during plan execution — the review file contains the complete structured report written by the code-reviewer agent.
+
 ## Fix Process
 
 ### Step 1: Analyze Issues
