@@ -1,5 +1,12 @@
 # Changelog
 
+## ed3d-extending-claude 1.1.0
+
+Adds marketplace management skill for creating and maintaining Claude Code Plugin Marketplaces.
+
+**New:**
+- `maintaining-a-marketplace` skill covering marketplace.json schema, version management, release checklists, changelog conventions, validation, and distribution — generalizable for any user publishing a marketplace
+
 ## ed3d-extending-claude 1.0.4
 
 Add model-level testing guidance to testing-skills-with-subagents.
