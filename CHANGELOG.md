@@ -7,6 +7,13 @@ Adds marketplace management skill for creating and maintaining Claude Code Plugi
 **New:**
 - `maintaining-a-marketplace` skill covering marketplace.json schema, version management, release checklists, changelog conventions, validation, and distribution — generalizable for any user publishing a marketplace
 
+## ed3d-plan-and-execute 1.10.2
+
+Fix typo in planning handoff command.
+
+**Fixed:**
+- `starting-a-design-plan`: Phase 6 handoff command had `/ed3d-ed3d-plan-and-execute:start-implementation-plan` instead of `/ed3d-plan-and-execute:start-implementation-plan`
+
 ## ed3d-extending-claude 1.0.4
 
 Add model-level testing guidance to testing-skills-with-subagents.
