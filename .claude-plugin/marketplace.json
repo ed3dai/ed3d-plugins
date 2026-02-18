@@ -31,7 +31,7 @@
         {
             "name": "ed3d-house-style",
             "description": "ed3d's house style for software development",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": "./plugins/ed3d-house-style",
             "author": {
                 "name": "Ed",

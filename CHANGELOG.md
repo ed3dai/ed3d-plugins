@@ -1,5 +1,15 @@
 # Changelog
 
+## ed3d-house-style 1.0.3
+
+Relax FCIS file classification to target only files with runtime behavior.
+
+**Changed:**
+- FCIS skill: classification now mandatory only for files containing runtime logic (functions, classes with methods, orchestration)
+- FCIS skill: added exemptions for type-only files, constants, barrels, tests, and generated files
+- FCIS skill: added threshold note — exempt files that grow to include runtime logic must be classified
+- TypeScript skill: added clarifying note in FCIS Integration section about exemptions
+
 ## ed3d-plan-and-execute 1.10.3
 
 Add session isolation for parallel planning/execution to prevent file collisions.
