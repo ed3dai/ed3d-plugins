@@ -88,7 +88,75 @@ Then invoke `starting-a-design-plan`. The issue title serves as the initial desi
 
 ## Finish Mode
 
-Finish mode is documented in Phase 5. This section will be extended then.
+**Announce:** "I'm using the linear-workflow skill to update Linear issue status."
 
-**Placeholder:** If finish mode is triggered before Phase 5 is implemented, respond:
-"Finish mode is not yet implemented. Please update the Linear issue manually."
+**Trigger:** The PostToolUse hook has injected context indicating a PR or merge event AND `.linear-issue` exists at the project root.
+
+The injected context includes:
+- The Linear issue ID (e.g., `ENG-123`)
+- The event type: `pr-created` or `merged`
+
+### Step 1: Verify .linear-issue exists
+
+Read `.linear-issue` from the project root to confirm the issue ID.
+
+If `.linear-issue` does not exist:
+- Do nothing. Announce: "No active Linear issue found (.linear-issue is absent). Skipping Linear update."
+- Exit finish mode.
+
+### Step 2: Get the PR or commit link
+
+Before updating Linear, gather the relevant link to include in the comment:
+
+**For `pr-created` event:**
+Run `gh pr view --json url -q .url` to get the PR URL. If this fails, use `gh pr view --json number -q .number` and construct the URL manually, or use the URL from the hook context if available.
+
+**For `merged` event:**
+Run `git log -1 --format="%H"` to get the merge commit hash. Use this as the reference if no PR URL is available. Prefer the PR URL if a PR was associated with the merge — try `gh pr view --json url -q .url` first.
+
+### Step 3: Use writing-for-linear to compose the comment
+
+Use your Skill tool to invoke the `writing-for-linear` skill.
+
+Pass the following context to the skill:
+- Writing context: status-change comment
+- Event: `pr-created` or `merged` (as appropriate)
+- Issue ID: the value from `.linear-issue`
+- Link: the PR URL or commit hash from Step 2
+
+The skill will return a composed comment. Use that comment in Step 4.
+
+### Step 4: Update Linear issue status
+
+Use the available Linear MCP tools to update the issue workflow state:
+
+**For `pr-created` event:** Set status to "In Review"
+**For `merged` event:** Set status to "Done"
+
+If you are unsure which state name to use, list the available workflow states for the team first, then select the closest match.
+
+### Step 5: Post the comment to Linear
+
+Use the available Linear MCP tools to post the comment composed in Step 3 to the Linear issue.
+
+Look for a tool that:
+- Accepts an issue identifier or ID
+- Accepts a comment body string
+
+Include the PR URL or commit hash in the comment body (the `writing-for-linear` skill will have included it if invoked correctly, but verify).
+
+### Step 6: Clean up on merge
+
+**Only for `merged` event:**
+
+Delete `.linear-issue` from the project root using the Bash tool:
+
+```bash
+rm .linear-issue
+```
+
+Announce: "Linear issue [ISSUE-ID] is now Done. Comment posted. .linear-issue deleted."
+
+**For `pr-created` event:** Do NOT delete `.linear-issue`. It must persist for the eventual merge event.
+
+Announce: "Linear issue [ISSUE-ID] is now In Review. PR comment posted."
