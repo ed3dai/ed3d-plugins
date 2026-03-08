@@ -1,7 +1,7 @@
 {
     "name": "ed3d-basic-agents",
     "description": "Core agents for general-purpose tasks. Other plugins expect this to exist.",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "author": {
         "name": "Ed",
         "email": "ed@ed3d.net"

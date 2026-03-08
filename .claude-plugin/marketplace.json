@@ -1,11 +1,11 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-    "name": "ed3d-plugins",
+    "name": "jackal-plugins",
     "version": "2.0.0",
-    "description": "Unified marketplace for ed3d's Claude Code development toolkit",
+    "description": "Unified marketplace for Claude Code development toolkit (forked from ed3d-plugins)",
     "owner": {
-        "name": "Ed",
-        "email": "ed@ed3d.net"
+        "name": "Jack Greaney",
+        "email": "jgreaney@hcg.com"
     },
     "plugins": [
         {
@@ -21,7 +21,7 @@
         {
             "name": "ed3d-plan-and-execute",
             "description": "Planning and execution workflows for Claude Code. Based on obra/superpowers.",
-            "version": "1.10.1",
+            "version": "1.10.3",
             "source": "./plugins/ed3d-plan-and-execute",
             "author": {
                 "name": "Ed",
@@ -31,7 +31,7 @@
         {
             "name": "ed3d-house-style",
             "description": "ed3d's house style for software development",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": "./plugins/ed3d-house-style",
             "author": {
                 "name": "Ed",
@@ -41,7 +41,7 @@
         {
             "name": "ed3d-basic-agents",
             "description": "Core agents for general-purpose tasks. Other plugins expect this to exist.",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "source": "./plugins/ed3d-basic-agents",
             "author": {
                 "name": "Ed",
@@ -62,8 +62,8 @@
         },
         {
             "name": "ed3d-extending-claude",
-            "description": "Knowledge skills for extending Claude Code: creating plugins, commands, agents, skills, hooks, and MCP servers",
-            "version": "1.0.3",
+            "description": "Knowledge skills for extending Claude Code: creating plugins, commands, agents, skills, hooks, MCP servers, and marketplace management",
+            "version": "1.1.0",
             "source": "./plugins/ed3d-extending-claude",
             "author": {
                 "name": "Ed",
@@ -124,6 +124,23 @@
                 "testing",
                 "e2e",
                 "web-scraping"
+            ]
+        },
+        {
+            "name": "jackal-linear",
+            "description": "Integrates Linear issue tracking with the ed3d-plan-and-execute workflow. Start design sessions from Linear issues and sync progress back automatically.",
+            "version": "1.0.0",
+            "source": "./plugins/jackal-linear",
+            "author": {
+                "name": "Jack Greaney",
+                "email": "jgreaney@hcg.com"
+            },
+            "license": "UNLICENSED",
+            "keywords": [
+                "linear",
+                "issue-tracking",
+                "workflow",
+                "mcp"
             ]
         }
     ]

@@ -107,6 +107,21 @@ ls [plan-directory]/test-requirements.md
 
 If the file exists, note its **absolute path** for use during final review. The test requirements document specifies what automated tests must exist for each acceptance criterion.
 
+**Create a session-isolated scratchpad directory:**
+
+```bash
+# Extract slug from plan directory name (last path component, without trailing slash)
+SLUG=$(basename "[plan-directory]")
+# Generate unique session ID
+SESSION_ID=$(printf '%04x%04x' $RANDOM $RANDOM)
+# Create scratchpad path
+SCRATCHPAD_DIR="/tmp/exec-${SLUG}-${SESSION_ID}"
+mkdir -p "${SCRATCHPAD_DIR}"
+echo "${SCRATCHPAD_DIR}"
+```
+
+This scratchpad ensures isolation when multiple execution sessions run in parallel. Pass it to code-reviewer invocations.
+
 ### 2. Create Phase-Level Task List
 
 Use TaskCreate to create **three task entries per phase** (or TodoWrite in older Claude Code versions). Include the title from the header:
@@ -229,6 +244,7 @@ Mark "Phase Nc: Code review" as in_progress.
 - BASE_SHA: commit before phase started
 - HEAD_SHA: current commit
 - IMPLEMENTATION_GUIDANCE: absolute path to `.ed3d/implementation-plan-guidance.md` (**only if it exists**—omit entirely if the file doesn't exist)
+- SCRATCHPAD_DIR: session-isolated temp directory for code reviewer scratch files
 
 The implementation guidance file contains project-specific coding standards, testing requirements, and review criteria. When provided, the code reviewer should read it and apply those standards during review.
 
@@ -358,6 +374,7 @@ Use the `requesting-code-review` skill for final code review:
 - BASE_SHA: commit before first phase started
 - HEAD_SHA: current commit
 - IMPLEMENTATION_GUIDANCE: absolute path (if exists)
+- SCRATCHPAD_DIR: session-isolated temp directory for code reviewer scratch files
 - AC_COVERAGE_CHECK: "Verify all acceptance criteria (using scoped format `{slug}.AC*`) from the design plan are covered by at least one phase. Flag any ACs not addressed."
 
 Continue the review loop until zero issues remain.

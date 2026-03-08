@@ -367,6 +367,20 @@ After verifying scope (≤8 phases), use TaskCreate to create granular sub-tasks
 Before creating tasks, capture absolute paths:
 - `DESIGN_PATH`: Absolute path to design plan (e.g., `/Users/ed/project/docs/design-plans/2025-01-24-feature.md`)
 - `PLAN_DIR`: Absolute path to implementation plan directory (e.g., `/Users/ed/project/docs/implementation-plans/2025-01-24-feature/`)
+- `SCRATCHPAD_DIR`: Absolute path to temp directory for subagent scratch files (e.g., `/tmp/plan-2025-01-24-feature-a7f3b2/`)
+
+**Generate a unique session ID for SCRATCHPAD_DIR:**
+
+```bash
+SESSION_ID=$(printf '%04x%04x' $RANDOM $RANDOM)
+echo "/tmp/plan-$(date +%Y-%m-%d)-${slug}-${SESSION_ID}"
+```
+
+The session ID (e.g., `a7f3b2`) ensures isolation between:
+- Parallel planning sessions with similar slugs
+- Retry attempts (if a plan fails and user starts over)
+
+**SCRATCHPAD_DIR ensures session isolation.** Code reviewers and other subagents should write any temp files here, not to shared locations like `/tmp/`.
 
 **Read the Acceptance Criteria section from the design plan.** Acceptance criteria are numbered (AC1, AC1.1, AC1.2, etc.) and define what "done" means. When writing each phase:
 1. Identify which ACs this phase implements (look at design phase's "Done when" + component responsibilities)
@@ -826,9 +840,14 @@ After all phase D tasks are completed, mark the Finalization task as in_progress
   - [path to phase_02.md]
   - [... all phase files]
 
+  SCRATCHPAD_DIR: [absolute path to session-isolated temp directory, e.g., /tmp/plan-2025-01-24-feature-a7f3b2/]
+
   If IMPLEMENTATION_GUIDANCE is not "None", read it first and apply any project-specific
   review criteria, coding standards, or quality gates it specifies in addition to the
   standard review checklist.
+
+  **Session isolation:** Write any scratch files (notes, intermediate analysis, etc.) to
+  SCRATCHPAD_DIR, not to shared temp locations. This prevents collisions with parallel sessions.
 
   Evaluate:
   1. **Coverage**: Does the implementation plan cover ALL requirements from the design?

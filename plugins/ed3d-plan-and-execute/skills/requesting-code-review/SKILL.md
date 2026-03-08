@@ -10,6 +10,12 @@ Dispatch ed3d-plan-and-execute:code-reviewer subagent to catch issues before the
 
 **Core principle:** Review early, review often. Fix ALL issues before proceeding.
 
+## Session Isolation
+
+**If the calling context provides a SCRATCHPAD_DIR, pass it to code-reviewer.**
+
+This prevents collisions when multiple planning/execution sessions run in parallel. The SCRATCHPAD_DIR is a namespaced temp directory (e.g., `/tmp/plan-2025-01-24-feature-a7f3b2/`) that the code-reviewer uses for any scratch files.
+
 ## When to Request Review
 
 **Mandatory:**
@@ -69,6 +75,7 @@ HEAD_SHA=$(git rev-parse HEAD)
   BASE_SHA: [commit before work]
   HEAD_SHA: [current commit]
   DESCRIPTION: [brief summary]
+  SCRATCHPAD_DIR: [session-isolated temp dir, or omit if not applicable]
 </parameter>
 </invoke>
 ```
@@ -126,6 +133,7 @@ After fixes, proceed to Step 3.
   BASE_SHA: [commit before this fix cycle]
   HEAD_SHA: [current commit after fixes]
   DESCRIPTION: Re-review after bug fixes (review cycle N)
+  SCRATCHPAD_DIR: [session-isolated temp dir, or omit if not applicable]
 
   PRIOR_ISSUES_TO_VERIFY_FIXED:
   [list all outstanding issues from previous reviews]

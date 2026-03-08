@@ -18,6 +18,8 @@ user-invocable: false
 - `programming-in-react` - React frontend code
 - `writing-good-tests` - Writing or reviewing tests
 - `property-based-testing` - Tests for serialization, validation, normalization, pure functions
+- `howto-code-in-python` - Python code
+- `howto-code-in-rust` - Rust code
 
 ## Property-Driven Design
 

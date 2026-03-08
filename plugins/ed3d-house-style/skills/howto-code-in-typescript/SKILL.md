@@ -1078,6 +1078,8 @@ utils.baz();
 
 ## FCIS Integration
 
+**Note:** `// pattern:` comments apply only to files with runtime behavior. Type-only files, constants/enum files, barrel re-exports, tests, and generated files are exempt from classification.
+
 ### Functional Core Patterns
 
 **Return Result types. Never throw exceptions. Pure functions only.**

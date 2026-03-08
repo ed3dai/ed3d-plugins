@@ -1,0 +1,22 @@
+{
+    "name": "jackal-linear",
+    "version": "1.0.0",
+    "description": "Integrates Linear issue tracking with the ed3d-plan-and-execute workflow. Start design sessions from Linear issues and sync progress back automatically.",
+    "author": {
+        "name": "Jack Greaney",
+        "email": "jgreaney@hcg.com"
+    },
+    "license": "UNLICENSED",
+    "keywords": [
+        "linear",
+        "issue-tracking",
+        "workflow",
+        "mcp"
+    ],
+    "mcpServers": {
+        "linear": {
+            "command": "npx",
+            "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
+        }
+    }
+}

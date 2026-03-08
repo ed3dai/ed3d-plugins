@@ -1,5 +1,72 @@
 # Changelog
 
+## [jackal-linear] 1.0.0
+
+Initial release of the jackal-linear plugin.
+
+**New:**
+- `/start-from-linear [ISSUE-ID]` command: fetches Linear issue, sets it to In Progress, seeds the `starting-a-design-plan` workflow with issue context
+- `linear-workflow` skill: start mode (issue fetch + In Progress status) and finish mode (In Review on PR, Done on merge)
+- `writing-for-linear` skill: content standards for Linear comments, status-change updates, and issue descriptions
+- PostToolUse hook: detects `gh pr create` and `git merge` commands, injects Linear reminder when `.linear-issue` is present
+- Linear MCP server registered via `mcp-remote` pointing to `https://mcp.linear.app/mcp` (OAuth 2.1)
+
+## ed3d-house-style 1.0.3
+
+Relax FCIS file classification to target only files with runtime behavior.
+
+**Changed:**
+- FCIS skill: classification now mandatory only for files containing runtime logic (functions, classes with methods, orchestration)
+- FCIS skill: added exemptions for type-only files, constants, barrels, tests, and generated files
+- FCIS skill: added threshold note — exempt files that grow to include runtime logic must be classified
+- TypeScript skill: added clarifying note in FCIS Integration section about exemptions
+
+## ed3d-plan-and-execute 1.10.3
+
+Add session isolation for parallel planning/execution to prevent file collisions.
+
+**New:**
+- `SCRATCHPAD_DIR` parameter with unique session ID (e.g., `/tmp/plan-2025-01-24-feature-a7f3b2/`) ensures isolation when multiple planning or execution sessions run in parallel
+- Random session ID component prevents collisions on retry attempts
+
+**Changed:**
+- `writing-implementation-plans`: creates and passes SCRATCHPAD_DIR to code-reviewer in Finalization step
+- `executing-an-implementation-plan`: creates SCRATCHPAD_DIR at startup, passes to all code review invocations
+- `requesting-code-review`: accepts and forwards SCRATCHPAD_DIR to code-reviewer subagent
+- `code-reviewer` agent: documents SCRATCHPAD_DIR usage for any scratch files
+
+## ed3d-extending-claude 1.1.0
+
+Adds marketplace management skill for creating and maintaining Claude Code Plugin Marketplaces.
+
+**New:**
+- `maintaining-a-marketplace` skill covering marketplace.json schema, version management, release checklists, changelog conventions, validation, and distribution — generalizable for any user publishing a marketplace
+
+## ed3d-plan-and-execute 1.10.2
+
+Fix typo in planning handoff command.
+
+**Fixed:**
+- `starting-a-design-plan`: Phase 6 handoff command had `/ed3d-ed3d-plan-and-execute:start-implementation-plan` instead of `/ed3d-plan-and-execute:start-implementation-plan`
+
+## ed3d-extending-claude 1.0.4
+
+Add model-level testing guidance to testing-skills-with-subagents.
+
+**Changed:**
+- `testing-skills-with-subagents`: RED phase should use production-level model (default: Sonnet); GREEN/REFACTOR phases should use one tier down (default: Haiku) to ensure skill clarity under weaker reasoning
+- Quick reference table now includes model column
+
+## ed3d-basic-agents 1.1.0
+
+Add fan-out analysis skill for large corpus processing.
+
+**New:**
+- `doing-a-simple-two-stage-fanout` skill: orchestrates parallel Worker subagents, Critic review subagents, and a Summarizer for analyzing corpora that exceed a single agent's context window
+- `compute_layout.py` helper script for computing segment counts, agent assignments, and context window budgets
+- `diagram-templates.md` reference with Mermaid and Graphviz templates for visualizing fan-out pipelines
+- First `user-invocable: true` skill in this plugin
+
 ## [ed3d-hook-skill-reinforcement] 1.0.1, [ed3d-plan-and-execute] 1.10.1, [ed3d-basic-agents] 1.0.2, [ed3d-extending-claude] 1.0.3
 
 Remove stale `<available_skills>` XML tag references that no longer match how Claude Code injects skill lists.

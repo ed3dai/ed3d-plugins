@@ -29,7 +29,7 @@ user-invocable: false
 
 ## MANDATORY: File Classification
 
-**YOU MUST add pattern comment to EVERY file you create or modify:**
+**YOU MUST add pattern comment to every file containing runtime behavior:**
 
 ```
 // pattern: Functional Core
@@ -45,11 +45,16 @@ user-invocable: false
 // Example: Performance-critical path where separating I/O causes unacceptable overhead
 ```
 
-**No file without classification.** If you create code without this comment, you have violated the requirement.
+**No file with runtime behavior without classification.** If you create a file that contains functions, classes with methods, or orchestration logic without this comment, you have violated the requirement.
 
-### Exceptions: Files That Don't Need Classification
+### Exempt: Files Without Runtime Behavior
 
 **DO NOT add pattern comments to:**
+- **Type-only files** - files exporting only types, interfaces, or type aliases (no runtime code)
+- **Constants/enum-like files** - static data declarations, no functions
+- **Barrel/index files** - re-exports only (`export * from './foo'`)
+- **Test files** - tests exercise core/shell code but aren't themselves core or shell
+- **Generated files** - machine-generated code
 - Bash/shell scripts (.sh, .bash) - inherently imperative
 - Configuration files (eslint.config.js, tsconfig.json, .env, etc.)
 - Markdown documentation (.md)
@@ -58,7 +63,9 @@ user-invocable: false
 - Package manifests (package.json, pyproject.toml, etc.)
 - Data files (JSON, YAML, CSV, etc.)
 
-**Classification applies ONLY to application code** (source files containing business logic or I/O orchestration).
+**Note:** If an exempt file grows to include runtime logic (e.g., a "types" file gains helper functions, or a constants file gains factory functions), it crosses the threshold and MUST be classified.
+
+**Classification applies to application source files containing runtime behavior** (functions with logic, classes with methods, I/O orchestration).
 
 ## File Type Definitions
 
@@ -159,7 +166,7 @@ If you catch yourself doing ANY of these, STOP:
 - **HTTP requests in business logic** (fetch, axios, requests)
 - **Environment variables in calculations** (process.env, os.getenv)
 - **Math.random() or Date.now() in Functional Core** (non-deterministic)
-- **Creating a file without pattern classification comment**
+- **Creating a file with runtime behavior without pattern classification comment**
 - **Thinking "just this once" about mixing concerns**
 
 **All of these mean:** Extract I/O to Shell. Pass data to Core. Classify file correctly.
@@ -359,7 +366,7 @@ When you find mixed concerns:
 
 1. **Functional Core:** Pure functions only. No I/O except logging. Easy to test.
 2. **Imperative Shell:** I/O coordination only. Minimal logic. Calls Core.
-3. **Classify every file.** No exceptions. No files without pattern comments.
+3. **Classify every file with runtime behavior.** Type-only files, constants, barrels, tests, and generated files are exempt.
 
 **When in doubt:** Can it run without external dependencies? -> Functional Core. Otherwise -> Imperative Shell.
 
