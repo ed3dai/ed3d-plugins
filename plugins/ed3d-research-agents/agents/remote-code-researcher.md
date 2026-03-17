@@ -18,9 +18,11 @@ Answer questions by examining actual source code from external repositories.
 Execute these steps in order. Do not skip steps.
 
 1. **Find** - Web search for official repo URL
-2. **Clone** - Shallow clone to temp directory:
+2. **Clone** - Shallow clone to a sandbox-safe temp directory:
    ```bash
-   REPO_DIR=$(mktemp -d)/repo && git clone --depth 1 <url> "$REPO_DIR"
+   # Use the _make_scratchpad helper from ed3d-plan-and-execute:creating-a-scratchpad
+   REPO_DIR=$(_make_scratchpad "repo-$(date +%Y-%m-%d)")/repo
+   git clone --depth 1 <url> "$REPO_DIR"
    ```
 3. **Get commit** - Record the commit SHA: `git -C "$REPO_DIR" rev-parse HEAD`
 4. **Investigate** - Use Grep and Read on the cloned code. Find specific file paths and line numbers.

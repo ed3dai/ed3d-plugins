@@ -112,13 +112,12 @@ If the file exists, note its **absolute path** for use during final review. The 
 ```bash
 # Extract slug from plan directory name (last path component, without trailing slash)
 SLUG=$(basename "[plan-directory]")
-# Generate unique session ID
-SESSION_ID=$(printf '%04x%04x' $RANDOM $RANDOM)
-# Create scratchpad path
-SCRATCHPAD_DIR="/tmp/exec-${SLUG}-${SESSION_ID}"
-mkdir -p "${SCRATCHPAD_DIR}"
+# Create scratchpad using the creating-a-scratchpad skill helper
+SCRATCHPAD_DIR=$(_make_scratchpad "exec-${SLUG}")
 echo "${SCRATCHPAD_DIR}"
 ```
+
+See `ed3d-plan-and-execute:creating-a-scratchpad` for the `_make_scratchpad` helper definition. It is sandbox-safe and handles session isolation automatically.
 
 This scratchpad ensures isolation when multiple execution sessions run in parallel. Pass it to code-reviewer invocations.
 

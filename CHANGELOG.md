@@ -1,5 +1,17 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.10.4, ed3d-research-agents 1.0.2
+
+Fix sandbox mode compatibility for temp directory creation.
+
+**New:**
+- `creating-a-scratchpad` skill with sandbox-safe fallback chain: `mktemp -d` → `$TMPDIR` → `/tmp/claude-$UID` → `/tmp/claude-1000`
+
+**Changed:**
+- `writing-implementation-plans`: SCRATCHPAD_DIR now uses `creating-a-scratchpad` helper instead of hardcoded `/tmp/plan-*` path
+- `executing-an-implementation-plan`: SCRATCHPAD_DIR now uses `creating-a-scratchpad` helper instead of hardcoded `/tmp/exec-*` path
+- `remote-code-researcher`: clone directory now uses `creating-a-scratchpad` helper instead of bare `mktemp -d`
+
 ## ed3d-house-style 1.0.3
 
 Relax FCIS file classification to target only files with runtime behavior.

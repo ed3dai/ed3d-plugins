@@ -369,16 +369,14 @@ Before creating tasks, capture absolute paths:
 - `PLAN_DIR`: Absolute path to implementation plan directory (e.g., `/Users/ed/project/docs/implementation-plans/2025-01-24-feature/`)
 - `SCRATCHPAD_DIR`: Absolute path to temp directory for subagent scratch files (e.g., `/tmp/plan-2025-01-24-feature-a7f3b2/`)
 
-**Generate a unique session ID for SCRATCHPAD_DIR:**
+**Generate SCRATCHPAD_DIR using the `creating-a-scratchpad` skill:**
 
 ```bash
-SESSION_ID=$(printf '%04x%04x' $RANDOM $RANDOM)
-echo "/tmp/plan-$(date +%Y-%m-%d)-${slug}-${SESSION_ID}"
+# Use the _make_scratchpad helper from the creating-a-scratchpad skill
+SCRATCHPAD_DIR=$(_make_scratchpad "plan-$(date +%Y-%m-%d)-${slug}")
 ```
 
-The session ID (e.g., `a7f3b2`) ensures isolation between:
-- Parallel planning sessions with similar slugs
-- Retry attempts (if a plan fails and user starts over)
+See `ed3d-plan-and-execute:creating-a-scratchpad` for the full helper definition and fallback chain. The helper is sandbox-safe and ensures session isolation between parallel planning sessions and retry attempts.
 
 **SCRATCHPAD_DIR ensures session isolation.** Code reviewers and other subagents should write any temp files here, not to shared locations like `/tmp/`.
 
