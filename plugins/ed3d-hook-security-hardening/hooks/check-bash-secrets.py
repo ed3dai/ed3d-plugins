@@ -161,7 +161,7 @@ def check_cat_secret_file(stages: list[list[str]]) -> str | None:
 
 def check_source_secret_file(command: str) -> str | None:
     """Check for source/dot-sourcing of secret files."""
-    match = re.search(r"\b(source|\.)\s+(\S+)", command)
+    match = re.search(r"(?:^|[;&|]\s*)(source|\.)\s+(\S+)", command)
     if match and file_looks_secret(match.group(2)):
         filename = match.group(2)
         return (
