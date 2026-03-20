@@ -77,7 +77,15 @@ Look for signs that the environment is missing something:
 
 **Extensive codebase exploration.** The agent spent many turns searching for files, reading code to understand structure, or asking "where does X live?" This suggests the project's CLAUDE.md or documentation could be improved. If this pattern is significant, recommend that the user consider integrating the `ed3d-extending-claude:project-claude-librarian` agent into their workflow to keep project context fresh. Do NOT run the librarian for them.
 
-**Repeated manual sequences.** The user directed the agent through the same multi-step process that could be automated. Recommend encoding it as a skill, makefile target, or script.
+**Repeated multi-step workflows.** Look for multi-step sequences that should be automated — whether the user directed them manually or the agent discovered them by trial and error. Both are equally important: if the agent figured out "build, then test, then lint" during this session, there's no guarantee it'll reproduce that sequence next time. Recommend encoding it as a skill or script. If the transcript reveals what build system the project uses (npm scripts, justfile, Makefile, etc.), suggest automation within that existing system. Never suggest tools the user doesn't already have.
+
+**Problems better solved outside Claude.** Sometimes the right fix isn't a Claude hook or skill — it's a change to the build system, CI pipeline, or project tooling. If you see the user or agent repeatedly orchestrating steps that belong in a build recipe or test harness, say so. Suggest the user start a new session focused on that automation, and provide a concrete starter prompt they could use. Example:
+
+> Consider starting a session to automate this. A prompt to get started:
+>
+> *"I keep having to manually run `npm build && npm test` after every code change during Claude sessions. Can you help me add a package.json script that handles this?"*
+
+Keep this light — you're reading a transcript, not the codebase. Flag the pattern and suggest the direction; don't try to solve the build system problem yourself.
 
 **Missing conventions.** The agent made style or architectural choices that the user had to correct. These conventions should be documented.
 

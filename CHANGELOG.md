@@ -1,5 +1,13 @@
 # Changelog
 
+## ed3d-session-reflection 0.2.0
+
+**New:**
+- `/export-session-as-markdown` skill for exporting sessions as GitHub-flavored Markdown
+- `reduce-transcript.py` now supports `--markdown` flag for full Markdown export with metadata header, collapsible tool results, and thinking blocks
+- Conversation reviewer now detects agent-discovered multi-step workflows as automation candidates (not just user-directed ones)
+- Conversation reviewer suggests build system improvements using the project's existing tooling
+
 ## ed3d-session-reflection 0.1.0
 
 EXPERIMENTAL. Session awareness and conversation review tooling.
