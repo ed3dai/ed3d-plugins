@@ -1,112 +1,102 @@
 ---
 name: investigating-a-codebase
-description: Use when planning or designing features and need to understand current codebase state, find existing patterns, or verify assumptions about what exists; when design makes assumptions about file locations, structure, or existing code that need verification - prevents hallucination by grounding plans in reality
+description: Searches files by name and content, reads directory structures, traces imports and dependencies, and maps code patterns across a repository. Use when asked to explore a codebase, find where something is defined, check if a file or function exists, verify design assumptions about project structure, or map out how components connect before implementation.
 user-invocable: false
 ---
 
 # Investigating a Codebase
 
-## Overview
-
-Understand current codebase state to ground planning and design decisions in reality, not assumptions. Find existing patterns, verify design assumptions, and provide definitive answers about what exists and where.
-
 ## When to Use
 
-**Use for:**
-- Verifying design assumptions before implementation ("Design assumes auth.ts exists - verify")
-- Finding existing patterns to follow ("How do we currently handle API errors?")
-- Locating features or code ("Where is user authentication implemented?")
-- Understanding component architecture ("How does the routing system work?")
-- Confirming existence definitively ("Does feature X exist or not?")
-- Preventing hallucination about file paths and structure
+- "Where is user authentication implemented?"
+- "Does a rate-limiting middleware already exist?"
+- "How do we currently handle API errors?"
+- "Verify that the design's assumed file paths are correct"
+- "What patterns do existing service modules follow?"
 
-**Don't use for:**
-- Information available in external docs (use internet research)
-- Questions answered by reading 1-2 specific known files (use Read directly)
-- General programming questions not specific to this codebase
+Do NOT use for: external docs lookups, reading a single known file, or general programming questions.
 
-## Core Investigation Workflow
+## Core Workflow
 
-1. **Start with entry points** - main files, index, package.json, config
-2. **Use multiple search strategies** - Glob patterns, Grep keywords, Read files
-3. **Follow traces** - imports, references, component relationships
-4. **Verify don't assume** - confirm file locations and structure
-5. **Report definitively** - exact paths or "not found" with search strategy
+1. **Orient** - Read entry points (package.json, main/index files, config) to understand project shape
+2. **Search broadly** - Run parallel Glob + Grep to locate candidates
+3. **Read and trace** - Read matched files, follow imports and references
+4. **Cross-verify** - Confirm findings from multiple angles; never trust a single hit
+5. **Report with evidence** - Exact paths and line numbers, or "not found" with search log
+
+## Search Strategies with Examples
+
+### Locating files by name
+```
+Glob: src/**/auth*.{ts,js,tsx}
+Glob: **/middleware/**/*.{ts,js}
+Glob: **/*config*.{json,yaml,yml,toml}
+```
+
+### Finding definitions and usages
+```
+Grep: 'export (function|class|const) UserService' --type ts
+Grep: 'import.*from.*auth' --type ts
+Grep: 'rate.?limit' -i --glob '*.{ts,js}'
+```
+
+### Mapping project structure
+```
+Bash: ls -la src/
+Bash: ls -la src/services/
+Read: package.json (check dependencies, scripts, entry points)
+Read: tsconfig.json / webpack.config.js (check aliases, paths)
+```
+
+### Tracing component relationships
+1. Find the definition: `Grep: 'export.*PaymentService'`
+2. Find all consumers: `Grep: 'import.*PaymentService'`
+3. Read both sides to understand the contract
 
 ## Verifying Design Assumptions
 
-When given design assumptions to verify:
+When a design document claims specific files, functions, or structures exist:
 
-1. **Extract assumptions** - list what design expects to exist
-2. **Search for each** - file paths, functions, patterns, dependencies
-3. **Compare reality vs expectation** - matches, discrepancies, additions, missing
-4. **Report explicitly**:
-   - ✓ Confirmed: "Design assumption correct: auth.ts:42 has login()"
-   - ✗ Discrepancy: "Design assumes auth.ts, found auth/index.ts instead"
-   - \+ Addition: "Found logout() not mentioned in design"
-   - \- Missing: "Design expects resetPassword(), not found"
+1. **List each assumption** explicitly (file path, function name, pattern)
+2. **Search for each** using Glob + Grep
+3. **Report per assumption**:
+   - Confirmed: `auth.ts:42 exports login()` -- matches design
+   - Discrepancy: design says `auth.ts`, actual location is `auth/index.ts`
+   - Missing: `resetPassword()` not found anywhere (searched: `Grep: 'resetPassword' --type ts`)
+   - Unexpected: found `logout()` at `auth/index.ts:58` not mentioned in design
 
-**Why this matters:** Prevents implementation plans based on wrong assumptions about codebase structure.
+## Reporting Format
 
-## Quick Reference
+**Lead with the direct answer**, then supporting evidence:
 
-| Task | Strategy |
-|------|----------|
-| **Where is X** | Glob likely names → Grep keywords → Read matches |
-| **How does X work** | Find entry point → Follow imports → Read implementation |
-| **What patterns exist** | Find examples → Compare implementations → Extract conventions |
-| **Does X exist** | Multiple searches → Definitive yes/no → Evidence |
-| **Verify assumptions** | Extract claims → Search each → Compare reality vs expectation |
+```
+## Finding: Authentication is in src/auth/
 
-## Investigation Strategies
+- Entry point: src/auth/index.ts (exports login, logout, refreshToken)
+- JWT handling: src/auth/jwt.ts:15-42
+- Middleware: src/middleware/requireAuth.ts
+- Tests: src/auth/__tests__/login.test.ts
+- Pattern: all auth functions return Promise<AuthResult>
 
-**Multiple search approaches:**
-- Glob for file patterns across codebase
-- Grep for keywords, function names, imports
-- Read key files to understand implementation
-- Follow imports and references for relationships
-- Check package.json, config files for dependencies
+Search strategy: Glob src/**/auth* (4 hits), Grep 'export.*login' (1 hit)
+```
 
-**Don't stop at first result:**
-- Explore multiple paths to verify findings
-- Cross-reference different areas of codebase
-- Confirm patterns are consistent not one-off
-- Follow both usage and definition traces
+**For "not found" results**, always document what was searched:
 
-**Verify everything:**
-- Never assume file locations - always verify with Read/Glob
-- Never assume structure - explore and confirm
-- Document search strategy when reporting "not found"
-- Distinguish "doesn't exist" from "couldn't locate"
+```
+## Finding: No rate-limiting middleware exists
 
-## Reporting Findings
-
-**Lead with direct answer:**
-- Answer the question first
-- Supporting details second
-- Evidence with exact file paths and line numbers
-
-**Provide actionable intelligence:**
-- Exact file paths (src/auth/login.ts:42), not vague locations
-- Relevant code snippets showing current patterns
-- Dependencies and versions when relevant
-- Configuration files and current settings
-- Naming, structure, and testing conventions
-
-**Handle "not found" confidently:**
-- "Feature X does not exist" is valid and useful
-- Explain what you searched and where you looked
-- Suggest related code as starting point
-- Report negative findings prevents hallucination
+Searched: Glob **/*rate*limit* (0 hits), Grep 'rate.?limit' (0 hits),
+Grep 'throttle' (0 hits), Read src/middleware/ directory listing (no candidates).
+Closest related: src/middleware/requireAuth.ts (auth only, no rate logic).
+```
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Assuming file locations | Always verify with Read/Glob before reporting |
-| Stopping at first result | Explore multiple paths to verify findings |
-| Vague locations ("in auth folder") | Exact paths (src/auth/index.ts:42) |
-| Not documenting search strategy | Explain what was checked when reporting "not found" |
-| Confusing "not found" types | Distinguish "doesn't exist" from "couldn't locate" |
-| Skipping design assumption comparison | Explicitly report: confirmed/discrepancy/addition/missing |
-| Reporting assumptions as facts | Only report what was verified in codebase |
+| Assuming file locations without checking | Always Glob/Grep before reporting a path |
+| Stopping at first search result | Cross-reference with at least one other search |
+| Reporting vague locations ("in the auth folder") | Use exact paths with line numbers: `src/auth/index.ts:42` |
+| Saying "not found" without search log | List every Glob/Grep query attempted |
+| Treating "couldn't locate" as "doesn't exist" | Try alternate names, abbreviations, related terms before concluding |
