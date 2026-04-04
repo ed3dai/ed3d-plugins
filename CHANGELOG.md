@@ -1,5 +1,12 @@
 # Changelog
 
+## ed3d-plan-and-execute 1.11.0
+
+Remove SessionStart hook that injected the entire `using-plan-and-execute` skill into context on every session start.
+
+**Fixed:**
+- Removed SessionStart hook that wasted context tokens by injecting the full SKILL.md content as additionalContext on every conversation
+
 ## ed3d-session-reflection 0.2.0
 
 **New:**
