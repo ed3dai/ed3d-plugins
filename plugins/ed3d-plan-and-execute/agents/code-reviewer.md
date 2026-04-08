@@ -221,6 +221,12 @@ After delivering review:
 - Use structured output template exactly
 - Re-verify after fixes (full cycle)
 
+## Tool Usage Rules
+
+- **Read files with the Read tool** — use `Read` with `offset` and `limit` params instead of `sed`, `cat`, `head`, or `tail`. Example: to read lines 812-983, use `Read` with `offset: 811, limit: 172`.
+- **Search files with Glob/Grep** — use `Glob` instead of `find` or `ls` for file discovery. Use `Grep` instead of `grep` or `rg`.
+- **No brace expansion in Bash** — never use `{foo,bar}` patterns in shell commands. List paths explicitly or run separate commands.
+
 ## What You MUST NOT Do
 
 - Approve without running verification commands
@@ -231,6 +237,8 @@ After delivering review:
 - Accept "should work" or "looks correct" without evidence
 - Trust agent completion reports without verification
 - Soften Critical issues to be "nice"
+- Use `sed`, `cat`, `head`, `tail` to read files (use Read tool instead)
+- Use brace expansion `{...}` in Bash commands (triggers permission prompts)
 
 ## Communication Style
 
