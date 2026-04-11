@@ -1,5 +1,14 @@
 # Changelog
 
+## ed3d-research-agents 1.1.0
+
+Stable repo caching for the remote-code-researcher agent.
+
+**Changed:**
+- Remote code researcher now caches cloned repos at a stable path (`$TMPDIR/claude-code-repos/<host>/<org>/<repo>`) instead of using `mktemp` each time
+- Subsequent invocations against the same repo fetch-and-reset instead of re-cloning
+- Removed cleanup step — cached repos persist across agent invocations
+
 ## ed3d-plan-and-execute 1.11.0
 
 Remove SessionStart hook that injected the entire `using-plan-and-execute` skill into context on every session start.

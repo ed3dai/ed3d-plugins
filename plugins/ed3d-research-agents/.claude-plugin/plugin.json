@@ -1,7 +1,7 @@
 {
     "name": "ed3d-research-agents",
     "description": "Agents used for research across multiple data sources. Other plugins expect this one to be enabled.",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "author": {
         "name": "Ed",
         "email": "ed@ed3d.net"
