@@ -12,7 +12,7 @@ Modern React development using functional components, hooks, and TypeScript. Thi
 
 **Core principle:** Components are functions that return UI. State and effects are managed through hooks. Composition over inheritance always.
 
-**REQUIRED SUB-SKILL:** Use ed3d-house-style:howto-code-in-typescript for general TypeScript patterns. This skill covers React-specific TypeScript usage only.
+**REQUIRED SUB-SKILL:** Use jackal-house-style:howto-code-in-typescript for general TypeScript patterns. This skill covers React-specific TypeScript usage only.
 
 ## When to Use
 

@@ -6,7 +6,7 @@ user-invocable: true
 
 # Jackal Implementation Plan Starter
 
-Generic replacement for `ed3d-plan-and-execute:starting-an-implementation-plan`.
+Generic replacement for `jackal-plan-and-execute:starting-an-implementation-plan`.
 
 **Announce at start:** "I'm using jackal-impl-plan to set up implementation for [issue/feature]."
 
@@ -234,7 +234,7 @@ Incorporate any project-specific guidance.
 
 ## Step 5: Write Implementation Plan
 
-**REQUIRED SUB-SKILL:** `ed3d-plan-and-execute:writing-implementation-plans`
+**REQUIRED SUB-SKILL:** `jackal-plan-and-execute:writing-implementation-plans`
 
 Announce: "I'm using writing-implementation-plans to create the detailed plan."
 
@@ -280,7 +280,7 @@ Steps:
 
 When execution completes, run /jackal-finish-branch from the worktree.
 
-Note: /execute-implementation-plan is the ed3d-plan-and-execute skill — there is no Jackal wrapper for this step. All other steps in the cycle use /jackal-* skills.
+Note: /execute-implementation-plan is the jackal-plan-and-execute skill — there is no Jackal wrapper for this step. All other steps in the cycle use /jackal-* skills.
 ```
 
 ---

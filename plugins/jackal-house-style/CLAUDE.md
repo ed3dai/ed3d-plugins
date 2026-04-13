@@ -12,7 +12,7 @@ This repository defines:
 ## Repository Structure
 
 ```
-ed3d-house-style/
+jackal-house-style/
 ├── skills/           # Skills for Claude instances
 ├── agents/           # (Reserved for future use)
 └── CLAUDE.md         # This file

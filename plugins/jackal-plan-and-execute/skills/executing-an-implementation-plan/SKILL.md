@@ -172,7 +172,7 @@ Do NOT implement functionality without tests. Missing tests = plan gap, not some
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:task-implementor-fast</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:task-implementor-fast</parameter>
 <parameter name="description">Implementing Phase X, Task Y: [description]</parameter>
 <parameter name="prompt">
   Implement Task N from the phase file.
@@ -184,7 +184,7 @@ Do NOT implement functionality without tests. Missing tests = plan gap, not some
 
   Your job is to:
   1. Read the phase file to understand context
-  2. Apply all relevant skills, such as (if available) ed3d-house-style:coding-effectively
+  2. Apply all relevant skills, such as (if available) jackal-house-style:coding-effectively
   3. Implement exactly what Task N specifies
   4. Verify with tests/build/lint
   5. Commit your work
@@ -201,7 +201,7 @@ Do NOT implement functionality without tests. Missing tests = plan gap, not some
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:task-implementor-fast</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:task-implementor-fast</parameter>
 <parameter name="description">Implementing Phase X, Subcomponent A (Tasks 3-5): [description]</parameter>
 <parameter name="prompt">
   Implement Subcomponent A (Tasks 3, 4, 5) from the phase file.
@@ -213,7 +213,7 @@ Do NOT implement functionality without tests. Missing tests = plan gap, not some
 
   Your job is to:
   1. Read the phase file to understand context
-  2. Apply all relevant skills, such as (if available) ed3d-house-style:coding-effectively
+  2. Apply all relevant skills, such as (if available) jackal-house-style:coding-effectively
   3. Implement all tasks in sequence
   4. Verify with tests/build/lint after completing all tasks
   5. Commit your work (one commit per task, or logical commits)
@@ -278,7 +278,7 @@ The phase changed too much for a single review. Chunk the review:
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:task-bug-fixer</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:task-bug-fixer</parameter>
 <parameter name="description">Fixing review issues for Phase X</parameter>
 <parameter name="prompt">
   Fix issues from code review for Phase X.
@@ -393,7 +393,7 @@ Dispatch the test-analyst agent:
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:test-analyst</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:test-analyst</parameter>
 <parameter name="description">Analyzing test coverage and generating test plan</parameter>
 <parameter name="prompt">
 Analyze test implementation against acceptance criteria.
@@ -416,7 +416,7 @@ Return coverage validation result. If PASS, include the human test plan.
 1. Dispatch bug-fixer to add missing tests:
    ```
    <invoke name="Task">
-   <parameter name="subagent_type">ed3d-plan-and-execute:task-bug-fixer</parameter>
+   <parameter name="subagent_type">jackal-plan-and-execute:task-bug-fixer</parameter>
    <parameter name="description">Adding missing test coverage</parameter>
    <parameter name="prompt">
    Add missing tests identified by the test analyst.

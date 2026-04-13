@@ -6,7 +6,7 @@ user-invocable: true
 
 # Jackal Design Plan
 
-Generic wrapper around `ed3d-plan-and-execute:starting-a-design-plan` that integrates the supervisor at both ends of the design phase.
+Generic wrapper around `jackal-plan-and-execute:starting-a-design-plan` that integrates the supervisor at both ends of the design phase.
 
 **Announce at start:** "I'm using jackal-design-plan to start design for [ISSUE-ID]."
 
@@ -144,7 +144,7 @@ ISSUE-ID-kebab-title-from-todo
 # Example: HCG-123-add-user-authentication-feature
 ```
 
-**REQUIRED SUB-SKILL:** `ed3d-plan-and-execute:starting-a-design-plan`
+**REQUIRED SUB-SKILL:** `jackal-plan-and-execute:starting-a-design-plan`
 
 Announce: "I'm using starting-a-design-plan to run the full 6-phase design process."
 

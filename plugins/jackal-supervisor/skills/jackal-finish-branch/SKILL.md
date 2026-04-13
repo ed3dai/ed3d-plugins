@@ -1,12 +1,12 @@
 ---
 name: jackal-finish-branch
-description: Generic branch completion skill. Wraps ed3d-plan-and-execute:finishing-a-development-branch with project-specific overrides read from the ## Jackal Config section in this project's CLAUDE.md — correct git remote, push command, test command, PR method, and TODO.md Resolved update.
+description: Generic branch completion skill. Wraps jackal-plan-and-execute:finishing-a-development-branch with project-specific overrides read from the ## Jackal Config section in this project's CLAUDE.md — correct git remote, push command, test command, PR method, and TODO.md Resolved update.
 user-invocable: true
 ---
 
 # Jackal Finish Branch
 
-Generic wrapper around `ed3d-plan-and-execute:finishing-a-development-branch`.
+Generic wrapper around `jackal-plan-and-execute:finishing-a-development-branch`.
 
 **Announce at start:** "I'm using jackal-finish-branch to complete this work."
 
@@ -51,7 +51,7 @@ Skill("jackal-ui-verify")
 
 ## Step 2: Run ed3d Finishing Flow
 
-**REQUIRED SUB-SKILL:** `ed3d-plan-and-execute:finishing-a-development-branch`
+**REQUIRED SUB-SKILL:** `jackal-plan-and-execute:finishing-a-development-branch`
 
 Announce: "I'm using finishing-a-development-branch with project overrides."
 

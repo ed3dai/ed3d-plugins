@@ -1,4 +1,4 @@
-# ed3d-plan-and-execute
+# jackal-plan-and-execute
 
 A workflow plugin for Claude Code that guides you from rough idea to working implementation through structured design, planning, and execution phases.
 
@@ -152,7 +152,7 @@ This plugin uses subagents and skills from other plugins. Install these for full
 | Plugin | What It Provides | Required For |
 |--------|------------------|--------------|
 | **ed3d-research-agents** | `codebase-investigator`, `internet-researcher` | Codebase verification, external research during design |
-| **ed3d-house-style** | `coding-effectively` and sub-skills | Code quality standards during implementation and review |
+| **jackal-house-style** | `coding-effectively` and sub-skills | Code quality standards during implementation and review |
 | **ed3d-extending-claude** | `project-claude-librarian` | Updating CLAUDE.md files after implementation |
 
 Without these plugins, the workflow will still run but will skip the corresponding subagent dispatches (with a warning).
@@ -167,10 +167,10 @@ The plugin uses specialized subagents for different roles:
 |-------|--------|------|
 | **codebase-investigator** | ed3d-research-agents | Verifies file paths, finds patterns, confirms assumptions |
 | **internet-researcher** | ed3d-research-agents | Finds current API docs, library patterns, best practices |
-| **task-implementor-fast** | ed3d-plan-and-execute | Implements tasks with TDD, runs verification, commits |
-| **code-reviewer** | ed3d-plan-and-execute | Enforces quality standards, blocks on issues |
-| **task-bug-fixer** | ed3d-plan-and-execute | Fixes issues identified by code reviewer |
-| **test-analyst** | ed3d-plan-and-execute | Validates test coverage against acceptance criteria, generates human test plans |
+| **task-implementor-fast** | jackal-plan-and-execute | Implements tasks with TDD, runs verification, commits |
+| **code-reviewer** | jackal-plan-and-execute | Enforces quality standards, blocks on issues |
+| **task-bug-fixer** | jackal-plan-and-execute | Fixes issues identified by code reviewer |
+| **test-analyst** | jackal-plan-and-execute | Validates test coverage against acceptance criteria, generates human test plans |
 | **project-claude-librarian** | ed3d-extending-claude | Updates CLAUDE.md files when contracts change |
 
 You interact with the main orchestrating agent. It dispatches subagents and shows you their full responses.

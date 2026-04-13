@@ -6,7 +6,7 @@ user-invocable: false
 
 # Requesting Code Review
 
-Dispatch ed3d-plan-and-execute:code-reviewer subagent to catch issues before they cascade.
+Dispatch jackal-plan-and-execute:code-reviewer subagent to catch issues before they cascade.
 
 **Core principle:** Review early, review often. Fix ALL issues before proceeding.
 
@@ -65,7 +65,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:code-reviewer</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:code-reviewer</parameter>
 <parameter name="description">Reviewing [what was implemented]</parameter>
 <parameter name="prompt">
   Use template at requesting-code-review/code-reviewer.md
@@ -92,7 +92,7 @@ Regardless of category (Critical, Important, or Minor), dispatch bug-fixer:
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:task-bug-fixer</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:task-bug-fixer</parameter>
 <parameter name="description">Fixing review issues</parameter>
 <parameter name="prompt">
   Fix issues from code review.
@@ -123,7 +123,7 @@ After fixes, proceed to Step 3.
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:code-reviewer</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:code-reviewer</parameter>
 <parameter name="description">Re-reviewing after fixes (cycle N)</parameter>
 <parameter name="prompt">
   Use template at requesting-code-review/code-reviewer.md

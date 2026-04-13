@@ -113,7 +113,7 @@ The guidance informs what questions you ask during clarification.
 
 Use TaskUpdate to mark Phase 2 as in_progress.
 
-**REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:asking-clarifying-questions
+**REQUIRED SUB-SKILL:** Use jackal-plan-and-execute:asking-clarifying-questions
 
 Announce: "I'm using the asking-clarifying-questions skill to make sure I understand your requirements correctly."
 
@@ -236,7 +236,7 @@ With clear understanding from Phases 1-3, explore design alternatives and valida
 
 Use TaskUpdate to mark Phase 4 as in_progress.
 
-**REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:brainstorming
+**REQUIRED SUB-SKILL:** Use jackal-plan-and-execute:brainstorming
 
 Announce: "I'm using the brainstorming skill to explore design alternatives and validate the approach."
 
@@ -262,7 +262,7 @@ Append the validated design to the document created in Phase 3.
 
 Use TaskUpdate to mark Phase 5 as in_progress.
 
-**REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:writing-design-plans
+**REQUIRED SUB-SKILL:** Use jackal-plan-and-execute:writing-design-plans
 
 Announce: "I'm using the writing-design-plans skill to complete the design document."
 
@@ -305,7 +305,7 @@ Ready to create the implementation plan? This requires fresh context to work eff
 
 (1) Copy this command now:
 ```
-/ed3d-plan-and-execute:start-implementation-plan @docs/design-plans/[full-filename].md .
+/jackal-plan-and-execute:start-implementation-plan @docs/design-plans/[full-filename].md .
 ```
 (the `.` at the end is necessary or else Claude Code will eat the command and do the wrong thing.)
 

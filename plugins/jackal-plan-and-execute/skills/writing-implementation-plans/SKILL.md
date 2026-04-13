@@ -826,7 +826,7 @@ After all phase D tasks are completed, mark the Finalization task as in_progress
 
 ```
 <invoke name="Task">
-<parameter name="subagent_type">ed3d-plan-and-execute:code-reviewer</parameter>
+<parameter name="subagent_type">jackal-plan-and-execute:code-reviewer</parameter>
 <parameter name="description">Validating implementation plan against design</parameter>
 <parameter name="prompt">
   Review the implementation plan for completeness and alignment with the design.

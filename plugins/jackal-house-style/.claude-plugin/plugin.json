@@ -1,13 +1,13 @@
 {
-    "name": "ed3d-house-style",
+    "name": "jackal-house-style",
     "description": "Ed's stylistic particulars for writing code and English.",
     "version": "1.0.3",
     "author": {
         "name": "Ed",
         "email": "ed@ed3d.net"
     },
-    "homepage": "https://github.com/ed3dai/ed3d-house-style",
-    "repository": "https://github.com/ed3dai/ed3d-house-style",
+    "homepage": "https://github.com/ed3dai/jackal-house-style",
+    "repository": "https://github.com/ed3dai/jackal-house-style",
     "license": "UNLICENSED",
     "keywords": [
         "skills",

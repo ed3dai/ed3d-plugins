@@ -2,17 +2,17 @@
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "jackal-plugins",
     "version": "2.1.0",
-    "description": "Jack Greaney's Claude Code plugins — hard forks of ed3d-house-style and ed3d-plan-and-execute, plus original jackal-* plugins. Install vanilla ed3d-* plugins from the @ed3d-plugins marketplace.",
+    "description": "Jack Greaney's Claude Code plugins — hard forks of jackal-house-style and jackal-plan-and-execute, plus original jackal-* plugins. Install vanilla ed3d-* plugins from the @ed3d-plugins marketplace.",
     "owner": {
         "name": "Jack Greaney",
         "email": "jgreaney@hcg.com"
     },
     "plugins": [
         {
-            "name": "ed3d-house-style",
+            "name": "jackal-house-style",
             "description": "Jackal fork of ed3d house style — coding standards, TypeScript, React, Postgres, and testing patterns.",
             "version": "1.0.3",
-            "source": "./plugins/ed3d-house-style",
+            "source": "./plugins/jackal-house-style",
             "author": {
                 "name": "Jack Greaney",
                 "email": "jgreaney@hcg.com"
@@ -20,10 +20,10 @@
             "license": "UNLICENSED"
         },
         {
-            "name": "ed3d-plan-and-execute",
+            "name": "jackal-plan-and-execute",
             "description": "Jackal fork of ed3d-plan-and-execute — planning and execution workflows for Claude Code.",
             "version": "1.10.3",
-            "source": "./plugins/ed3d-plan-and-execute",
+            "source": "./plugins/jackal-plan-and-execute",
             "author": {
                 "name": "Jack Greaney",
                 "email": "jgreaney@hcg.com"
@@ -32,7 +32,7 @@
         },
         {
             "name": "jackal-supervisor",
-            "description": "Jackal workflow supervisor — skills for design, implementation, branch management, and UI verification. Wraps ed3d-plan-and-execute with project-specific configuration.",
+            "description": "Jackal workflow supervisor — skills for design, implementation, branch management, and UI verification. Wraps jackal-plan-and-execute with project-specific configuration.",
             "version": "1.0.0",
             "source": "./plugins/jackal-supervisor",
             "author": {
@@ -50,7 +50,7 @@
         },
         {
             "name": "jackal-linear",
-            "description": "DEPRECATED. Integrated Linear issue tracking with the ed3d-plan-and-execute workflow.",
+            "description": "DEPRECATED. Integrated Linear issue tracking with the jackal-plan-and-execute workflow.",
             "version": "1.1.0",
             "source": "./plugins/jackal-linear",
             "author": {

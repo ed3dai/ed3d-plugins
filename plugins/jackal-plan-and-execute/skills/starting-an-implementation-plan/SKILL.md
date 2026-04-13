@@ -90,7 +90,7 @@ Options:
 
 **If user chooses "Yes - create worktree":**
 
-1. **REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:using-git-worktrees
+1. **REQUIRED SUB-SKILL:** Use jackal-plan-and-execute:using-git-worktrees
 2. **CONDITIONAL SKILLS:** Activate any project-specific git worktree skills if they exist
 3. Announce: "I'm using the using-git-worktrees skill to create an isolated workspace."
 4. Ask user which branch to use for the worktree:
@@ -159,7 +159,7 @@ Proceed directly to Planning. Do not create a task or mention the missing file.
 
 Mark "Create implementation plan" task as in_progress.
 
-**REQUIRED SUB-SKILL:** Use ed3d-plan-and-execute:writing-implementation-plans
+**REQUIRED SUB-SKILL:** Use jackal-plan-and-execute:writing-implementation-plans
 
 Announce: "I'm using the writing-implementation-plans skill to create the detailed implementation plan."
 
@@ -207,7 +207,7 @@ After potentially long planning work (especially if context compaction occurred)
 
 ```bash
 # Re-read this skill to restore context
-cat /path/to/plugins/ed3d-plan-and-execute/skills/starting-an-implementation-plan/SKILL.md
+cat /path/to/plugins/jackal-plan-and-execute/skills/starting-an-implementation-plan/SKILL.md
 ```
 
 Or use the Read tool on the skill file path.
@@ -258,7 +258,7 @@ Ready to execute? This requires fresh context to work effectively.
 
 (1) Copy this command now:
 
-/ed3d-plan-and-execute:execute-implementation-plan /Users/ed/project/.worktrees/oauth2-feature/docs/implementation-plans/2025-01-17-oauth2-feature/ /Users/ed/project/.worktrees/oauth2-feature/
+/jackal-plan-and-execute:execute-implementation-plan /Users/ed/project/.worktrees/oauth2-feature/docs/implementation-plans/2025-01-17-oauth2-feature/ /Users/ed/project/.worktrees/oauth2-feature/
 
 (2) Clear your context:
 
