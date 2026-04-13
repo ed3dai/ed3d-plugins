@@ -1,5 +1,7 @@
 # jackal-linear
 
+> **DEPRECATED** — 2026-04-13. Plugin is no longer maintained.
+
 Last verified: 2026-03-08
 
 ## Purpose

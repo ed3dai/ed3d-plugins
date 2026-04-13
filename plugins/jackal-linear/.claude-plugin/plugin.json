@@ -1,7 +1,7 @@
 {
     "name": "jackal-linear",
-    "version": "1.0.0",
-    "description": "Integrates Linear issue tracking with the ed3d-plan-and-execute workflow. Start design sessions from Linear issues and sync progress back automatically.",
+    "version": "1.1.0",
+    "description": "DEPRECATED. Integrated Linear issue tracking with the ed3d-plan-and-execute workflow.",
     "author": {
         "name": "Jack Greaney",
         "email": "jgreaney@hcg.com"
