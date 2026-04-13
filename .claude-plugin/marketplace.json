@@ -127,6 +127,24 @@
             ]
         },
         {
+            "name": "jackal-supervisor",
+            "description": "Jackal workflow supervisor — skills for design, implementation, branch management, and UI verification. Wraps ed3d-plan-and-execute with project-specific configuration.",
+            "version": "1.0.0",
+            "source": "./plugins/jackal-supervisor",
+            "author": {
+                "name": "Jack Greaney",
+                "email": "jgreaney@hcg.com"
+            },
+            "license": "UNLICENSED",
+            "keywords": [
+                "workflow",
+                "supervisor",
+                "planning",
+                "branching",
+                "jackal"
+            ]
+        },
+        {
             "name": "jackal-linear",
             "description": "Integrates Linear issue tracking with the ed3d-plan-and-execute workflow. Start design sessions from Linear issues and sync progress back automatically.",
             "version": "1.0.0",
