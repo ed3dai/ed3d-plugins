@@ -14,6 +14,7 @@ user-invocable: false
 
 **CONDITIONAL:** Use these sub-skills when applicable:
 - `howto-code-in-typescript` - TypeScript code
+- `howto-code-in-rust` - Rust code
 - `howto-develop-with-postgres` - PostgreSQL database code
 - `programming-in-react` - React frontend code
 - `writing-good-tests` - Writing or reviewing tests
@@ -188,3 +189,13 @@ Don't assume Unix behavior works on Windows. Test explicitly:
 - Abstractions created for single use cases
 - Type assertions (`as any`) to bypass the type system
 - Code that "works on my machine" but isn't tested cross-platform
+
+## Commit Hygiene
+
+Applies to all languages. Commits are the unit of review and bisect; treat them with the same care as the code they contain.
+
+- Each commit is a logical, atomic unit of change.
+- Every commit must build and pass all checks (bisect-able history).
+- Separate concerns: formatting fixes and refactoring go in separate commits from feature changes.
+- Use simple past and present tense in bodies: "Previously X happened. With this commit, Y now happens."
+- Commit message bodies use markdown. Do not use backticks in commit titles, but do use them in bodies.

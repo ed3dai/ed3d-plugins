@@ -1,5 +1,13 @@
 # Changelog
 
+## [ed3d-house-style] [1.1.0]
+
+Add Rust house-style skill.
+
+**New:**
+- `howto-code-in-rust` skill covering `thiserror`+`miette` error handling, type system patterns, async/serde conventions, testing crates, exact-version dependency pinning, and module organization
+- `coding-effectively` now lists `howto-code-in-rust` as a conditional sub-skill for Rust code
+
 ## ed3d-research-agents 1.1.0
 
 Stable repo caching for the remote-code-researcher agent.
