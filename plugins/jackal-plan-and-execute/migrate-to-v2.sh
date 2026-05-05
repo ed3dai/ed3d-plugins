@@ -47,9 +47,10 @@ echo "Installing v2 skills..."
 rm -rf "$PLUGIN_DIR/skills"
 mv "$PLUGIN_DIR/skills-v2" "$PLUGIN_DIR/skills"
 
-# 6. Remove old commands
-echo "Removing v1 commands..."
+# 6. Install v2 commands
+echo "Installing v2 commands..."
 rm -rf "$PLUGIN_DIR/commands"
+mv "$PLUGIN_DIR/commands-v2" "$PLUGIN_DIR/commands"
 
 # 7. Remove hooks
 echo "Removing v1 hooks..."
@@ -64,7 +65,14 @@ echo "Updating README..."
 mv "$PLUGIN_DIR/README-v2.md" "$PLUGIN_DIR/README.md"
 
 # 10. Clean up v2 staging dirs
-rmdir "$PLUGIN_DIR/agents-v2" 2>/dev/null || true
+rm -rf "$PLUGIN_DIR/agents-v2" 2>/dev/null || true
+
+# 11. Update jackal-supervisor skills
+echo "Updating jackal-supervisor skill references..."
+SUPERVISOR_DIR="plugins/jackal-supervisor/skills"
+mv "$SUPERVISOR_DIR/jackal-design-plan/SKILL-v2.md" "$SUPERVISOR_DIR/jackal-design-plan/SKILL.md"
+mv "$SUPERVISOR_DIR/jackal-impl-plan/SKILL-v2.md" "$SUPERVISOR_DIR/jackal-impl-plan/SKILL.md"
+mv "$SUPERVISOR_DIR/jackal-finish-branch/SKILL-v2.md" "$SUPERVISOR_DIR/jackal-finish-branch/SKILL.md"
 
 echo ""
 echo "=== Migration complete ==="
