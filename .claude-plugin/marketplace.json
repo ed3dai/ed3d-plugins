@@ -1,5 +1,5 @@
 {
-    "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+    "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
     "name": "ed3d-plugins",
     "version": "2.0.0",
     "description": "Unified marketplace for ed3d's Claude Code development toolkit",
