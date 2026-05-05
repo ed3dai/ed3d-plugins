@@ -12,13 +12,18 @@ user-invocable: true
 
 ## Step 0: Load Project Config
 
+Check for `.jackal/harness-guidance.md` in the repo root and read it if present. Apply any overrides (e.g. skip e2e, always use playwright-explorer).
+
 Read the **## Jackal Config** section from the project's CLAUDE.md. Extract:
 
 | Variable | Key | Example |
 |----------|-----|---------|
-| `$UI_PATH` | `ui_path` | `market-analysis-tool/ui/` |
+| `$UI_PATH` | `ui_path` | `ui/` |
 | `$UI_PORT` | `ui_port` | `5173` |
 | `$API_PORT` | `api_port` | `8000` |
+| `$UI_DEV_CMD` | `ui_dev_cmd` | `cd ui && npm run dev` |
+| `$API_DEV_CMD` | `api_dev_cmd` | `uv run uvicorn api.main:app --port 8001 --reload` |
+| `$E2E_CMD` | `e2e_cmd` | `cd ui && npm run test:e2e` (omit key if no e2e suite) |
 | `$ISSUE_DOCS` | `issue_docs` | `docs/issues` |
 
 ---
@@ -62,7 +67,7 @@ curl -s http://localhost:$API_PORT/api/health > /dev/null 2>&1 && echo "API: run
 
 **If servers are not running — start them from the worktree:**
 
-The exact start commands come from the project's `## Quick Commands` section in CLAUDE.md. Use those — do not guess.
+Use `$UI_DEV_CMD` and `$API_DEV_CMD` from the Jackal Config. Run them as background processes from within the worktree directory:
 
 Wait for both to be ready:
 ```bash
@@ -80,9 +85,9 @@ done
 
 ## Step 3: Run Existing E2E Tests
 
-Run the project's e2e test suite from within the worktree. This catches regressions in existing flows.
+If `$E2E_CMD` is not set in the Jackal Config, skip this step — the project has no e2e suite.
 
-Use the e2e test command from the project's `## Quick Commands` in CLAUDE.md (e.g., `npm run test:e2e`, `pytest e2e/`, etc.).
+Otherwise run `$E2E_CMD` from within the worktree. This catches regressions in existing flows.
 
 **Interpreting results:**
 - All pass → proceed to Step 4
@@ -202,5 +207,5 @@ Use `ed3d-playwright:playwright-explorer` for the navigation smoke test if the a
 | `curl: (7) Failed to connect` | Server not started | Start from worktree, not main repo |
 | Tests pass but UI looks wrong | Tests don't cover visual layout | Add MCP visual check for that AC |
 | Wrong port | Config mismatch | Check `ui_port`/`api_port` in Jackal Config |
-| Auth redirect loop | Auth bypass not set | Check project's Quick Commands for local dev env vars |
+| Auth redirect loop | Auth bypass not set | Check `api_dev_cmd` in Jackal Config for local dev env vars |
 | Wrong version being tested | Server running from main repo | Kill and restart from worktree |

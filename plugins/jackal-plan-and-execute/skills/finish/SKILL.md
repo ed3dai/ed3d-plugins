@@ -14,10 +14,11 @@ Complete a development branch after implementation passes review.
 
 ### 1. UI Verification (if applicable)
 
-Before running tests, check whether this branch touched any UI files:
+Read `ui_path` from the Jackal Config in CLAUDE.md. Check whether this branch touched any files under that path:
 
 ```bash
-git diff --name-only main...[feature-branch] | grep -E '^ui/|\.tsx$|\.jsx$|\.css$|\.scss$'
+UI_PATH=$(grep 'ui_path' CLAUDE.md | awk '{print $2}')
+git diff --name-only main...[feature-branch] | grep "^${UI_PATH}"
 ```
 
 If any UI files changed: invoke `jackal-ui-verify` with the issue ID. **Do not proceed to merge until it reports ✅ PASS.**
@@ -32,7 +33,7 @@ $TEST_CMD
 
 If tests fail → stop. Report failures. Don't proceed.
 
-### 2. Present Options
+### 3. Present Options
 
 ```
 Implementation complete. Options:
@@ -43,7 +44,7 @@ Implementation complete. Options:
 4. Discard this work
 ```
 
-### 3. Execute Choice
+### 4. Execute Choice
 
 **Option 1 — Merge locally:**
 ```bash
@@ -76,7 +77,7 @@ git checkout main
 git branch -D [feature-branch]
 ```
 
-### 4. Update Project Context
+### 5. Update Project Context
 
 For Options 1 and 2, dispatch the project-claude-librarian (if available) to update CLAUDE.md files if contracts changed:
 
@@ -94,7 +95,7 @@ Working directory: [path]
 
 If the plugin isn't available, skip this step.
 
-### 5. Update TODO.md and Issue Doc
+### 6. Update TODO.md and Issue Doc
 
 For Options 1 and 2:
 - Issue doc: set Status → Done
@@ -104,7 +105,7 @@ For Options 1 and 2:
 For Option 4:
 - Remove from Active, don't add to Resolved
 
-### 6. Clean Up Worktree
+### 7. Clean Up Worktree
 
 For Options 1, 2, 4:
 ```bash
@@ -113,7 +114,7 @@ git worktree remove [worktree-path]
 
 For Option 3: keep worktree.
 
-### 7. Test Plan Reminder
+### 8. Test Plan Reminder
 
 If `docs/test-plans/` has a file matching this issue, remind the user it exists.
 
