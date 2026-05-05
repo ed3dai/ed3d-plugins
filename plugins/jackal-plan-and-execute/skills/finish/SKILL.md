@@ -12,7 +12,19 @@ Complete a development branch after implementation passes review.
 
 ## Process
 
-### 1. Verify Tests Pass
+### 1. UI Verification (if applicable)
+
+Before running tests, check whether this branch touched any UI files:
+
+```bash
+git diff --name-only main...[feature-branch] | grep -E '^ui/|\.tsx$|\.jsx$|\.css$|\.scss$'
+```
+
+If any UI files changed: invoke `jackal-ui-verify` with the issue ID. **Do not proceed to merge until it reports ✅ PASS.**
+
+If no UI files changed: skip this step.
+
+### 2. Verify Tests Pass
 
 ```bash
 $TEST_CMD

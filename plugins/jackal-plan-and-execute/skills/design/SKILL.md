@@ -12,6 +12,24 @@ Transform a rough idea or Complex issue into a committed design document ready f
 
 ---
 
+## Harness Guidance
+
+Before starting, check for `.jackal/harness-guidance.md` and `.jackal/design-guidance.md` in the repo root. Read both if present and apply project-specific constraints before step 2.
+
+## Delegation Rules
+
+The design skill handles user interaction and commits the design document. Research is always delegated.
+
+| Do directly | Delegate |
+|---|---|
+| Confirm DoD with user | Codebase investigation → `codebase-investigator` |
+| Brainstorm approaches, write design doc | External tech research → `combined-researcher` |
+| Commit design doc to git | |
+
+Do not use Bash/Read/Grep to investigate the codebase yourself — dispatch `codebase-investigator` so its findings land in a clean subagent context and don't bloat the main conversation.
+
+---
+
 ## Input
 
 Accept any of:

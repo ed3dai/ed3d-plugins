@@ -13,6 +13,24 @@ Generate an implementation plan and set up the execution environment.
 
 ---
 
+## Harness Guidance
+
+Before starting, check for `.jackal/harness-guidance.md` in the repo root and read it if present. Apply any project-specific overrides to merge strategy, test command, or parallel execution policy.
+
+## Delegation Rules
+
+This skill handles setup (conflict gate, worktree creation) and hands off artifact work to agents.
+
+| Do directly | Delegate |
+|---|---|
+| Conflict gate git commands | Phase file generation → `planner` agent |
+| Create worktree | |
+| Pass plan dir + worktree to execute | |
+
+Do not read the codebase to understand patterns or research dependencies — the `planner` agent does that.
+
+---
+
 ## Process
 
 ### 1. Resolve Input

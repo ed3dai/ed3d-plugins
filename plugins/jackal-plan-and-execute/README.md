@@ -54,6 +54,21 @@ Model-adaptive planning and execution harness for Claude Code.
 | `implementor` | Sonnet | Executes one phase or one Simple issue completely |
 | `reviewer` | Sonnet | Validates code against requirements, returns structured verdict |
 
+## Delegation Model
+
+The main conversation (orchestrator) manages state and makes decisions. It **never** writes code, runs tests for correctness, or investigates the codebase directly.
+
+| Do directly (orchestrator) | Delegate to subagent |
+|---|---|
+| Read/write TODO.md and issue docs | Write code and tests → `implementor` |
+| Run conflict gate (git commands) | Generate phase files → `planner` |
+| Create/remove worktrees | Validate code against requirements → `reviewer` |
+| Route by complexity, decide whether to review | Investigate codebase patterns → `codebase-investigator` |
+| Merge branches, update backlog | Research external deps/APIs → `combined-researcher` |
+| Report to human | |
+
+**The rule:** If a task produces an artifact (code, phase files, a review verdict, research findings), delegate it. If a task reads or updates shared state (backlog, git, issue docs) or requires a routing decision, do it directly.
+
 ## Complexity Routing
 
 | Complexity | Pipeline |
@@ -78,6 +93,19 @@ The orchestrator:
 7. Loops until stuck
 
 Stops for: human decisions, all blocked, review failures (3x), ambiguity.
+
+## Harness Guidance
+
+Create `.jackal/harness-guidance.md` in your project root to customize orchestrator behavior across all skills. This file is read at the start of every skill run and takes precedence over built-in defaults.
+
+Typical contents:
+- **Delegation overrides** — e.g., "always review auth phases even if not the final phase"
+- **Merge strategy** — e.g., "never merge locally; always open a PR"
+- **Test command** — override the auto-detected test command
+- **Stop conditions** — e.g., "pause after each issue rather than looping"
+- **Parallel execution policy** — e.g., "never dispatch in parallel (shared DB state)"
+
+If the file doesn't exist, all defaults apply.
 
 ## Migration from v1
 

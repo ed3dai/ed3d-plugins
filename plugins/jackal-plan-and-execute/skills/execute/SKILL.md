@@ -12,6 +12,35 @@ Two modes:
 
 ---
 
+## Harness Guidance
+
+Before running either mode, check for `.jackal/harness-guidance.md` in the repo root:
+
+```bash
+[ -f "$REPO_ROOT/.jackal/harness-guidance.md" ] && cat "$REPO_ROOT/.jackal/harness-guidance.md"
+```
+
+If found, read it and apply any overrides to defaults (review policy, merge strategy, parallel execution policy, stop conditions). If not found, all defaults apply.
+
+---
+
+## Delegation Rules
+
+The orchestrator manages state and makes routing decisions. It **never** writes code, runs project tests, or investigates the codebase for patterns.
+
+| Do directly | Delegate |
+|---|---|
+| Read/write TODO.md and issue docs | Code + tests → `implementor` |
+| Run conflict gate git commands | Phase file generation → `planner` |
+| Create/remove worktrees | Code review → `reviewer` (via `review` skill) |
+| Decide whether and when to review | |
+| Merge branches to main | |
+| Update backlog state | |
+
+If you find yourself about to write code, run `$TEST_CMD` for correctness, or grep through the codebase — stop and dispatch an `implementor` or `reviewer` instead.
+
+---
+
 ## Mode 1: Execute an Implementation Plan
 
 **Input:** path to plan directory (contains `phase_NN.md` files)
@@ -38,7 +67,9 @@ After each phase completes, decide:
 | Phase is pure infrastructure/config | Skip review |
 | All other phases | Skip per-phase review; catch issues in final review |
 
-**Final review is always mandatory.** It covers the full diff from plan start to completion.
+**Final review is always mandatory.**
+
+After the final review passes, check for UI changes — `finish` will invoke `jackal-ui-verify` automatically if UI files were touched. It covers the full diff from plan start to completion.
 
 When review finds Critical or Important issues:
 1. Dispatch `implementor` with the issues list and instruction to fix
