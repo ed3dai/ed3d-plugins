@@ -1,8 +1,8 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "jackal-plugins",
-    "version": "2.2.0",
-    "description": "Jack Greaney's Claude Code plugins — hard forks of ed3d-house-style and ed3d-plan-and-execute, plus jackal-supervisor. Install vanilla ed3d-* plugins from the @ed3d-plugins marketplace.",
+    "version": "3.0.0",
+    "description": "Jackal harness — model-adaptive planning, execution, and project supervision for Claude Code.",
     "owner": {
         "name": "Jack Greaney",
         "email": "jgreaney@hcg.com"
@@ -10,7 +10,7 @@
     "plugins": [
         {
             "name": "jackal-house-style",
-            "description": "Jackal fork of ed3d house style — coding standards, TypeScript, React, Postgres, and testing patterns.",
+            "description": "Coding standards — TypeScript, React, Python, Postgres, and testing patterns.",
             "version": "1.0.3",
             "source": "./plugins/jackal-house-style",
             "author": {
@@ -21,8 +21,8 @@
         },
         {
             "name": "jackal-plan-and-execute",
-            "description": "Jackal fork of ed3d-plan-and-execute — planning and execution workflows for Claude Code.",
-            "version": "1.10.3",
+            "description": "Model-adaptive planning and execution harness. Sonnet implementors, conditional review, continuous backlog execution.",
+            "version": "2.0.0",
             "source": "./plugins/jackal-plan-and-execute",
             "author": {
                 "name": "Jack Greaney",
@@ -32,21 +32,14 @@
         },
         {
             "name": "jackal-supervisor",
-            "description": "Jackal workflow supervisor — skills for design, implementation, branch management, and UI verification. Wraps jackal-plan-and-execute with project-specific configuration.",
-            "version": "1.0.0",
+            "description": "Project supervisor — backlog management, conflict gates, complexity routing, and lifecycle orchestration.",
+            "version": "2.0.0",
             "source": "./plugins/jackal-supervisor",
             "author": {
                 "name": "Jack Greaney",
                 "email": "jgreaney@hcg.com"
             },
-            "license": "UNLICENSED",
-            "keywords": [
-                "workflow",
-                "supervisor",
-                "planning",
-                "branching",
-                "jackal"
-            ]
+            "license": "UNLICENSED"
         }
     ]
 }
