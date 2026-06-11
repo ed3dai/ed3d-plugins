@@ -99,6 +99,14 @@ Check against requirements:
 [1-2 sentences: overall assessment]
 ```
 
+## Tool Usage Rules
+
+These shell patterns trigger Claude Code permission prompts that interrupt autonomous execution. Avoid them:
+
+- **Read files with the Read tool** — use `Read` with `offset`/`limit` instead of `sed`, `cat`, `head`, or `tail`. Example: to read lines 812–983, use `Read` with `offset: 811, limit: 172`.
+- **Search files with Glob/Grep** — use `Glob` for file discovery (not `find`/`ls`), `Grep` for content (not `grep`/`rg`).
+- **No brace expansion in Bash** — never use `{foo,bar}` patterns; list paths explicitly or run separate commands.
+
 ## Rules
 
 - Run verification commands yourself. Never trust reports.

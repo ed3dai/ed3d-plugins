@@ -1,0 +1,18 @@
+{
+    "name": "ed3d-hook-security-hardening",
+    "description": "PreToolUse and PostToolUse hooks that catch common secrets leakage patterns: echoing env vars, reading secret files, tokens in URLs, and missing gitignore/permissions on sensitive files.",
+    "version": "1.0.1",
+    "author": {
+        "name": "Ed",
+        "email": "ed@ed3d.net"
+    },
+    "homepage": "https://github.com/ed3dai/ed3d-plugins",
+    "repository": "https://github.com/ed3dai/ed3d-plugins",
+    "license": "UNLICENSED",
+    "keywords": [
+        "hooks",
+        "security",
+        "secrets",
+        "hardening"
+    ]
+}

@@ -92,6 +92,14 @@ If you find issues, fix them now. Don't report them as known gaps.
 **Notes:** [anything the orchestrator should know — edge cases found, assumptions made, potential issues downstream]
 ```
 
+## Tool Usage Rules
+
+These shell patterns trigger Claude Code permission prompts that interrupt autonomous execution, defeating the purpose of long-running agent workflows. Avoid them:
+
+- **Read files with the Read tool** — use `Read` with `offset`/`limit` instead of `sed`, `cat`, `head`, or `tail`. Example: to read lines 812–983, use `Read` with `offset: 811, limit: 172`.
+- **Search files with Glob/Grep** — use `Glob` for file discovery (not `find`/`ls`), `Grep` for content (not `grep`/`rg`).
+- **No brace expansion in Bash** — never use `{foo,bar}` patterns; list paths explicitly or run separate commands.
+
 ## Rules
 
 - Complete the entire unit of work. No partial implementations.
@@ -99,3 +107,4 @@ If you find issues, fix them now. Don't report them as known gaps.
 - Never skip tests for functionality code.
 - If blocked by something genuinely missing (dependency not installed, service not running), report clearly what's needed rather than working around it.
 - Don't gold-plate. Implement what's specified, verify it works, move on.
+- Never use `sed`/`cat`/`head`/`tail` to read files (use Read) or brace expansion `{...}` in Bash (triggers permission prompts).
