@@ -70,16 +70,18 @@ BRANCH=$(awk '/^## Worktree/{flag=1; next} /^## /{flag=0} flag && /- branch:/{pr
    Compare against scope from the design plan or issue doc. Block on file-level conflict, warn on directory-level.
 
    ```bash
-   ISSUE_ID="${issue_prefix}-XXX"
+   ISSUE="24"            # GitHub issue number (the work-unit key)
    SLUG="kebab-title"
-   MODULE="module-short"
+   TYPE="feat"           # conventional-commit type: feat|fix|docs|chore|refactor|...
 
-   WORKTREE_REL=".worktrees/${ISSUE_ID}-${SLUG}"
+   WORKTREE_REL=".worktrees/${ISSUE}-${SLUG}"
    WORKTREE_PATH="$REPO_ROOT/$WORKTREE_REL"
-   BRANCH="feature/${MODULE}/${ISSUE_ID}-${SLUG}"
+   BRANCH="${TYPE}/${ISSUE}-${SLUG}"
 
    grep -q "\.worktrees" "$REPO_ROOT/.gitignore" || echo ".worktrees/" >> "$REPO_ROOT/.gitignore"
-   git worktree add "$WORKTREE_PATH" -b "$BRANCH" main
+   BASE="$(git -C "$REPO_ROOT" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#origin/##')"
+   : "${BASE:=main}"
+   git worktree add "$WORKTREE_PATH" -b "$BRANCH" "$BASE"
    ```
 
    Append `## Worktree` block to the issue doc with `branch:`, `path:`, `created:`. Set `**Status:** In Progress`. Commit the issue doc update from `$REPO_ROOT` so it lands on main:
@@ -87,7 +89,7 @@ BRANCH=$(awk '/^## Worktree/{flag=1; next} /^## /{flag=0} flag && /- branch:/{pr
    ```bash
    cd "$REPO_ROOT"
    git add "$ISSUE_DOC"
-   git commit -m "chore: assign worktree for ${ISSUE_ID}"
+   git commit -m "chore: assign worktree for #${ISSUE}"
    ```
 
 **Critical:** never silently bail. If the worktree resolution fails for any reason, report exactly what was tried and what failed — the user shouldn't see "could not find worktree" with no detail.

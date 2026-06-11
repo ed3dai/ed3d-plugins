@@ -46,9 +46,12 @@ Examples:
 
 **Detect issue ID** (if not provided):
 ```bash
-git branch --show-current
+BRANCH=$(git branch --show-current)
+# bare-integer scheme: <type>/<issue#>-slug  (e.g. feat/24-foo → 24)
+ISSUE_ID=$(echo "$BRANCH" | grep -oE '(^|/)[0-9]+(-|$)' | grep -oE '[0-9]+' | head -1)
+# legacy prefixed scheme fallback: <type>/<module>/PREFIX-46-slug → PREFIX-46
+[ -z "$ISSUE_ID" ] && ISSUE_ID=$(echo "$BRANCH" | grep -oE '[A-Z]{2,}-[0-9]+[a-z]?' | head -1)
 ```
-Extract from branch name (e.g., `feature/ui/PREFIX-46-...` → `PREFIX-46`).
 
 **Find the issue doc:**
 ```bash
@@ -146,7 +149,7 @@ Move the row from **Active** to the appropriate table:
 
 The Paused row format:
 ```
-| PREFIX-XXX | [title ≤6 words] | feature/module/PREFIX-XXX-slug | [checkpoint ~50 chars] | [doc]($ISSUE_DOCS/PREFIX-XXX-slug.md) |
+| 24 | [title ≤6 words] | feat/24-slug | [checkpoint ~50 chars] | [doc]($ISSUE_DOCS/24-slug.md) |
 ```
 
 Update "Last updated" date — set to `Last updated: YYYY-MM-DD`, date only, no commentary.
@@ -183,8 +186,8 @@ When ready to resume:
   Ask the supervisor: "resume PREFIX-XXX"
   → It will read the checkpoint and give you the exact resume command.
 
-Worktree preserved at: .worktrees/PREFIX-XXX-slug
-Branch preserved: feature/module/PREFIX-XXX-slug
+Worktree preserved at: .worktrees/24-slug
+Branch preserved: feat/24-slug
 ```
 
 ---

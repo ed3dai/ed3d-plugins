@@ -45,13 +45,16 @@ When called from the continuous execution loop:
 
 After the finish skill completes (Options 1 or 2):
 
-1. Find issue: extract ISSUE_ID from branch name (e.g., `feature/ui/PREFIX-46-slug` → `PREFIX-46`)
+1. Find issue: extract the issue number from the branch name. New scheme
+   `<type>/<issue#>-slug` (e.g. `feat/24-foo` → `24`); legacy `PREFIX-46` → `46`.
 2. Update issue doc: Status → Done
 
 **If `backend: github`:**
 
 ```bash
-GH_ISSUE_NUM=$(echo "$ISSUE_ID" | grep -oE '[0-9]+$')
+# bare-integer scheme first (feat/24-foo → 24), then legacy PREFIX-NN tail.
+GH_ISSUE_NUM=$(echo "$BRANCH" | grep -oE '(^|/)[0-9]+(-|$)' | grep -oE '[0-9]+' | head -1)
+[ -z "$GH_ISSUE_NUM" ] && GH_ISSUE_NUM=$(echo "$ISSUE_ID" | grep -oE '[0-9]+$')
 
 # RESULT_URL = PR URL (Option 2) or merge commit SHA (Option 1)
 gh issue comment "$GH_ISSUE_NUM" --repo "$GH_REPO" --body "$(cat <<EOF

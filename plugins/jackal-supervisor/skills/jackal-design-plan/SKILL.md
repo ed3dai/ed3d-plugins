@@ -45,18 +45,20 @@ Compare candidate scope (from issue doc `In scope:`) against the active branch f
 Derive names from the issue doc (never ask):
 
 ```bash
-ISSUE_ID="${issue_prefix}-XXX"
-SLUG="kebab-title"        # from issue doc title
-MODULE="module-short"     # from issue doc Module field, looked up in modules map
+ISSUE="24"                # GitHub issue number (the work-unit key)
+SLUG="kebab-title"        # from issue title
+TYPE="feat"               # conventional-commit type: feat|fix|docs|chore|refactor|...
 
-WORKTREE_PATH="$REPO_ROOT/.worktrees/${ISSUE_ID}-${SLUG}"
-BRANCH="feature/${MODULE}/${ISSUE_ID}-${SLUG}"
+WORKTREE_PATH="$REPO_ROOT/.worktrees/${ISSUE}-${SLUG}"
+BRANCH="${TYPE}/${ISSUE}-${SLUG}"
 
 grep -q "\.worktrees" "$REPO_ROOT/.gitignore" || echo ".worktrees/" >> "$REPO_ROOT/.gitignore"
 
+BASE="$(git -C "$REPO_ROOT" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#origin/##')"
+: "${BASE:=main}"
 if [ ! -d "$WORKTREE_PATH" ]; then
   cd "$REPO_ROOT"
-  git worktree add "$WORKTREE_PATH" -b "$BRANCH" main
+  git worktree add "$WORKTREE_PATH" -b "$BRANCH" "$BASE"
 fi
 ```
 
@@ -67,8 +69,8 @@ Append (or replace) a `## Worktree` block in the issue doc. **This is the single
 ```markdown
 ## Worktree
 
-- branch: feature/module/PREFIX-XXX-slug
-- path: .worktrees/PREFIX-XXX-slug
+- branch: feat/24-slug
+- path: .worktrees/24-slug
 - created: 2026-05-28
 ```
 

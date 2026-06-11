@@ -86,19 +86,25 @@ Compare against active branch file sets.
 Derive names automatically (never ask):
 
 ```bash
-ISSUE_ID="CG-XX"           # from issue doc, or blank
+ISSUE="24"                 # GitHub issue number (the work-unit key), or blank
 SLUG="kebab-title"         # from design filename or issue title
-MODULE="module-short"      # from issue doc Module field
+TYPE="feat"                # conventional-commit type: feat|fix|docs|chore|refactor|...
 
-WORKTREE=".worktrees/${ISSUE_ID}-${SLUG}"
-BRANCH="feature/${MODULE}/${ISSUE_ID}-${SLUG}"
+WORKTREE=".worktrees/${ISSUE}-${SLUG}"
+BRANCH="${TYPE}/${ISSUE}-${SLUG}"
 
 grep -q "\.worktrees" .gitignore || echo ".worktrees/" >> .gitignore
 
+BASE="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#origin/##')"
+: "${BASE:=main}"
 if [ ! -d "$WORKTREE" ]; then
-  git worktree add "$WORKTREE" -b "$BRANCH" main
+  git worktree add "$WORKTREE" -b "$BRANCH" "$BASE"
 fi
 ```
+
+> Legacy `feature/<module>/PREFIX-NN-slug` branches still work; new work uses the
+> bare-integer `<type>/<issue#>-slug` convention (matches the `gw` helper and the
+> telemetry wrapper, which key on the GitHub issue number).
 
 Run baseline test check:
 ```bash

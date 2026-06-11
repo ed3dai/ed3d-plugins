@@ -236,17 +236,20 @@ Both run concurrently. When both return:
 Every issue gets its own worktree:
 
 ```bash
-ISSUE_ID="CG-XX"
+ISSUE="24"             # GitHub issue number (the work-unit key)
 SLUG="kebab-title"
-MODULE="module-short"  # from issue doc Module field
+TYPE="feat"            # conventional-commit type: feat|fix|docs|chore|refactor|...
 
 # Ensure .worktrees is gitignored
 grep -q "\.worktrees" .gitignore || echo ".worktrees/" >> .gitignore
 
+BASE="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#origin/##')"
+: "${BASE:=main}"
+
 # Create (or reuse existing)
-if [ ! -d ".worktrees/${ISSUE_ID}-${SLUG}" ]; then
-  git worktree add .worktrees/${ISSUE_ID}-${SLUG} \
-    -b feature/${MODULE}/${ISSUE_ID}-${SLUG} main
+if [ ! -d ".worktrees/${ISSUE}-${SLUG}" ]; then
+  git worktree add .worktrees/${ISSUE}-${SLUG} \
+    -b ${TYPE}/${ISSUE}-${SLUG} "$BASE"
 fi
 ```
 
