@@ -13,7 +13,7 @@ Python coding standards using uv for package management and ruff for linting/for
 **Core principles:**
 - uv manages the entire project lifecycle (replaces pip, virtualenv, poetry)
 - ruff replaces flake8, isort, and black in one tool
-- **bandit and semgrep are MANDATORY security scanners on every Python project — no exceptions**
+- **bandit is a MANDATORY security gate on every Python project (HIGH severity in CI); semgrep is recommended as a deploy-time gate**
 - Modern type hints throughout; no legacy `typing` imports
 - Pydantic v2 for data validation and serialization
 - FastAPI for HTTP APIs, with `Depends()` + `Annotated` for dependency injection
@@ -29,8 +29,8 @@ When under deadline pressure, STOP and verify:
 - [ ] Dependencies added with `uv add`, not `pip install`
 - [ ] Scripts run with `uv run`, not bare `python`
 - [ ] Ran `ruff check --fix && ruff format` before commit
-- [ ] Ran `bandit -r src/` and `semgrep --config auto src/` before commit — both clean of HIGH/CRITICAL findings
-- [ ] `bandit` and `semgrep` are listed in `[tool.uv] dev-dependencies` and pinned in `uv.lock`
+- [ ] Ran `bandit -r <pkg>/ -lll` before commit — clean of HIGH findings (the CI gate)
+- [ ] `bandit` is listed in `[dependency-groups] dev` and pinned in `uv.lock`
 - [ ] All config in `pyproject.toml`; no stray `.flake8` / `setup.cfg` / `.isort.cfg`
 - [ ] `uv.lock` committed to version control
 - [ ] No `requirements.txt` alongside `pyproject.toml`
@@ -65,72 +65,63 @@ ruff format .                   # Format (replaces black)
 ruff check --select I --fix .   # Fix imports only
 ```
 
-**Standard `pyproject.toml` config:**
+**Standard `pyproject.toml` config** (matches ATLAS and Ledger Lens CI — keep these in lockstep so the pre-commit hook and `ruff format --check` in CI agree):
 
 ```toml
 [tool.ruff]
-line-length = 88
-target-version = "py312"
+line-length = 300            # formatter wraps; the linter does not police line length
 
 [tool.ruff.lint]
-extend-select = [
-    "E",    # pycodestyle errors
-    "F",    # pyflakes (on by default)
-    "I",    # isort
-    "UP",   # pyupgrade — modernize syntax automatically
-    "B",    # bugbear — catches likely bugs
-    "SIM",  # simplify
-    "RUF",  # ruff-specific rules
-]
-ignore = ["E501"]  # line length handled by formatter
+select = ["E", "F", "W"]     # pycodestyle errors/warnings + pyflakes
+ignore = ["E501"]            # line length not enforced by the linter
 
-[tool.ruff.format]
-quote-style = "double"
+# Narrow, file-scoped escape hatches — never blanket-ignore a rule repo-wide.
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["E402"]   # test bootstrapping before imports
+"**/scripts/*.py" = ["E402"]
 ```
+
+> The CI gate is exactly `ruff check <pkg>/ --output-format=github` plus
+> `ruff format --check <pkg>/`. Pin the `ruff` version in `uv.lock` and the
+> `astral-sh/ruff-pre-commit` `rev` together — version drift lets the local hook
+> pass while CI fails on formatting.
 
 ### Security Scanning (MANDATORY)
 
-**Every Python project MUST run both `bandit` and `semgrep`. No exceptions.**
+**Every Python project's CI MUST gate on `bandit` (HIGH severity).** Three more scanners back it up — `pip-audit` and `detect-secrets` run in CI, and `semgrep` runs at deploy time:
 
-These are not optional, and they are not interchangeable:
-- **bandit** — Python-specific AST scanner for common security mistakes (hardcoded creds, weak crypto, unsafe `pickle`/`yaml.load`, SQL string-formatting, `assert` in production logic, shell injection in `subprocess`).
-- **semgrep** — language-agnostic pattern scanner with curated rule packs (OWASP Top 10, CWE Top 25, framework-specific issues bandit misses such as Django/FastAPI/Flask anti-patterns).
-
-Both are required because they catch different classes of bugs. Running only one leaves a real attack surface uncovered.
+- **bandit** *(required PR gate)* — Python-specific AST scanner for common security mistakes (hardcoded creds, weak crypto, unsafe `pickle`/`yaml.load`, SQL string-formatting, `assert` in production logic, shell injection in `subprocess`). Run at `-lll` (HIGH only) so the gate is actionable and low-noise.
+- **pip-audit** *(CI, advisory)* — flags known CVEs in the locked dependency tree.
+- **detect-secrets** *(CI gate)* — baseline-diff scan that blocks newly committed secrets.
+- **semgrep** *(recommended, deploy-time gate)* — language-agnostic pattern scanner with curated rule packs (OWASP Top 10, CWE Top 25, framework anti-patterns bandit misses). Heavier and noisier than bandit, so run it in the deploy buildspec (as ATLAS does: `semgrep --config=p/fastapi --config=p/python`), not on every PR. A project may add it to PR checks, but bandit is the baseline.
 
 **Install as dev dependencies:**
 
 ```bash
-uv add --dev bandit semgrep
+uv add --dev bandit pip-audit detect-secrets   # semgrep too if you gate on it
 ```
 
-**Add to `pyproject.toml`:**
+**Add to `pyproject.toml`** (skips must carry a documented reason — see the real ATLAS/Ledger Lens `[tool.bandit]` blocks for the pattern):
 
 ```toml
 [tool.bandit]
 exclude_dirs = ["tests", ".venv"]
-skips = []  # do not skip checks without a documented reason in this file
-
-[tool.bandit.assert_used]
-# Only test files may use `assert` for production checks.
-skips = ["**/test_*.py", "**/*_test.py", "**/tests/**"]
+# B608: parameterized SQL ($1/$2, DESCRIBE-derived columns) — not injection. Confirmed false positive.
+skips = ["B608"]
 ```
 
-`semgrep` config lives at the repo root in `.semgrep.yml` (or use the hosted `--config auto` ruleset for projects without custom rules).
-
-**Run before every commit:**
+**Run before every commit (the bandit CI gate, verbatim):**
 
 ```bash
-uv run bandit -r src/ -ll          # -ll = LOW severity and above; fails on findings
-uv run semgrep --config auto src/  # use the curated registry rules
+uv run bandit -r <pkg>/ -lll --exclude <pkg>/tests -q   # -lll = HIGH only; fails on findings
 ```
 
 **Failing the gate:**
-- Any HIGH or CRITICAL bandit finding → fix or document `# nosec B###` with reason on the same line
-- Any ERROR-severity semgrep finding → fix or add a `nosemgrep:` comment with rule ID + reason
+- Any HIGH bandit finding → fix or document `# nosec B###` with reason on the same line
+- A `pip-audit` CVE → bump the dependency, or document why it's not exploitable if a bump isn't yet available
 - Never blanket-skip a rule across the repo. Every suppression is line-local with a reason.
 
-**CI integration:** add both as required checks in CI. If a project's CI runs only one, that's a bug to fix, not a stylistic choice.
+**CI integration:** bandit at `-lll` and detect-secrets are required checks; pip-audit is advisory; semgrep gates at deploy. Don't add semgrep to PR checks expecting it to match a project that gates it at deploy — confirm where each scanner actually runs before "fixing" CI.
 
 ## Type Hints
 
@@ -205,19 +196,22 @@ my-project/
 [project]
 name = "my-project"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = ["fastapi[standard]>=0.100", "pydantic>=2.0"]
 
-[tool.uv]
-dev-dependencies = ["pytest>=8.0", "ruff>=0.4", "mypy>=1.0", "bandit>=1.7", "semgrep>=1.50"]
+[dependency-groups]
+dev = ["pytest>=8.0", "ruff>=0.7", "bandit>=1.7.9", "pip-audit>=2.7", "detect-secrets>=1.5", "pre-commit>=4.6"]
 
 [tool.ruff]
-line-length = 88
-target-version = "py312"
+line-length = 300
 
 [tool.ruff.lint]
-extend-select = ["E", "F", "I", "UP", "B", "SIM"]
+select = ["E", "F", "W"]
 ignore = ["E501"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = []  # add B-codes only with a one-line reason above each
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -485,6 +479,7 @@ def load_config(path: str) -> Config:
 - Pydantic model with inner `class Config:` instead of `model_config = ConfigDict(...)`
 - `@app.on_event("startup")` in FastAPI (deprecated — use lifespan)
 - FastAPI `Depends(fn)` used without `Annotated` type wrapper
-- A Python project's CI without `bandit` AND `semgrep` jobs (both required, not either/or)
-- `bandit` / `semgrep` missing from `[tool.uv] dev-dependencies`
+- A Python project's CI without a `bandit -lll` job (the required PR gate) or without `detect-secrets`
+- `bandit` missing from `[dependency-groups] dev`
+- Adding `semgrep` to PR checks to match a project that gates it at deploy (confirm where it runs first)
 - A blanket `# nosec` or repo-wide rule disable without a documented reason

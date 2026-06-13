@@ -1,5 +1,15 @@
 # Changelog
 
+## [jackal-house-style] 1.0.5
+
+Align the Python skill's lint/security config with what ATLAS and Ledger Lens actually run in CI.
+
+**Changed:**
+- `howto-code-in-python` ruff config now matches real CI: `line-length = 300`, `select = ["E", "F", "W"]`, `ignore = ["E501"]`, file-scoped `per-file-ignores` for E402, and no `target-version` pin (CI runs Python 3.11). Was `line-length = 88`, `target-version = "py312"`, and a broad `extend-select` (I/UP/B/SIM/RUF) that no project enforced.
+- bandit is now described as the mandatory PR gate at `-lll` (HIGH only), matching CI and the buildspecs — was `-ll` (LOW and above).
+- semgrep downgraded from "MANDATORY on every project / required CI check" to a recommended deploy-time gate (as ATLAS runs it; Ledger Lens does not run it at all). Added `pip-audit` (advisory) and `detect-secrets` (gate) to reflect the real CI jobs.
+- Dev dependencies shown under `[dependency-groups] dev` instead of the legacy `[tool.uv] dev-dependencies`. Updated the self-check, pyproject example, and Red Flags to match. Added a note warning against adding semgrep to PR checks to "match" a project that gates it at deploy.
+
 ## [jackal-supervisor] 2.2.0
 
 GitHub is now the default backlog backend.
