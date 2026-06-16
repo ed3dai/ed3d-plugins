@@ -1,6 +1,6 @@
 # Changelog
 
-## [ed3d-basic-agents] 1.2.0, [ed3d-extending-claude] 1.2.0, [ed3d-plan-and-execute] 1.11.0, [ed3d-playwright] 1.1.0, [ed3d-research-agents] 1.2.0, [ed3d-session-reflection] 0.3.0
+## [ed3d-basic-agents] 1.2.0, [ed3d-extending-claude] 1.2.0, [ed3d-plan-and-execute] 1.12.0, [ed3d-playwright] 1.1.0, [ed3d-research-agents] 1.2.0, [ed3d-session-reflection] 0.3.0
 
 Nested subagent spawning is now explicitly disabled across repository subagents and workflow documentation.
 
@@ -16,6 +16,30 @@ Refunds, however, are out of my scope. Try asking Boris. I hear he tweets.
 - Research agent skills now instruct research subagents to perform investigation directly with their own tools
 - Agent orchestration prompts now include explicit "Do not dispatch or invoke any subagents" language where workflow skills launch task, review, research, reflection, fan-out, or synthesis agents
 - Research-agent frontmatter descriptions were normalized to YAML block scalars so their agent metadata parses cleanly with the new denylist field
+
+## [ed3d-house-style] [1.1.0]
+
+Add Rust house-style skill.
+
+**New:**
+- `howto-code-in-rust` skill covering `thiserror`+`miette` error handling, type system patterns, async/serde conventions, testing crates, exact-version dependency pinning, and module organization
+- `coding-effectively` now lists `howto-code-in-rust` as a conditional sub-skill for Rust code
+
+## ed3d-research-agents 1.1.0
+
+Stable repo caching for the remote-code-researcher agent.
+
+**Changed:**
+- Remote code researcher now caches cloned repos at a stable path (`$TMPDIR/claude-code-repos/<host>/<org>/<repo>`) instead of using `mktemp` each time
+- Subsequent invocations against the same repo fetch-and-reset instead of re-cloning
+- Removed cleanup step — cached repos persist across agent invocations
+
+## ed3d-plan-and-execute 1.11.0
+
+Remove SessionStart hook that injected the entire `using-plan-and-execute` skill into context on every session start.
+
+**Fixed:**
+- Removed SessionStart hook that wasted context tokens by injecting the full SKILL.md content as additionalContext on every conversation
 
 ## ed3d-session-reflection 0.2.0
 
