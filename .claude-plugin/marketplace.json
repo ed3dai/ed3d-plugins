@@ -1,7 +1,7 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "jackal-plugins",
-    "version": "3.3.0",
+    "version": "3.4.0",
     "description": "Jackal harness — model-adaptive planning, execution, and project supervision for Claude Code.",
     "owner": {
         "name": "Jack Greaney",
@@ -25,7 +25,7 @@
         {
             "name": "jackal-plan-and-execute",
             "description": "Model-adaptive planning and execution harness. Sonnet implementors, conditional review, continuous backlog execution.",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": "./plugins/jackal-plan-and-execute",
             "author": {
                 "name": "Jack Greaney",
@@ -40,7 +40,7 @@
         {
             "name": "jackal-supervisor",
             "description": "Project supervisor — backlog management, conflict gates, complexity routing, and lifecycle orchestration.",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": "./plugins/jackal-supervisor",
             "author": {
                 "name": "Jack Greaney",

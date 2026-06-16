@@ -87,10 +87,37 @@ gitignores `.worktrees/`).
 
 **If `backend: github`:**
 
+**Step 1 — Dedup search FIRST (never skip).** Before creating, search open *and*
+recently-closed issues for an existing match. Creating a duplicate is a hygiene
+failure:
+
+```bash
+gh issue list --repo "$GH_REPO" --state all --search "<key terms from the title>" \
+  --json number,title,state,labels --limit 20
+```
+
+If a plausible match exists: stop and report it instead of creating. Reopen or
+comment on the existing issue rather than filing a near-duplicate. Only proceed to
+Step 2 when you've confirmed nothing matches.
+
+**Step 2 — Title convention.** Default to a concise, imperative title under ~70
+chars (detail goes in the body) — bare issue numbers carry the identity, so the
+title doesn't need a code. Some projects use planning-code prefixes (e.g. `B5 · …`)
+for an initial setup/bootstrap batch; treat those as transitional, not the
+go-forward style. Check a few current issues (`gh issue list --limit 10`) only to
+avoid clashing with an active convention.
+
+**Step 3 — Create with ALL classifying labels, not just status.** The complexity
+(and, where the project uses them, priority and module) labels must be applied
+*at creation*, so they never drift from the body. Use the project's `label_style`
+separator (default `/`):
+
 ```bash
 gh issue create --repo "$GH_REPO" \
-  --title "<concise title>" \
+  --title "<title per convention>" \
   --label "status/ready" \
+  --label "complexity/standard" \
+  --label "priority/medium" \
   --body "$(cat <<'EOF'
 ## Summary
 [1-3 sentences]
@@ -119,9 +146,19 @@ EOF
 )"
 ```
 
-Use `status/ready` only if scoped; otherwise omit the label (unscoped backlog).
-Add `complexity/simple|standard|complex` and `status/blocked` labels as needed. The
-GitHub issue body is the system of record; if the project also keeps rich issue
+Label rules:
+- **`status/ready`** only if the issue is scoped (clear ACs + scope); otherwise omit
+  it (unscoped backlog) — never mark `status/ready` with placeholder ACs still in
+  the body.
+- **`complexity/{simple,standard,complex}`** — ALWAYS apply, matching the body's
+  Complexity section. These must agree; the label is what `execute` routing reads.
+- **`priority/{high,medium,low}`** — apply if the project defines priority labels
+  (check `gh label list`). The backlog's "highest-priority first" ordering depends
+  on it; an unprioritized issue is invisible to that ordering.
+- **`module/<name>`** — apply if the project uses module labels.
+- Add `status/blocked` instead of `status/ready` if it has unmet dependencies.
+
+The GitHub issue body is the system of record; if the project also keeps rich issue
 docs under `$issue_docs`, mirror the same structure there and reference the issue
 number.
 
@@ -163,10 +200,16 @@ git worktree add .worktrees/${ISSUE}-${SLUG} -b ${TYPE}/${ISSUE}-${SLUG} \
 **If `backend: github`:**
 ```bash
 gh issue edit "$ISSUE" --repo "$GH_REPO" \
-  --add-label "status/in-progress" --remove-label "status/ready"
+  --add-label "status/in-progress" --remove-label "status/ready" \
+  --add-assignee "@me"
 gh issue comment "$ISSUE" --repo "$GH_REPO" \
   --body "Assigned. Branch \`${TYPE}/${ISSUE}-${SLUG}\`, worktree \`.worktrees/${ISSUE}-${SLUG}\`."
 ```
+
+**Always set the assignee** (`--add-assignee "@me"`, or a named user) when moving an
+issue to `status/in-progress`. GitHub's UI, board columns, and `--assignee` filters
+key on the assignee field, not on a prose comment — an in-progress issue with no
+assignee reads as orphaned in every GitHub view.
 
 **If `backend: todo-md`:** update issue doc (Status → In Progress, Assignment
 Notes); move TODO.md row Ready → Active.
@@ -254,10 +297,12 @@ Closing uses `--reason completed`. Reference closing issues from PR bodies with
 
 ### One-time label bootstrap
 
-The `status/*`/`complexity/*` labels are not in GitHub's default set. Before the
-first backlog action on a repo, ensure they exist (idempotent — `|| true` skips
-ones already present). This loop uses the `/` separator; if `label_style: colon`,
-swap the separator in each name:
+The `status/*`, `complexity/*`, and `priority/*` labels are not in GitHub's default
+set. Before the first backlog action on a repo, ensure they exist (idempotent —
+`|| true` skips ones already present). The create workflow applies `complexity/*`
+and `priority/*` at creation, so they must exist first or `gh issue create` fails.
+This loop uses the `/` separator; if `label_style: colon`, swap the separator in
+each name:
 
 ```bash
 for spec in \
@@ -267,8 +312,14 @@ for spec in \
   "status/blocked|d73a4a|Waiting on a dependency" \
   "complexity/simple|c2e0c6|Routing: simple" \
   "complexity/standard|bfd4f2|Routing: standard" \
-  "complexity/complex|5319e7|Routing: complex"; do
+  "complexity/complex|5319e7|Routing: complex" \
+  "priority/high|e11d21|Critical path" \
+  "priority/medium|fbca04|Normal priority" \
+  "priority/low|c2e0c6|Nice to have"; do
   IFS='|' read -r name color desc <<<"$spec"
   gh label create "$name" --repo "$GH_REPO" --color "$color" --description "$desc" 2>/dev/null || true
 done
 ```
+
+Projects may also define `module/<name>` labels for backlog filtering; create those
+per the project's module map in Jackal Config.
