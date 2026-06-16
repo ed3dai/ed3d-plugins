@@ -1,7 +1,7 @@
 {
     "name": "jackal-plan-and-execute",
     "description": "Model-adaptive planning and execution harness. Sonnet implementors, conditional review, continuous backlog execution.",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "author": {
         "name": "Jack Greaney",
         "email": "jgreaney@hcg.com"

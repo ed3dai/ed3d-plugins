@@ -18,6 +18,8 @@ Read `## Jackal Config` from CLAUDE.md. Extract:
 - `repo_root`, `issue_prefix`, `issue_docs`, `design_plans`, `impl_plans`, `modules`, `test_cmd`
 - `backend` — `github` or `todo-md` (default: `github`)
 - `gh_repo` — `owner/repo` (required when `backend: github`)
+- `label_style` — `slash` or `colon` (default: `slash`) — separator for status labels; examples
+  below use `/`, substitute `:` if `colon`
 
 ## Step 1: Resolve Input
 
@@ -104,8 +106,8 @@ Skip if Status is already `In Progress` (Complex issues already had this set dur
 GH_ISSUE_NUM=$(echo "$ISSUE_ID" | grep -oE '[0-9]+$')
 
 gh issue edit "$GH_ISSUE_NUM" --repo "$GH_REPO" \
-  --add-label "status:in-progress" \
-  --remove-label "status:ready"
+  --add-label "status/in-progress" \
+  --remove-label "status/ready"
 
 gh issue comment "$GH_ISSUE_NUM" --repo "$GH_REPO" --body "$(cat <<EOF
 **Worktree assigned** — implementation planning starting

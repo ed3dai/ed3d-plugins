@@ -1,6 +1,6 @@
 {
     "name": "jackal-supervisor",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Jackal workflow supervisor — skills for design, implementation, branch management, and UI verification. Wraps jackal-plan-and-execute with project-specific configuration read from each project's Jackal Config section.",
     "author": {
         "name": "Jack Greaney",

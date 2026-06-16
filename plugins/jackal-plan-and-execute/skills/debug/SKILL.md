@@ -1,5 +1,5 @@
 ---
-name: systematic-debugging
+name: debug
 description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes - four-phase framework (root cause investigation, pattern analysis, hypothesis testing, implementation) that ensures understanding before attempting solutions
 user-invocable: false
 ---
@@ -275,11 +275,11 @@ If systematic investigation reveals issue is truly environmental, timing-depende
 ## Integration with Other Skills
 
 **This skill requires using:**
-- **test-driven-development** - REQUIRED for creating failing test case (see Phase 4, Step 1)
+- **jackal-plan-and-execute:test-driven-development** - REQUIRED for creating failing test case (see Phase 4, Step 1)
 
 **Complementary skills:**
-- **coding-effectively** - Includes `defense-in-depth` for adding validation at multiple layers
-- **verification-before-completion** - Verify fix worked before claiming success
+- **jackal-house-style:coding-effectively** - Includes `defense-in-depth` for adding validation at multiple layers
+- **jackal-plan-and-execute:verification-before-completion** - Verify fix worked before claiming success
 
 ## Real-World Impact
 

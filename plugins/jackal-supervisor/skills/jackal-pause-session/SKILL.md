@@ -18,6 +18,8 @@ Read the **## Jackal Config** section from the project's CLAUDE.md. Extract:
 - `repo_root`, `issue_prefix`, `issue_docs`
 - `backend` — `github` or `todo-md` (default: `github`)
 - `gh_repo` — `owner/repo` (required when `backend: github`)
+- `label_style` — `slash` or `colon` (default: `slash`) — separator for status labels; examples
+  below use `/`, substitute `:` if `colon`
 
 ---
 
@@ -66,7 +68,7 @@ Confirm Status is "In Progress".
 
 **First: check the live task list before asking the user anything.**
 
-Use TaskList to read the current session's tasks. The ed3d design and implementation skills create tasks for each phase.
+Use TaskList to read the current session's tasks. The jackal design and implementation skills create tasks for each phase.
 
 **If tasks exist:**
 - Completed tasks → phases already done
@@ -119,8 +121,8 @@ Edit `$ISSUE_DOCS/PREFIX-XXX-*.md`:
 
 ```bash
 GH_ISSUE_NUM=$(echo "$ISSUE_ID" | grep -oE '[0-9]+$')
-NEW_LABEL="status:paused"   # or "status:blocked" if blocked
-OLD_LABEL="status:in-progress"
+NEW_LABEL="status/paused"   # or "status/blocked" if blocked (use ':' if label_style: colon)
+OLD_LABEL="status/in-progress"
 
 gh issue edit "$GH_ISSUE_NUM" --repo "$GH_REPO" \
   --add-label "$NEW_LABEL" \

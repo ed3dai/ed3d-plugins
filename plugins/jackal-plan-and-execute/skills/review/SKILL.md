@@ -21,6 +21,9 @@ BASE_SHA: [commit before work]
 HEAD_SHA: [current commit]
 Working directory: [path]
 
+[If the plan dir has a test-requirements.md:]
+TEST_REQUIREMENTS: [path to <plan-dir>/test-requirements.md]
+
 [If implementation guidance exists:]
 GUIDANCE: [path to .jackal/implementation-guidance.md or .ed3d/implementation-plan-guidance.md]
 </parameter>

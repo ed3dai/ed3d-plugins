@@ -12,7 +12,10 @@ user-invocable: true
 
 ## Step 0: Load Project Config
 
-Check for `.jackal/harness-guidance.md` in the repo root and read it if present. Apply any overrides (e.g. skip e2e, always use playwright-explorer).
+Resolve `.jackal/harness-guidance.md` by walking up from the working directory to the repo root
+(nearest-wins — a module-level `.jackal/` overrides the root one; see the `jackal-plan-and-execute:execute`
+skill's Harness Guidance for the resolution snippet). Apply any overrides (e.g. skip e2e, always use
+playwright-explorer).
 
 Read the **## Jackal Config** section from the project's CLAUDE.md. Extract:
 

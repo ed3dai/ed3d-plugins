@@ -15,7 +15,10 @@ Generate an implementation plan and set up the execution environment.
 
 ## Harness Guidance
 
-Before starting, check for `.jackal/harness-guidance.md` in the repo root and read it if present. Apply any project-specific overrides to merge strategy, test command, or parallel execution policy.
+Before starting, resolve `.jackal/harness-guidance.md` by walking up from the working directory to
+the repo root (nearest-wins — a module-level `.jackal/` overrides the root one; see the `execute`
+skill's Harness Guidance for the resolution snippet). Apply any project-specific overrides to merge
+strategy, test command, or parallel execution policy.
 
 ## Delegation Rules
 

@@ -16,6 +16,8 @@ Read `## Jackal Config` from CLAUDE.md. Extract:
 - `test_cmd`, `git_remote`, `push_cmd`, `pr_method`, `ui_path`, `issue_docs`, `repo_root`
 - `backend` — `github` or `todo-md` (default: `github`)
 - `gh_repo` — `owner/repo` (required when `backend: github`)
+- `protected_main` — `true`/`false` (default: detect) — when true, finish opens a PR instead of merging locally
+- `label_style` — `slash` or `colon` (default: `slash`) — separator for status labels
 
 ## Step 1: UI Verification Gate
 
@@ -33,13 +35,16 @@ Use `Skill("jackal-plan-and-execute:finish")` with overrides:
 - Test command: `$TEST_CMD`
 - Push command: `$PUSH_CMD`
 - PR method: `$PR_METHOD`
+- Protected-main signal: `protected_main` from Jackal Config and/or `.jackal/harness-guidance.md`
+  merge-strategy (the finish skill also detects via `gh` as a fallback)
 
 ### Autonomous Mode Override
 
-When called from the continuous execution loop:
-- Skip the 4-option menu
-- Merge locally (Option 1)
-- Use `$GIT_REMOTE` for pull
+When called from the continuous execution loop, skip the 4-option menu and pick the default by the
+finish skill's **Detect Protected Main** check:
+- **Main protected** (`protected_main: true`, or a harness-guidance "always open a PR" rule, or `gh`
+  detection) → push + open a PR. Never merge locally. This is the ROAR default.
+- **Main open** → merge locally (Option 1), using `$GIT_REMOTE` for pull.
 
 ## Step 3: Post-Completion Updates
 
@@ -65,7 +70,7 @@ gh issue comment "$GH_ISSUE_NUM" --repo "$GH_REPO" --body "$(cat <<EOF
 EOF
 )"
 
-gh issue edit "$GH_ISSUE_NUM" --repo "$GH_REPO" --remove-label "status:in-progress"
+gh issue edit "$GH_ISSUE_NUM" --repo "$GH_REPO" --remove-label "status/in-progress"
 
 # Close on merge (Option 1) or local merge. For Option 2 (PR), leave open — GH closes
 # automatically when the PR merges via "Closes #N" in the PR body.

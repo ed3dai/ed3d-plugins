@@ -14,7 +14,10 @@ Transform a rough idea or Complex issue into a committed design document ready f
 
 ## Harness Guidance
 
-Before starting, check for `.jackal/harness-guidance.md` and `.jackal/design-guidance.md` in the repo root. Read both if present and apply project-specific constraints before step 2.
+Before starting, resolve `.jackal/harness-guidance.md` and `.jackal/design-guidance.md` by walking up
+from the working directory to the repo root (nearest-wins — a module-level `.jackal/` overrides the
+root one; see the `execute` skill's Harness Guidance for the resolution snippet). Read what's present
+and apply project-specific constraints before step 2.
 
 ## Delegation Rules
 

@@ -33,20 +33,36 @@ $TEST_CMD
 
 If tests fail → stop. Report failures. Don't proceed.
 
+### 2a. Detect Protected Main
+
+Determine whether `main` is protected — this decides the **default** completion path and whether
+local merge is even allowed. Resolve in precedence order (first signal wins):
+
+1. `.jackal/harness-guidance.md` merge-strategy override (e.g. "always open a PR, never merge locally")
+2. `protected_main: true` in the Jackal Config
+3. Best-effort detection (cached per session, network-optional):
+   ```bash
+   gh api "repos/$GH_REPO/branches/main/protection" >/dev/null 2>&1 && echo protected || echo open
+   ```
+
+If main is protected, **Option 1 (local merge) is unavailable** — the harness must open a PR.
+
 ### 3. Present Options
 
 ```
 Implementation complete. Options:
 
-1. Merge back to main locally
+1. Merge back to main locally   (UNAVAILABLE if main is protected)
 2. Push and create a Pull Request
 3. Keep the branch as-is (more work needed / I'll handle it)
 4. Discard this work
 ```
 
+If main is protected, say so and present 2–4 only.
+
 ### 4. Execute Choice
 
-**Option 1 — Merge locally:**
+**Option 1 — Merge locally** (only when main is NOT protected):
 ```bash
 git checkout main
 git pull
@@ -58,7 +74,20 @@ git branch -d [feature-branch]
 **Option 2 — Push and create PR:**
 ```bash
 git push -u origin [feature-branch]
-gh pr create --title "[ISSUE-ID]: [title]" --body "..."
+```
+
+Build the PR body from the repo's template if one exists, so required sections are filled rather
+than left blank:
+```bash
+TEMPLATE=$(ls .github/PULL_REQUEST_TEMPLATE.md .github/pull_request_template.md 2>/dev/null | head -1)
+```
+- If a template exists: fill each section (e.g. What changed / Closes #N / How to verify / Risk /
+  Docs updated / Gates) from the issue ACs and the diff. Include `Closes #<issue>` so the merge
+  auto-closes the issue.
+- If no template: use a concise default body (summary + `Closes #N` + test results).
+
+```bash
+gh pr create --title "[ISSUE-ID]: [title]" --body "$PR_BODY"
 ```
 
 If project uses CodeCommit (check `pr_method` in Jackal Config):
@@ -79,7 +108,9 @@ git branch -D [feature-branch]
 
 ### 5. Update Project Context
 
-For Options 1 and 2, dispatch the project-claude-librarian (if available) to update CLAUDE.md files if contracts changed:
+For Options 1 and 2, dispatch the project-claude-librarian to update CLAUDE.md files if contracts
+changed. This agent ships in the `ed3d-extending-claude` plugin — a **declared dependency** of the
+jackal harness (see the marketplace README's "Required dependencies").
 
 ```xml
 <invoke name="Agent">
@@ -93,7 +124,16 @@ Working directory: [path]
 </invoke>
 ```
 
-If the plugin isn't available, skip this step.
+**If `ed3d-extending-claude` is not installed, do NOT silently skip.** Emit a visible warning so the
+human knows the closeout was incomplete — some projects (e.g. ROAR) make CLAUDE.md freshness
+re-verification at branch closeout *mandatory*, and a silent skip means a documented contract may
+have gone stale unnoticed:
+
+```
+⚠️  CLAUDE.md freshness re-verification SKIPPED — ed3d-extending-claude (project-claude-librarian)
+    is not installed. If this project requires doc closeout (check its documentation standard),
+    update the touched CLAUDE.md files and their `Last verified:` dates manually before merging.
+```
 
 ### 6. Update Backlog State and Issue Doc
 
@@ -106,7 +146,7 @@ For Options 1 and 2:
 
 For Option 4:
 - If `backend: todo-md`: remove from Active, don't add to Resolved
-- If `backend: github`: leave the issue open with `status:ready` (work was discarded — issue is still pending)
+- If `backend: github`: leave the issue open with `status/ready` (work was discarded — issue is still pending)
 
 ### 7. Clean Up Worktree
 
@@ -125,9 +165,14 @@ If `docs/test-plans/` has a file matching this issue, remind the user it exists.
 
 ## Autonomous Mode
 
-When called from the continuous execution loop (Backlog mode), the orchestrator should:
-- Always choose Option 1 (merge locally) without asking
-- Skip the "present options" step
-- Proceed directly to merge, update, cleanup
+When called from the continuous execution loop (Backlog mode), the orchestrator should skip the
+"present options" step and pick the default for the repo based on the **Detect Protected Main** check
+(step 2a):
 
-The 4-option menu is for interactive use only.
+- **Main is protected** → push the branch and open a PR (Option 2). Do **not** attempt a local merge —
+  it would be rejected and violates the protected-main invariant. Record the PR URL, then continue
+  the loop to the next issue rather than blocking on a human merge.
+- **Main is open** → merge locally (Option 1) without asking, then proceed to update + cleanup.
+
+The 4-option menu is for interactive use only. The protected-main default is non-negotiable in
+autonomous mode: the loop never self-merges to a protected `main`.

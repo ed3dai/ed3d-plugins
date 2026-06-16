@@ -14,13 +14,27 @@ Two modes:
 
 ## Harness Guidance
 
-Before running either mode, check for `.jackal/harness-guidance.md` in the repo root:
+Resolve `.jackal/harness-guidance.md` by **walking up from the working directory to the repo root**,
+reading every one found. This lets a monorepo scope overrides per module: a module-level
+`.jackal/harness-guidance.md` overrides the repo-root one key-by-key (**nearest-wins**), and the
+root provides the base. Single-package repos just have the one at root — same behavior as before.
 
 ```bash
-[ -f "$REPO_ROOT/.jackal/harness-guidance.md" ] && cat "$REPO_ROOT/.jackal/harness-guidance.md"
+# WORKDIR = the dispatch's working directory (a module dir, a worktree, or the repo root).
+# Collect guidance files from repo root down to WORKDIR; later (deeper) files override earlier.
+dir="$WORKDIR"; chain=""
+while :; do
+  [ -f "$dir/.jackal/harness-guidance.md" ] && chain="$dir/.jackal/harness-guidance.md
+$chain"
+  [ "$dir" = "$REPO_ROOT" ] && break
+  parent=$(dirname "$dir"); [ "$parent" = "$dir" ] && break; dir="$parent"
+done
+printf '%s' "$chain" | while read -r f; do [ -n "$f" ] && { echo "=== $f ==="; cat "$f"; }; done
 ```
 
-If found, read it and apply any overrides to defaults (review policy, merge strategy, parallel execution policy, stop conditions). If not found, all defaults apply.
+Apply overrides to defaults (review policy, merge strategy, parallel execution policy, stop
+conditions). Precedence, lowest to highest: built-in defaults < Jackal Config keys < root
+`.jackal/` < module `.jackal/`. If no guidance file exists anywhere in the chain, all defaults apply.
 
 ---
 
@@ -102,13 +116,15 @@ while true:
 
 ### Step 1: Read Backlog State
 
-Read `backend` from `## Jackal Config` in CLAUDE.md.
+Read `backend` and `label_style` from `## Jackal Config` in CLAUDE.md. `label_style` is `slash` |
+`colon` (default **slash**) — it sets the separator in status labels. The examples below use `/`;
+substitute `:` if the project sets `label_style: colon`.
 
 **If `backend: github`:**
 
 ```bash
 gh issue list --repo "$GH_REPO" \
-  --label "status:ready" \
+  --label "status/ready" \
   --state open \
   --json number,title,labels,body
 ```
@@ -116,9 +132,9 @@ gh issue list --repo "$GH_REPO" \
 For each candidate, parse the issue body for `Blocked by:`, `Module:`, `Complexity:`, and `In scope:` sections (the issue doc on disk is still the source for rich detail; GH issue body mirrors the same structure).
 
 Issues are grouped by label:
-- `status:ready` → eligible candidates
-- `status:in-progress` → currently active (don't double-pick)
-- `status:paused` / `status:blocked` → skip
+- `status/ready` → eligible candidates
+- `status/in-progress` → currently active (don't double-pick)
+- `status/paused` / `status/blocked` → skip
 - closed → resolved
 
 **If `backend: todo-md`:**
@@ -176,17 +192,25 @@ Read the issue doc's `Complexity` field:
 - STOP. Report: "CG-XX is Complex — needs design decisions. Run /design to start."
 - Do not attempt autonomous execution of Complex issues.
 
-### Step 6: Merge and Update
+### Step 6: Complete and Update
 
-After issue passes review:
-1. Merge worktree branch to main
-2. Update issue doc: Status → Done
-3. Update backlog state:
-   - `backend: github` → `gh issue close $N --reason completed --comment "Merged: <commit>"` and remove `status:in-progress` label
-   - `backend: todo-md` → move to Resolved, update "Last updated"
-4. Remove worktree
+After issue passes review, completion depends on whether `main` is protected (see `finish`'s
+**Detect Protected Main** check — `.jackal/harness-guidance.md` merge-strategy, `protected_main`
+config, or `gh` detection):
 
-(In practice, this is delegated to `jackal-finish-branch`, which handles backend gating.)
+- **Main is open:** merge the worktree branch to main; on `backend: github`, `gh issue close $N
+  --reason completed --comment "Merged: <commit>"` and remove the `status/in-progress` label;
+  on `backend: todo-md`, move to Resolved.
+- **Main is protected:** do **not** merge locally. Push the branch and open a PR (with `Closes #N`
+  so GitHub closes the issue on merge); remove `status/in-progress`, leave the issue open for the
+  PR to close. Record the PR URL and continue the loop to the next issue — do not block waiting for
+  a human to merge.
+
+Then update the issue doc (Status → Done, or → In Review if a PR is pending) and remove the worktree
+once the branch is pushed (keep it if a PR is open and you may need to push fixups).
+
+(In practice, this is delegated to `jackal-finish-branch`, which handles protected-main + backend
+gating.)
 
 ### Step 7: Report
 
@@ -194,6 +218,7 @@ Print one line:
 ```
 ✓ CG-XX merged. [brief what]. Starting CG-YY next (also dispatching CG-ZZ in parallel).
 ```
+(Or, when main is protected: `✓ CG-XX PR opened (#NN). Starting CG-YY next.`)
 
 ### Stop Conditions
 

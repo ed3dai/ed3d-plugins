@@ -1,5 +1,48 @@
 # Changelog
 
+## [marketplace] 3.3.0 — harness coherence & ROAR alignment
+
+Batched release fixing broken/dangling references, undeclared external dependencies, and
+protected-main safety, surfaced by an audit against the ed3d predecessor, Claude Code harness
+best practice, and the ROAR consuming repo. Plugin bumps: `jackal-plan-and-execute` 2.2.0 → 2.3.0,
+`jackal-supervisor` 2.2.0 → 2.3.0, `jackal-house-style` 1.0.5 → 1.0.6.
+
+**New:**
+- `jackal-supervisor` now **ships the `jackal-supervisor` agent** (the orchestrating brain). It
+  previously lived only in `~/.claude/agents/`, so a clean install got the wrapper skills but not
+  the agent driving them.
+- Ported `test-driven-development` and `verification-before-completion` skills into
+  `jackal-plan-and-execute` (under their original names) — the `debug` skill required them but the
+  ed3d→jackal rework had dropped them, leaving dangling references.
+- `label_style` Jackal Config knob (`slash` | `colon`, default `slash`) — the harness now matches a
+  project's label convention. ROAR and GitHub norm use slash-style (`status/ready`).
+- `.jackal/harness-guidance.md` resolves **find-up** from the working directory to repo root
+  (nearest-wins), so a monorepo can scope harness behavior per module.
+- `marketplace.json` declares external `requires` (ed3d-research-agents, ed3d-extending-claude,
+  ed3d-playwright); a README "Required dependencies" section documents the install.
+- `scripts/trace-deps.sh` + `docs/test-plans/2026-06-16-harness-coherence.md` — a re-runnable
+  dependency-trace gate (0 dangling refs) and verification plan.
+- Restored `LICENSE.superpowers` (MIT, Jesse Vincent), required for the superpowers-derived code.
+
+**Changed:**
+- Autonomous `finish`/`execute` completion is now **protected-main-safe**: when `main` is protected
+  (via `.jackal/harness-guidance.md`, `protected_main` config, or `gh` detection) the default is
+  push + open PR instead of a local merge. `finish` Option 2 fills a repo `PULL_REQUEST_TEMPLATE.md`.
+- The `reviewer` now consumes the planner's `test-requirements.md` as an AC↔test coverage gate
+  (previously written but never read).
+- `implementor` uses module-scoped Conventional Commits when the project documents scopes.
+- `debug` skill frontmatter renamed `systematic-debugging` → `debug` to match its dir/invocation.
+- Top-level `README.md` rewritten for jackal (was the stale ed3d README: wrong title, 9-plugin
+  layout, dead command names, ed3d install URL).
+- `jackal-house-style` plugin.json rebranded (author, repo URL, description).
+
+**Fixed:**
+- `finish` no longer silently skips CLAUDE.md freshness re-verification when
+  `ed3d-extending-claude` is absent — it emits a visible warning (ROAR makes closeout mandatory).
+- `jackal-design-plan` hand-off prints the bare-integer `<type>/<issue#>-slug` branch format its own
+  worktree step creates (was the legacy `feature/<module>/` form).
+- Stale ed3d prose (`jackal-pause-session`: "ed3d skills create tasks" → "jackal skills").
+
 ## [jackal-house-style] 1.0.5
 
 Align the Python skill's lint/security config with what ATLAS and Ledger Lens actually run in CI.

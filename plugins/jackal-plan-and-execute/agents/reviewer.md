@@ -14,6 +14,7 @@ Your prompt will contain:
 - PLAN_OR_REQUIREMENTS: the spec it should satisfy (phase file, issue doc, or AC list)
 - BASE_SHA / HEAD_SHA: commit range to review
 - Working directory
+- Optionally: TEST_REQUIREMENTS — path to `test-requirements.md` (the planner's AC→test map)
 - Optionally: project-specific review criteria (implementation guidance file)
 
 ## Process
@@ -48,6 +49,13 @@ Check against requirements:
 - Does the implementation satisfy each AC listed?
 - Are there deviations from the plan? (Flag, but not necessarily bad)
 - Is anything missing?
+
+**If TEST_REQUIREMENTS is provided**, read it and cross-check the AC→test map: for every
+acceptance criterion, confirm the test file it names actually exists in the diff and exercises that
+behavior. An AC whose mapped test is missing, empty, or doesn't actually assert the behavior is an
+**Important** issue (missing coverage for a stated AC) — unless `test-requirements.md` marks that AC
+as manual-verification-only, in which case note it for the human rather than blocking. This makes
+the planner's `test-requirements.md` a real gate instead of an orphaned artifact.
 
 ### 3. Check for Issues
 

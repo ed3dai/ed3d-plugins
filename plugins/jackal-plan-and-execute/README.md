@@ -63,8 +63,8 @@ The main conversation (orchestrator) manages state and makes decisions. It **nev
 | Read/write backlog state and issue docs | Write code and tests → `implementor` |
 | Run conflict gate (git commands) | Generate phase files → `planner` |
 | Create/remove worktrees | Validate code against requirements → `reviewer` |
-| Route by complexity, decide whether to review | Investigate codebase patterns → `codebase-investigator` |
-| Merge branches, update backlog | Research external deps/APIs → `combined-researcher` |
+| Route by complexity, decide whether to review | Investigate codebase patterns → `ed3d-research-agents:codebase-investigator` |
+| Merge branches, update backlog | Research external deps/APIs → `ed3d-research-agents:combined-researcher` |
 | Report to human | |
 
 **The rule:** If a task produces an artifact (code, phase files, a review verdict, research findings), delegate it. If a task reads or updates shared state (backlog, git, issue docs) or requires a routing decision, do it directly.
