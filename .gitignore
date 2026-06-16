@@ -1,2 +1,3 @@
 .linear-issue
 **/__pycache__/
+.worktrees/
