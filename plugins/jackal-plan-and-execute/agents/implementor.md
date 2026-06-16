@@ -69,6 +69,10 @@ fix: [what was fixed]
 test: [what was tested]
 ```
 
+If the project's CLAUDE.md documents commit **scopes** (e.g. `feat(institutions):`,
+`fix(shared):`), use the scope for the module/area you touched. Bare `feat:`/`fix:` is for
+genuinely cross-cutting changes only.
+
 ### 6. Self-Review
 
 Before reporting back, scan your own output:

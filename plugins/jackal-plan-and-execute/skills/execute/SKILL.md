@@ -176,17 +176,25 @@ Read the issue doc's `Complexity` field:
 - STOP. Report: "CG-XX is Complex — needs design decisions. Run /design to start."
 - Do not attempt autonomous execution of Complex issues.
 
-### Step 6: Merge and Update
+### Step 6: Complete and Update
 
-After issue passes review:
-1. Merge worktree branch to main
-2. Update issue doc: Status → Done
-3. Update backlog state:
-   - `backend: github` → `gh issue close $N --reason completed --comment "Merged: <commit>"` and remove `status:in-progress` label
-   - `backend: todo-md` → move to Resolved, update "Last updated"
-4. Remove worktree
+After issue passes review, completion depends on whether `main` is protected (see `finish`'s
+**Detect Protected Main** check — `.jackal/harness-guidance.md` merge-strategy, `protected_main`
+config, or `gh` detection):
 
-(In practice, this is delegated to `jackal-finish-branch`, which handles backend gating.)
+- **Main is open:** merge the worktree branch to main; on `backend: github`, `gh issue close $N
+  --reason completed --comment "Merged: <commit>"` and remove the `status/in-progress` label;
+  on `backend: todo-md`, move to Resolved.
+- **Main is protected:** do **not** merge locally. Push the branch and open a PR (with `Closes #N`
+  so GitHub closes the issue on merge); remove `status/in-progress`, leave the issue open for the
+  PR to close. Record the PR URL and continue the loop to the next issue — do not block waiting for
+  a human to merge.
+
+Then update the issue doc (Status → Done, or → In Review if a PR is pending) and remove the worktree
+once the branch is pushed (keep it if a PR is open and you may need to push fixups).
+
+(In practice, this is delegated to `jackal-finish-branch`, which handles protected-main + backend
+gating.)
 
 ### Step 7: Report
 
@@ -194,6 +202,7 @@ Print one line:
 ```
 ✓ CG-XX merged. [brief what]. Starting CG-YY next (also dispatching CG-ZZ in parallel).
 ```
+(Or, when main is protected: `✓ CG-XX PR opened (#NN). Starting CG-YY next.`)
 
 ### Stop Conditions
 

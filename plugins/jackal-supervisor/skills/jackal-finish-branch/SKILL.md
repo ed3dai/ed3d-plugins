@@ -33,13 +33,16 @@ Use `Skill("jackal-plan-and-execute:finish")` with overrides:
 - Test command: `$TEST_CMD`
 - Push command: `$PUSH_CMD`
 - PR method: `$PR_METHOD`
+- Protected-main signal: `protected_main` from Jackal Config and/or `.jackal/harness-guidance.md`
+  merge-strategy (the finish skill also detects via `gh` as a fallback)
 
 ### Autonomous Mode Override
 
-When called from the continuous execution loop:
-- Skip the 4-option menu
-- Merge locally (Option 1)
-- Use `$GIT_REMOTE` for pull
+When called from the continuous execution loop, skip the 4-option menu and pick the default by the
+finish skill's **Detect Protected Main** check:
+- **Main protected** (`protected_main: true`, or a harness-guidance "always open a PR" rule, or `gh`
+  detection) → push + open a PR. Never merge locally. This is the ROAR default.
+- **Main open** → merge locally (Option 1), using `$GIT_REMOTE` for pull.
 
 ## Step 3: Post-Completion Updates
 
