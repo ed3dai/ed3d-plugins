@@ -131,8 +131,15 @@ gh issue list --repo "$GH_REPO" \
 
 For each candidate, parse the issue body for `Blocked by:`, `Module:`, `Complexity:`, and `In scope:` sections (the issue doc on disk is still the source for rich detail; GH issue body mirrors the same structure).
 
+**Readiness validation — don't trust the label alone.** Before treating a `status/ready` issue as workable, confirm its body is actually scoped:
+- Acceptance Criteria exist and are filled in — **not** still placeholders (`- [ ] AC1:` with nothing after the colon, or template text like `[1-3 sentences]`).
+- Scope has explicit `In scope:` paths (not `[explicit file paths]`).
+- Complexity is one of Simple/Standard/Complex (not the unfilled `Simple | Standard | Complex` line), and a `complexity/*` label is present.
+
+If an issue is labelled `status/ready` but its body is still a template skeleton, **do not work it.** Report it as mislabelled (ready label, unscoped body) and skip — surfacing it so a human or the supervisor can finish scoping. A label is a claim; the body is the evidence.
+
 Issues are grouped by label:
-- `status/ready` → eligible candidates
+- `status/ready` → eligible candidates (subject to the readiness validation above)
 - `status/in-progress` → currently active (don't double-pick)
 - `status/paused` / `status/blocked` → skip
 - closed → resolved
@@ -168,9 +175,11 @@ Compare active branch file sets against candidate's `In scope:` paths.
 
 ### Step 4: Select Work
 
+Determine priority order from the `priority/*` label (`priority/high` > `priority/medium` > `priority/low`), falling back to issue number (lower = older = first) when a candidate has no priority label. Issues with no `priority/*` label sort *after* labelled ones at the same tier — flag any unprioritized `status/ready` issue so the backlog stays orderable.
+
 If multiple candidates are unblocked and clear:
 - Check for independence (no shared files, no dependency between them)
-- If independent: dispatch in parallel (two implementors, two worktrees)
+- If independent: dispatch in parallel (two implementors, two worktrees), highest-priority first
 - If dependent: execute highest-priority first
 
 ### Step 5: Execute by Complexity

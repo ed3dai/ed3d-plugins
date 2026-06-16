@@ -107,7 +107,8 @@ GH_ISSUE_NUM=$(echo "$ISSUE_ID" | grep -oE '[0-9]+$')
 
 gh issue edit "$GH_ISSUE_NUM" --repo "$GH_REPO" \
   --add-label "status/in-progress" \
-  --remove-label "status/ready"
+  --remove-label "status/ready" \
+  --add-assignee "@me"
 
 gh issue comment "$GH_ISSUE_NUM" --repo "$GH_REPO" --body "$(cat <<EOF
 **Worktree assigned** — implementation planning starting

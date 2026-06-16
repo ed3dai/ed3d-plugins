@@ -1,5 +1,35 @@
 # Changelog
 
+## [marketplace] 3.4.0 — GitHub issue hygiene
+
+Tighten issue-creation and lifecycle hygiene in the supervisor. Plugin bumps:
+`jackal-supervisor` 2.3.0 → 2.4.0, `jackal-plan-and-execute` 2.3.0 → 2.4.0.
+
+**New:**
+- **Dedup search before issue creation** — the supervisor's create workflow now
+  runs `gh issue list --search` over open and closed issues first and stops on a
+  plausible match instead of filing a duplicate.
+- **Readiness validation** in `execute` Backlog mode — a `status/ready` label is no
+  longer trusted on its own; issues whose body is still a template skeleton
+  (placeholder ACs, unfilled scope) are reported as mislabelled and skipped rather
+  than worked.
+- **Priority-ordered selection** — `execute` Step 4 reads `priority/{high,medium,low}`
+  to order work (was "highest-priority first" with nothing reading priority), and
+  flags unprioritized ready issues.
+- Label bootstrap now creates `priority/*` labels (and notes `module/*`), since the
+  create workflow applies them at creation.
+
+**Changed:**
+- Issues are created with **all classifying labels at once** (`complexity/*` and,
+  where defined, `priority/*` / `module/*`) instead of only `status/ready`, so the
+  routing labels can't drift from the body.
+- The assignee is now set (`--add-assignee "@me"`) on every `status/in-progress`
+  transition — supervisor agent, `jackal-design-plan`, and `jackal-impl-plan` — so
+  in-progress issues aren't orphaned in GitHub's UI, boards, and filters.
+- Title guidance: default to a concise imperative title (bare issue numbers carry
+  identity); planning-code prefixes are treated as transitional setup scaffolding,
+  not the go-forward convention.
+
 ## [marketplace] 3.3.0 — harness coherence & ROAR alignment
 
 Batched release fixing broken/dangling references, undeclared external dependencies, and
