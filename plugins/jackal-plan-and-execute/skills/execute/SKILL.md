@@ -433,14 +433,20 @@ its one independent phase and returns. If a later phase depends on a leaf's phas
 phase is scheduled by the orchestrator in a subsequent round (on the trunk or a new leaf) — never
 by the leaf resuming itself. This keeps every fan-out decision with the orchestrator.
 
-**Same-branch write safety.** Parallel leaf phases commit to one branch HEAD. This is safe because
-independent phases are disjoint by construction — a phase only carries `**Depends on:**` (and thus
-becomes eligible to run as a parallel leaf) when its files do not overlap the phases running
-concurrently with it. Commits are additive; each phase's diff touches different files. Concurrent
-leaves committing to the same HEAD interleave commits; that is fine (no rebase between them — same
-branch). If two dispatchable phases are *not* genuinely file-disjoint, they must NOT both carry
-independence-granting `**Depends on:**` — that is a planner defect, caught by the same validation
-in step 3.b above. Per-phase timeout attribution across interleaved commits is explicitly
+**Same-branch write safety.** Parallel leaf phases commit to one branch HEAD. This is safe only to
+the extent that the concurrent phases are genuinely file-disjoint — which is a property you must
+*check*, not assume. A phase only earns independence-granting `**Depends on:**` when its files do
+not overlap the phases running concurrently with it; if two dispatchable phases are not genuinely
+disjoint, they must NOT both carry it, and that is a planner defect caught by the validation in
+step 3.b above. Where the phases are disjoint, commits are additive and interleaving on the same
+HEAD is fine (no rebase between them — same branch).
+
+Disjointness is **not** guaranteed by construction, because some files are mandated shared edits:
+this repo's `CLAUDE.md` requires every version bump to also touch `.claude-plugin/marketplace.json`
+and `CHANGELOG.md`, so any two phases that ship a version will collide there no matter how cleanly
+their feature files are partitioned. Never dispatch parallel leaves that each write a ledger file
+(see "Ledger files" in the Conflict Gate). Keep ledger edits out of leaf phases entirely and
+serialize them into one late phase — ideally at finish time — so exactly one writer touches them. Per-phase timeout attribution across interleaved commits is explicitly
 **out of scope** (leaf phases are short; noted, not solved).
 
 **Review + verify posture is unchanged.** Each phase's work is still disk-verified via the
@@ -564,19 +570,71 @@ An issue is unblocked when all its blockers are in Resolved.
 
 ### Step 3: Conflict Gate
 
-For each unblocked candidate:
+This gate answers one question: *what files is someone else already changing?* It must enumerate
+**live** branches — not name-matched ones, and not dead ones. Do not filter branches by name glob:
+`<type>/<slug>` is legal without an issue number, and `feat/`, `fix/`, and `chore/` are all in the
+convention, so any glob narrower than "every ref" silently under-reports and the gate never fires.
+
+Run once, then evaluate every unblocked candidate against the result:
 
 ```bash
-for branch in $(git branch --list 'feature/*' '*/[0-9]*-*' | tr -d ' '); do
-  echo "=== $branch ==="
-  git diff --name-only main...$branch 2>/dev/null
+BASE="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
+BASE="${BASE:-main}"
+git fetch --quiet origin 2>/dev/null || true
+CUTOFF="$(date -v-30d +%s 2>/dev/null || date -d '30 days ago' +%s)"
+WT="$(git worktree list --porcelain | sed -n 's#^branch refs/heads/##p')"
+
+# Local + remote refs, deduped. Remote-only branches count: a collision can come
+# from a branch another machine or worktree owns and you never checked out.
+for name in $(git for-each-ref --format='%(refname:short)' refs/heads refs/remotes/origin \
+              | sed 's#^origin/##' | grep -vxE "HEAD|origin|$BASE" | sort -u); do
+  ref="$name"
+  git rev-parse --verify --quiet "refs/heads/$name" >/dev/null || ref="origin/$name"
+  live=no; printf '%s\n' "$WT" | grep -qxF "$name" && live=yes   # checked out somewhere = always live
+  if [ "$live" = no ]; then
+    # Already merged into the base → finished work, not a collision source.
+    git merge-base --is-ancestor "$ref" "origin/$BASE" 2>/dev/null && continue
+    # Untouched for 30d → abandoned; report separately rather than blocking on it.
+    [ "$(git log -1 --format=%ct "$ref")" -lt "$CUTOFF" ] \
+      && { echo "--- stale (>30d, not blocking): $name"; continue; }
+  fi
+  echo "=== $name ==="
+  git diff --name-only "$(git merge-base "origin/$BASE" "$ref")" "$ref"
+done
+
+# Uncommitted work in every worktree — an in-flight edit collides before it commits.
+git worktree list --porcelain | sed -n 's#^worktree ##p' | while read -r wt; do
+  echo "=== uncommitted @ $wt [$(git -C "$wt" branch --show-current)] ==="
+  git -C "$wt" status --porcelain=v1 --untracked-files=all | cut -c4-
 done
 ```
 
-Compare active branch file sets against candidate's `In scope:` paths.
+`merge-base ... "$ref"` (two-dot against the fork point) lists only what the branch itself changed;
+`main...$branch` on a branch that has since been merged still lists its whole diff, which is how the
+old gate produced false blocks on finished work while missing live work. A merged branch is *dead* —
+excluded unless it is checked out in a worktree, in which case it is live with nothing new yet.
+
+Compare live file sets against the candidate's `In scope:` paths.
 - Same file touched → hard block
 - Same directory, different files → soft warning (proceed with note)
 - No overlap → clear
+
+**Ledger files (named exemption).** Some files are touched by *every* change by policy, so
+"same file → hard block" would block all parallel work forever. **Ledger files** are append-mostly
+registries a branch edits because it shipped, not because it owns a feature:
+`.claude-plugin/marketplace.json`, `CHANGELOG.md`, the `version` field of any `plugin.json`, and
+lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `uv.lock`, …).
+
+An overlap **only** on ledger files downgrades from hard block to a **note**, not a silent skip —
+say which ledger files overlap and that the exemption was applied, so the call stays visible. An
+overlap on anything else still hard-blocks even if ledger files also overlap.
+
+The exemption is only sound if ledger edits are **serialized late**: do not bump versions, edit
+`marketplace.json`, or write `CHANGELOG.md` during implementation. Do it once, at finish time, on a
+branch just rebased onto the base, so the entry is written against the current ledger state rather
+than a stale copy. A branch that edits a ledger file outside its own version/changelog rows
+(restructuring `marketplace.json`, rewriting `CHANGELOG.md` history) is not making a ledger edit and
+gets no exemption.
 
 ### Step 4: Select Work
 

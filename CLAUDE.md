@@ -87,7 +87,7 @@ should be a loud, explicit opt-out in `.jackal/harness-guidance.md`, not a defau
 - `issue_docs`: `docs/issue-docs`
 - `design_plans`: `docs/design-plans`
 - `impl_plans`: `docs/impl-plans`
-- `test_cmd`: `bash scripts/trace-deps.sh && python3 scripts/check-version-sync.py && python3 scripts/check-frontmatter.py && (cd plugins/ed3d-hook-security-hardening/hooks && python3 test-check-bash-secrets.py && python3 test-check-sensitive-file.py)` (mirrors `.github/workflows/ci.yml`; requires `pip install pyyaml` once locally)
+- `test_cmd`: `bash scripts/trace-deps.sh && python3 scripts/check-version-sync.py && python3 scripts/check-frontmatter.py && (cd plugins/ed3d-hook-security-hardening/hooks && python3 test-check-bash-secrets.py && python3 test-check-sensitive-file.py) && (cd plugins/jackal-hook-branch-guard/hooks && python3 test-check-branch-guard.py)` (mirrors `.github/workflows/ci.yml`; requires `pip install pyyaml` once locally)
 - `git_remote`: `origin`
 - `push_cmd`: `git push`
 - `label_style`: `slash`
@@ -97,3 +97,4 @@ should be a loud, explicit opt-out in `.jackal/harness-guidance.md`, not a defau
   - `plan-and-execute` — `plugins/jackal-plan-and-execute`
   - `supervisor` — `plugins/jackal-supervisor`
   - `hook-security` — `plugins/ed3d-hook-security-hardening`
+  - `hook-branch-guard` — `plugins/jackal-hook-branch-guard`

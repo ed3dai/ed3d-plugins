@@ -278,19 +278,80 @@ this is standalone or the seed of a new epic — don't leave it floating silentl
 
 **Run before every assignment.**
 
+The gate's only job is to answer: *what files is someone else already changing?* It must
+enumerate **live** branches — not name-matched ones, and not dead ones. Do not filter branches by
+name glob: `<type>/<slug>` is legal without an issue number, and `feat/`, `fix/`, and `chore/` are
+all in the convention, so any glob narrower than "every ref" silently under-reports and the gate
+never fires.
+
 ```bash
 cd $REPO_ROOT
-for branch in $(git branch --list 'feature/*' '*/[0-9]*-*' | tr -d ' '); do
-  echo "=== $branch ==="
-  git diff --name-only main...$branch 2>/dev/null
+BASE="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
+BASE="${BASE:-main}"
+git fetch --quiet origin 2>/dev/null || true
+CUTOFF="$(date -v-30d +%s 2>/dev/null || date -d '30 days ago' +%s)"
+WT="$(git worktree list --porcelain | sed -n 's#^branch refs/heads/##p')"
+
+# Local + remote refs, deduped. Remote-only branches count: a collision can come
+# from a branch another machine or worktree owns and you never checked out.
+for name in $(git for-each-ref --format='%(refname:short)' refs/heads refs/remotes/origin \
+              | sed 's#^origin/##' | grep -vxE "HEAD|origin|$BASE" | sort -u); do
+  ref="$name"
+  git rev-parse --verify --quiet "refs/heads/$name" >/dev/null || ref="origin/$name"
+  live=no; printf '%s\n' "$WT" | grep -qxF "$name" && live=yes   # checked out somewhere = always live
+  if [ "$live" = no ]; then
+    # Already merged into the base → finished work, not a collision source.
+    git merge-base --is-ancestor "$ref" "origin/$BASE" 2>/dev/null && continue
+    # Untouched for 30d → abandoned; report separately rather than blocking on it.
+    [ "$(git log -1 --format=%ct "$ref")" -lt "$CUTOFF" ] \
+      && { echo "--- stale (>30d, not blocking): $name"; continue; }
+  fi
+  echo "=== $name ==="
+  git diff --name-only "$(git merge-base "origin/$BASE" "$ref")" "$ref"
+done
+
+# Uncommitted work in every worktree — an in-flight edit collides before it commits.
+git worktree list --porcelain | sed -n 's#^worktree ##p' | while read -r wt; do
+  echo "=== uncommitted @ $wt [$(git -C "$wt" branch --show-current)] ==="
+  git -C "$wt" status --porcelain=v1 --untracked-files=all | cut -c4-
 done
 ```
 
-Compare active-branch files against the candidate issue's `In scope:` paths.
+Two things matter about the diff command. `merge-base ... "$ref"` (two-dot against the fork point)
+lists only what the branch itself changed; `main...$branch` on a branch that has since been merged
+still lists its whole diff, which is how the old gate produced false blocks on finished work while
+missing live work. And a merged branch is *dead* — exclude it unless it is checked out in a
+worktree, in which case it is a live branch that simply has nothing new yet.
+
+Compare the resulting file sets against the candidate issue's `In scope:` paths.
 
 - Same file → hard block
 - Same directory, different files → soft warning (proceed with note)
 - No overlap → clear
+
+#### Ledger Files (named exemption)
+
+Some files are touched by *every* change by policy, so "same file → hard block" would block all
+parallel work forever. Call these **ledger files** — append-mostly registries that a branch edits
+because it shipped, not because it owns a feature:
+
+- `.claude-plugin/marketplace.json`
+- `CHANGELOG.md`
+- the `version` field of any `plugin.json`
+- lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `uv.lock`, `poetry.lock`, …)
+
+An overlap **only** on ledger files downgrades from hard block to a **note**, not a silent skip —
+say which ledger files overlap and that the exemption was applied, so the decision is visible and
+arguable. An overlap on anything else still hard-blocks even if ledger files also overlap.
+
+The exemption is only sound if ledger edits are **serialized late**: do not bump versions, edit
+`marketplace.json`, or write `CHANGELOG.md` during implementation. Do it once, at finish time, on a
+branch that has just been rebased onto the base — so the entry is written against the current
+ledger state instead of a stale copy. Two branches implementing concurrently and both bumping the
+same plugin mid-flight is a real conflict this exemption does not fix; the fix is ordering, not
+tolerance. A branch that edits a ledger file outside its own version/changelog rows (restructuring
+`marketplace.json`, rewriting history in `CHANGELOG.md`) is not making a ledger edit and gets no
+exemption.
 
 ### Assign Work
 
