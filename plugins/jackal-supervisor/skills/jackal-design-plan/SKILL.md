@@ -7,7 +7,7 @@ argument-hint: "[issue-id-or-doc-path]"
 
 # Jackal Design Plan
 
-Wrapper that integrates the supervisor at entry/exit of the design phase. **This skill owns worktree creation** for the issue. Downstream skills (`jackal-impl-plan`, `jackal-pause-session`, `jackal-finish-branch`) read the worktree path back from the issue doc.
+Wrapper that integrates the supervisor at entry/exit of the design phase. **This skill owns worktree creation** for the issue. Downstream skills (`jackal-impl-plan`, `jackal-pause-session`, `jackal-finish-branch`) resolve the worktree from **git itself**, falling back to the gitignored local state file described in Step 3.
 
 ---
 
@@ -33,7 +33,9 @@ Accept issue ID or issue doc path. Read the issue doc.
   directly instead of design"), then dispatch the `jackal-plan-and-execute:implementor` agent
   directly with the issue doc as context (same routing the supervisor agent uses for Simple
   issues — see its Route to Execution table) and stop processing this skill.
-- If a `## Worktree` block already exists in the issue doc → reuse it (skip step 2). This means design was started before and is being resumed.
+- If git already has a worktree/branch for this issue (`git worktree list`), or a local state file
+  `$REPO_ROOT/.jackal/state/<issue#>.md` exists → reuse it (skip step 2). This means design was
+  started before and is being resumed.
 - Otherwise → proceed to step 2
 
 ## Step 2: Conflict Gate + Create Worktree
@@ -73,32 +75,45 @@ if [ ! -d "$WORKTREE_PATH" ]; then
 fi
 ```
 
-## Step 3: Record the Worktree Assignment
+## Step 3: Record the Worktree Assignment (gitignored local state)
 
-**Do not commit anything to `main` here.** Worktree assignment and issue status are backlog
-metadata, and this project's backlog is GitHub Issues — the durable record is the issue comment +
-label written in Step 4, not a commit. Committing bookkeeping to `main` (the old behavior) left a
-trail of `chore: assign worktree for #N` commits on the trunk; that route is removed.
+**Never write worktree assignment or issue status into `docs/issue-docs/`.** Those files are
+**tracked** in git, so editing one at the repo root dirties the tracked working tree on `main` —
+which is the same problem as committing bookkeeping to the trunk, just deferred. Worktree assignment
+and status are ephemeral session metadata; they do not belong in a tracked file.
 
-The **authoritative record of what worktree/branch exists is git itself** (`git worktree list`,
-`git branch`), which `jackal-impl-plan` reads back directly. So:
+**Two sources of truth, both outside the issue doc:**
 
-- Write the `## Worktree` block into the issue doc **on disk** as a local convenience for
-  same-session reads (uncommitted — it lives in the repo-root working tree):
+1. **Git** is authoritative for what worktree/branch exists (`git worktree list`, `git branch`).
+   `jackal-impl-plan` and `jackal-pause-session` query it directly.
+2. **GitHub Issues** is the durable backlog record — the issue comment + status label written in
+   Step 4.
 
-  ```markdown
-  ## Worktree
+Local state is a **cache only**, written to a gitignored path so it can never dirty the tree:
 
-  - branch: feat/24-slug
-  - path: .worktrees/24-slug
-  - created: 2026-05-28
-  ```
+```bash
+mkdir -p "$REPO_ROOT/.jackal/state"
+grep -q '^\.jackal/state/' "$REPO_ROOT/.gitignore" || echo '.jackal/state/' >> "$REPO_ROOT/.gitignore"
 
-  Use repo-root-relative paths so it's portable; skills convert to absolute via `$REPO_ROOT/<path>`.
-- Set `**Status:** In Progress` in the on-disk issue doc.
-- **Do not `git add`/`git commit` the issue doc on `main`.** If the issue doc itself needs to be
-  versioned, it rides along on the feature branch when the design/impl commits land inside the
-  worktree — never as a standalone bookkeeping commit on the trunk.
+cat > "$REPO_ROOT/.jackal/state/${ISSUE}.md" <<EOF
+# Session state for #${ISSUE} (gitignored cache — git + GitHub Issues are authoritative)
+
+- issue_doc: ${ISSUE_DOCS}/${ISSUE_ID}-${SLUG}.md
+- branch: ${BRANCH}
+- path: ${WORKTREE_PATH#$REPO_ROOT/}
+- created: $(date +%F)
+- status: In Progress
+EOF
+```
+
+Use repo-root-relative paths in `path:` so it's portable; skills convert to absolute via
+`$REPO_ROOT/<path>`.
+
+**Do not edit the issue doc at all in this step** — not its `## Worktree` section, not its
+`**Status:**` line. If a *durable, versioned* change to the issue doc is genuinely warranted, make
+it **inside the worktree** (`cd "$WORKTREE_PATH"`, edit, commit) so it lands on the feature branch
+and reaches `main` through the PR. An edit made in the repo-root working tree cannot ride along on
+the feature branch — the worktree is a separate checkout and will never see it.
 
 ## Step 4: Update Backlog State (the durable record)
 
@@ -151,4 +166,5 @@ Emit that `Next:` line **exactly as written with the real filename substituted**
 it is a literal command (defined in this plugin's `commands/`), not a
 description. Do not invent command names.
 
-No /clear needed. `jackal-impl-plan` reads the `## Worktree` block from the issue doc to find the existing worktree.
+No /clear needed. `jackal-impl-plan` finds the existing worktree by querying git, falling back to
+`.jackal/state/<issue#>.md`.

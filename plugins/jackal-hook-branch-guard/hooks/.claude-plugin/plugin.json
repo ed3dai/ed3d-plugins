@@ -1,0 +1,18 @@
+{
+    "name": "jackal-hook-branch-guard",
+    "description": "PreToolUse hooks that refuse file writes and git commit/push while HEAD is on a protected branch, so 'the PR is the only completion path' fails closed instead of relying on prose. Worktrees on feature branches, gitignored paths, and scratch directories stay writable.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Jack Greaney",
+        "email": "jgreaney@hcg.com"
+    },
+    "homepage": "https://github.com/jgreaney-HCG/jackal-plugins",
+    "repository": "https://github.com/jgreaney-HCG/jackal-plugins",
+    "license": "UNLICENSED",
+    "keywords": [
+        "hooks",
+        "git",
+        "branch-protection",
+        "guardrails"
+    ]
+}

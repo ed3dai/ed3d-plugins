@@ -1,6 +1,6 @@
 ---
 name: jackal-pause-session
-description: Gracefully pause an in-progress issue in any Jackal-managed project — records the current phase and next step in the issue doc, swaps the GitHub issue's status label, and commits the checkpoint so the supervisor can surface it and give the exact resume command later.
+description: Gracefully pause an in-progress issue in any Jackal-managed project — records the current phase and next step as a GitHub issue comment, swaps the issue's status label, and caches the checkpoint in gitignored local state so the supervisor can surface it and give the exact resume command later. Touches no tracked file and makes no commit.
 user-invocable: true
 argument-hint: "[issue-id] [reason]"
 ---
@@ -70,7 +70,13 @@ WORKTREE_PATH=$(git -C "$REPO_ROOT" worktree list --porcelain \
 WORKTREE_REL="${WORKTREE_PATH#$REPO_ROOT/}"
 ```
 
-Confirm Status is "In Progress".
+Confirm the issue is in progress. Read this from the **GitHub issue's status label** (the durable
+record), not the issue doc's `**Status:**` line — that tracked file is no longer updated by pause or
+assignment:
+
+```bash
+gh issue view "$ISSUE" --repo "$GH_REPO" --json labels --jq '.labels[].name' | grep '^status'
+```
 
 ---
 
@@ -125,13 +131,29 @@ Examples (with `impl_plans: docs/impl-plans`):
 
 ---
 
-## Step 4: Update the Issue Doc
+## Step 4: Write the Local State Cache
 
-Edit `$ISSUE_DOCS/PREFIX-XXX-*.md`:
+**Do not edit `$ISSUE_DOCS/PREFIX-XXX-*.md`.** `docs/issue-docs/` is **tracked** in git, so editing
+it at the repo root dirties the tracked working tree on `main`. Pause state is ephemeral session
+metadata — write it to the gitignored cache instead:
 
-1. `**Status:** In Progress` → `**Status:** Paused` (or `Blocked`)
-2. Set `**Last Checkpoint:**` to the checkpoint string
-3. If blocked, add to **Dependencies**: `- Blocked by: [what you're waiting for]`
+```bash
+mkdir -p "$REPO_ROOT/.jackal/state"
+grep -q '^\.jackal/state/' "$REPO_ROOT/.gitignore" || echo '.jackal/state/' >> "$REPO_ROOT/.gitignore"
+
+cat > "$REPO_ROOT/.jackal/state/${ISSUE}.md" <<EOF
+# Session state for #${ISSUE} (gitignored cache — git + GitHub Issues are authoritative)
+
+- issue_doc: ${ISSUE_DOCS}/${ISSUE_ID}-*.md
+- branch: ${BRANCH}
+- path: ${WORKTREE_REL}
+- status: Paused
+- last_checkpoint: ${CHECKPOINT_STRING}
+- blocked_by: [what you're waiting for, if Blocked; omit otherwise]
+EOF
+```
+
+Use `Blocked` instead of `Paused` for `status:` when waiting on something external.
 
 ---
 
@@ -161,12 +183,19 @@ EOF
 
 ---
 
-## Step 6: Persist the Checkpoint (no commit on main)
+## Step 6: Persist the Checkpoint (nothing touches main)
 
 The durable checkpoint is the GitHub issue comment + status label written in Step 5 — that is what
-the supervisor reads back to give the resume command. Update the issue doc's `**Status:**` and
-`**Last Checkpoint:**` fields **on disk** (Step 4) but **do not commit them to `main`.** A pause is
-backlog bookkeeping, not feature history; the old `chore: pause …` commit on the trunk is removed.
+the supervisor reads back to give the resume command. The `.jackal/state/<issue#>.md` file from
+Step 4 is a gitignored local cache for same-session reads, nothing more. A pause is backlog
+bookkeeping, not feature history: it must leave **no tracked file modified and no commit** on
+`main`. The old `chore: pause …` commit on the trunk is removed, and so is the tracked-issue-doc
+edit that replaced it.
+
+If a *versioned* status change to the issue doc is genuinely warranted, it belongs in a commit made
+**inside the worktree**, on the feature branch, reaching `main` through the PR. An edit made in the
+repo-root working tree cannot ride along on the feature branch — the worktree is a separate
+checkout and never sees it.
 
 If work-in-progress exists in the worktree, that is preserved separately — the implementor's
 commit-early discipline keeps green checkpoints on the **feature branch** inside the worktree, and

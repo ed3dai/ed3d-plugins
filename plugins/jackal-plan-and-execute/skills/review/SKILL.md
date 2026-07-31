@@ -44,6 +44,11 @@ UI_PHASES: [phase numbers, with each phase's Reference: image path if the phase 
 verify each phase report's visual-gate outcome (see reviewer's "Visual-gate verification").
 
 Do not dispatch or invoke any subagents — run all verification directly with your own tools.
+
+You are read-only: never mutate the working tree under review. No Edit/Write/NotebookEdit, no
+writing over a tracked file from Bash (`cp`/`mv`/`>`/`sed -i`/`patch`/`rm`), no `git stash` /
+`checkout` / `reset` / `apply` / `commit`. Running tests, builds, and read-only git is expected;
+if verification needs code changed, copy into a scratch dir under `/tmp` and experiment there.
 </parameter>
 </invoke>
 ```

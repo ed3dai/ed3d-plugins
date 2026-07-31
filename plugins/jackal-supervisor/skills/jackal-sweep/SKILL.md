@@ -1,6 +1,6 @@
 ---
 name: jackal-sweep
-description: Reclaim worktrees and local branches whose PRs have merged, flag PRs that need a rebase, and fast-forward main. Run after PRs merge, before starting new work, or whenever `git worktree list` looks crowded.
+description: Reclaim worktrees and local branches whose PRs have merged, flag PRs that need a rebase, surface orphaned stashes, and fast-forward main. Run after PRs merge, before starting new work, or whenever `git worktree list` looks crowded.
 user-invocable: true
 ---
 
@@ -14,7 +14,7 @@ out in a worktree can't be deleted, and a worktree with stray files blocks
 
 **Announce at start:** "Sweeping worktrees, branches, and PR state."
 
-> **How to run the sweep (flat).** Steps 0-5 are branch/worktree/git hygiene —
+> **How to run the sweep (flat).** Steps 0-6 are branch/worktree/git hygiene —
 > run them as **direct director work**, not delegated to a nested tier. If a
 > step needs investigation beyond git plumbing (e.g. confirming a
 > delivered-but-open issue was truly closed by a merged PR), fan out **at most
@@ -104,12 +104,56 @@ PRs get the same command plus a warning that conflicts will need resolution —
 apply the finish skill's rule: mechanical conflicts fine, semantic conflicts
 stop and report.
 
-## Step 5: Report
+## Step 5: Reconcile Stashes
+
+Stashes are invisible to every other step here — they belong to no branch and no worktree, so
+parked work can sit orphaned for weeks without anything surfacing it. Surface them every sweep:
+
+```bash
+git stash list --date=short \
+  --format='%gd|%cd|%gs|%H'          # ref | date | message | sha
+```
+
+For each entry, get enough detail for the human to recognize it:
+
+```bash
+git stash show --stat "$STASH_REF"                    # what's in it
+git log -1 --format='%H %s' "$STASH_REF^1"            # the commit it was taken from
+git branch --contains "$(git rev-parse "$STASH_REF^1")" -a 2>/dev/null | head -5
+```
+
+Classify, but **take no action**:
+
+| Signal | Note in the report |
+|---|---|
+| `WIP on main` / `WIP on <default-branch>` | **Likely orphaned** — work parked on the trunk with no branch to carry it |
+| Base commit reachable from a **merged** PR branch | **Probably superseded** — verify before dropping |
+| Base commit only on a live branch | **Belongs to** that branch — reapply there, not here |
+| Older than ~30 days | **Stale** — flag the age explicitly |
+
+**Never `git stash drop`, `git stash pop`, or `git stash apply` during a sweep.** A stash is the one
+artifact here with no other copy anywhere — dropping the wrong one destroys work permanently, and
+applying one silently mutates a working tree the user didn't ask you to touch. Report the entries
+with the commands the user could run, and let them decide:
+
+```
+Stashes (no action taken — your call):
+  stash@{0}  2026-06-12  WIP on main: 65b1f1e Merge pull request #37
+             3 files changed, 47 insertions(+)  — likely orphaned, 48 days old
+             inspect: git stash show -p 'stash@{0}'
+             recover: git switch -c recover/stash-0 65b1f1e && git stash apply 'stash@{0}'
+             discard: git stash drop 'stash@{0}'      # only if you're sure
+```
+
+If `git stash list` is empty, say so in one line — a clean result is worth confirming.
+
+## Step 6: Report
 
 ```
 Swept: [n] worktrees removed, [n] branches deleted, main fast-forwarded to [sha]
 Needs rebase: #NN (BEHIND), #MM (DIRTY — conflicts)
 Unfinished:  feat/31-bar (12 commits, no PR)
+Stashes: [n] found ([n] likely orphaned) — see above / none
 Kept (open PRs): #22, #27
 Stale-open (delivered by a merged PR, still OPEN — close, don't rank): #NN (PR #MM)
 ```

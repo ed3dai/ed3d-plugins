@@ -1,5 +1,41 @@
 # Changelog
 
+## [jackal-hook-branch-guard] 1.0.0
+
+New plugin. Makes "the PR is the only completion path" fail closed instead of relying on prose.
+
+Motivation: `e487c29` was substantive feature work authored and pushed directly to `main`. The agent ran `git branch --show-current`, saw `main`, and proceeded anyway — 12 edits, a commit, a `CHANGELOG.md` rebase conflict resolved in place on the trunk, then `git push origin main`. Fifty-five minutes later the same session quoted the rule correctly and branched. A rule followed inconsistently is a rule with nothing enforcing it.
+
+**New:**
+- `PreToolUse` on `Edit|Write|NotebookEdit`: denies the write when the *target file's* repository has `HEAD` on a protected branch (`main`/`master` by default, `JACKAL_PROTECTED_BRANCHES` to override). Resolves the branch per-file, so a worktree checked out to a feature branch stays writable even though the primary checkout sits on `main`.
+- `PreToolUse` on `Bash`: denies `git commit` / `git push` when the cwd's `HEAD` is on a protected branch. Tokenizes with `shlex` and splits on operator boundaries, so `echo "git commit"` and `git commit --help` do not trip it.
+- Allowlisted by design: gitignored and untracked paths, anything outside a git repo, scratch prefixes (`/tmp`, overridable via `JACKAL_SCRATCH_PREFIXES`), `.git/` internals, and all read-only git commands.
+- Escape hatch: `JACKAL_ALLOW_MAIN_WRITES=1`, named in every block message alongside the `git switch -c <type>/<slug>` remedy.
+- `test-check-branch-guard.py` — 82 tests over real `git init` fixtures (no mocks, no pytest), wired into CI and `test_cmd`.
+
+## [jackal-supervisor] 3.5.0
+
+Finish the job `3.4.0` started: bookkeeping no longer dirties the trunk, and the conflict gate actually enumerates live branches.
+
+**Fixed:**
+- Planning bookkeeping no longer writes to tracked files on `main`. `3.4.0` removed the bookkeeping *commits* but kept the *writes* — and `docs/issue-docs/` is tracked, so every assignment left the trunk modified. Worktree/status state now lives in gitignored `.jackal/state/`.
+- Removed a claim that could not work: the issue doc "rides along on the feature branch when the design/impl commits land inside the worktree." The edit was in the repo-root working tree; a worktree is a separate checkout and cannot see it. Replaced with an accurate statement of where state lives.
+- Conflict gate rewritten. The old `git branch --list 'feature/*' '*/[0-9]*-*'` matched 1 of 4 local branches (the convention is `feat/`, not `feature/`, and `<type>/<slug>` is legal without an issue number) — so "same file → hard block" silently never fired. It also diffed `main...$branch`, which still lists a merged branch's whole diff, producing false blocks on finished work. Now enumerates all local *and* remote refs via `git for-each-ref`, excludes branches merged into the resolved base, diffs from the merge-base, reports >30d branches as stale rather than blocking, and surfaces uncommitted work in every worktree.
+- **Ledger-file exemption.** `.claude-plugin/marketplace.json`, `CHANGELOG.md`, `plugin.json` version fields, and lockfiles appeared in 19 of 22 branches and 12 of the last 12 commits — because `CLAUDE.md` mandates them. Under "same file → hard block" that made correct parallel work permanently blocked. An overlap *only* on ledger files downgrades to a visible note; an overlap on anything else still hard-blocks.
+
+**New:**
+- `jackal-sweep` reconciles `git stash list`, so parked work cannot be silently orphaned. Reports for the user to decide; never auto-drops or auto-applies.
+
+## [jackal-plan-and-execute] 3.12.0
+
+Reviewers can no longer mutate the tree they are reviewing, and the parallel-safety claim is honest.
+
+**Fixed:**
+- `reviewer` / `reviewer-deep` are now structurally read-only: `disallowedTools: Agent, Edit, Write, NotebookEdit`, plus an explicit never-mutate rule in each body (per `CLAUDE.md`, frontmatter has known enforcement gaps, so the prompt-level rule is belt-and-braces). A reviewer was observed `cp`-ing an old revision over the file under review six times to A/B it, while the main agent was committing that same file — it restored correctly each time, but one crash inside that window silently reverts the file under review.
+- `Bash` stays available, because reviewers legitimately need to run tests. They are now given the sanctioned pattern instead of a blanket ban: copy to a scratch dir under `/tmp` and experiment there, never `cp` over a tracked file, never `git stash`/`checkout`/`reset`.
+- `review` dispatch template repeats the never-mutate prohibition inline, matching how the no-subagent rule is already handled.
+- Corrected the claim that parallel leaf phases are safe "because independent phases are disjoint by construction." That premise is false by policy in this repo, where every change touches the mandated ledger files.
+
 ## [jackal-plan-and-execute] 3.11.0
 
 Close the reviewer's remaining gaps from the code-reviewer consolidation review: a false-positive bar on findings, broader security bullets, and independent verification that UI phases actually ran their visual gate.
