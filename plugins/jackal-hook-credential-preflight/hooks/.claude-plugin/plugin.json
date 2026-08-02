@@ -1,0 +1,19 @@
+{
+    "name": "jackal-hook-credential-preflight",
+    "description": "PreToolUse hook that warns before an agent dispatch when the harness's own AWS SSO token cannot survive it — expired, non-refreshable, or with a lapsing client registration. Reads ~/.aws only; no STS calls. Exists because every agent shares one token, so its expiry kills the whole fleet including the orchestrator.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Jack Greaney",
+        "email": "jgreaney@hcg.com"
+    },
+    "homepage": "https://github.com/jgreaney-HCG/jackal-plugins",
+    "repository": "https://github.com/jgreaney-HCG/jackal-plugins",
+    "license": "UNLICENSED",
+    "keywords": [
+        "hooks",
+        "aws",
+        "sso",
+        "credentials",
+        "guardrails"
+    ]
+}

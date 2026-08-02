@@ -76,6 +76,17 @@
             "license": "UNLICENSED"
         },
         {
+            "name": "jackal-hook-credential-preflight",
+            "description": "PreToolUse hook that warns before an agent dispatch when the harness's own AWS SSO token cannot survive it — expired, non-refreshable, or with a lapsing client registration. Reads ~/.aws only; no STS calls. Exists because every agent shares one token, so its expiry kills the whole fleet including the orchestrator.",
+            "version": "1.0.0",
+            "source": "./plugins/jackal-hook-credential-preflight/hooks",
+            "author": {
+                "name": "Jack Greaney",
+                "email": "jgreaney@hcg.com"
+            },
+            "license": "UNLICENSED"
+        },
+        {
             "name": "ed3d-hook-security-hardening",
             "description": "PreToolUse/PostToolUse hooks that catch common secrets-leakage patterns: echoing env vars, reading secret files, tokens in URLs, and missing gitignore/permissions on sensitive files.",
             "version": "1.0.1",

@@ -1,5 +1,19 @@
 # Changelog
 
+## [jackal-hook-credential-preflight] 1.0.0
+
+New plugin. Warns before an agent dispatch when the harness's own AWS SSO token cannot survive it.
+
+Motivation: an investigation of ~20 dead subagents (2026-07-17 → 07-31) found the dominant failure mode was not what it looked like. The intuitive diagnosis — implementors not committing often enough — is wrong: **no code was lost in any traced incident**, because worktree files survive process death and recovery succeeded every time. The actual cause is that every agent on Bedrock authenticates through *one* cached SSO token, so its expiry kills the entire fleet simultaneously. In session `558791f0` the subagent died at `07:40:37` and its parent at `07:40:38` — the orchestrator cannot run its own stall-recovery logic because it is dead too. The existing pre-flight in `jackal-plan-and-execute/skills/execute/SKILL.md:776` explicitly scopes itself to "the downstream project the loop is operating on, not this repo," so it never checked the credential that does the killing.
+
+**New:**
+- `PreToolUse` on `Agent|Task`: warns when the harness's SSO token is expired, when it lacks a `refreshToken` and its remaining lifetime is shorter than the dispatch's declared `EXPECT: ... within <n>m` duration, or when the SSO client registration is within 3 days of expiring (registration expiry defeats refresh).
+- Reads `~/.aws/sso/cache` and `~/.aws/config` only — no STS calls, no network, and no token values read or logged. Locates the exact token via `sha1(<sso-session name>)`, walking `source_profile` hops (`DevOps_EDRC-Dev` → `AWS_DevOps_EDRC-Dev` → `HCG-SSO-DevOps`) because only the last hop names the session.
+- Treats a refreshable token with minutes left as healthy and a non-refreshable one as at risk. AWS's legacy inline-`sso_start_url` config format issues no refresh token — per AWS docs, "Automated token refresh isn't supported using the legacy non-refreshable configuration" — so the distinction decides whether short runway matters at all.
+- Advisory by default (`additionalContext`, not `deny`): only the operator can run an interactive `aws sso login`, so the message names the operator as the actor rather than telling an agent to retry. `JACKAL_PREFLIGHT_BLOCK=1` makes it fail closed; `JACKAL_PREFLIGHT_DISABLE=1` silences it; `JACKAL_SSO_SESSION` overrides session detection.
+- Inert unless `CLAUDE_CODE_USE_BEDROCK=1`, and silent on missing cache, unparseable timestamps, or any internal error — an advisory check that breaks a dispatch is worse than one that misses a warning.
+- `test-check-credential-preflight.py` — 23 tests over real temp `HOME` trees with real `~/.aws` files (no mocks, no pytest), wired into CI and `test_cmd`.
+
 ## [jackal-hook-branch-guard] 1.0.0
 
 New plugin. Makes "the PR is the only completion path" fail closed instead of relying on prose.
