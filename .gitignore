@@ -2,3 +2,8 @@
 **/__pycache__/
 .worktrees/
 .jackal/state/
+# Per-phase test artifacts written by implementors (implementor.md "Verify"). Ignored
+# here rather than left to each agent to ignore before writing, because that was prose
+# and prose gets skipped. Deliberately NOT ignoring .jackal/ wholesale --
+# .jackal/harness-guidance.md is committed config.
+.jackal/phase-*-report.*

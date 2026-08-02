@@ -815,9 +815,14 @@ watcher only for genuinely long-running or async phases.
    polls the worktree's HEAD every 60s inside the background task (that internal
    poll is exempt from the sleep rule below — do not "fix" it) and wakes you only
    on a real event: `NEW_COMMIT <sha>` when HEAD advances, or `STALLED <agent>
-   <window>` when EXPECT elapses with no new commit — then it exits, and that
-   completion is what generates your task-notification. Your context is touched
+   <window> <activity>` when EXPECT elapses with no new commit — then it exits, and
+   that completion is what generates your task-notification. Your context is touched
    only on a real notification, never on a schedule.
+
+   `<activity>` is `active` or `idle`, and it distinguishes an agent that is working
+   without committing from one that has stopped moving. HEAD alone cannot tell those
+   apart, and treating them alike is what makes a recovery dispatch risk two writers
+   in one worktree.
 
 2. **Hard rule — never foreground-sleep to the timeout.** The Bash tool has a
    **120s default timeout** (a foreground `sleep 120` or longer returns exit 143 /
@@ -840,6 +845,23 @@ watcher only for genuinely long-running or async phases.
    3. **If unrecoverable, resume from disk** — start a fresh cold implementor
       dispatch seeded from the on-disk state (same posture as the Fallback
       Conditions above), never from the stalled agent's unverified claims.
+
+   **Read `<activity>` before deciding between steps 2 and 3.** `active` means the
+   working tree changed during the window, so an agent is probably still alive and
+   mid-edit: use `SendMessage` (step 2) and do **not** cold re-dispatch, or two
+   writers end up in one worktree. `idle` means nothing moved at all, which is
+   consistent with a dead agent and makes step 3 appropriate — but confirm with a
+   `SendMessage` first when the agent could plausibly still be thinking.
+
+   A shared-credential death is fleet-wide and simultaneous, so if **you** are alive
+   and your own credentials never lapsed, a single dead child died for some other
+   reason and deserves the stricter check, not a faster re-dispatch. When you have
+   re-authenticated after a fleet-wide credential expiry, `idle` plus your own known
+   downtime is the one case where cold re-dispatch is clearly right.
+
+   Any recovery dispatch must **commit forward only** — never `rebase`, `reset`, or
+   force-push over the stalled agent's work. If the original turns out to be alive,
+   the worst case is then a messy merge rather than lost commits.
 
 ---
 

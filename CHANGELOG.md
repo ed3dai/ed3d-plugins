@@ -1,5 +1,14 @@
 # Changelog
 
+## [jackal-plan-and-execute] 3.13.0
+
+Two small correctness fixes surfaced while investigating subagent loss.
+
+**Fixed:**
+- `scripts/worktree-watcher.sh` could not distinguish an agent that died from one still working but not yet committing — it compared only HEAD SHAs, so both looked identical. `STALLED` now carries a fourth field, `active` or `idle`, derived from a working-tree fingerprint (porcelain status + newest mtime among changed files) latched across the window. Readers parsing only the first three fields are unaffected.
+- `execute/SKILL.md` STALLED path now branches on that signal: `active` means prefer `SendMessage` and never cold re-dispatch (two writers in one worktree was a real near-miss on #353), `idle` is consistent with a dead agent. Recovery dispatches are now required to commit forward only — never `rebase`/`reset`/force-push over a stalled agent's work — so if the original is alive after all, the worst case is a messy merge rather than lost commits.
+- `.gitignore` now covers `.jackal/phase-*-report.*`. `implementor.md:169-174` tells implementors to write a per-phase test artifact there and to "ensure it's ignored before writing" — a prose instruction, and prose gets skipped, so the artifact could land in a commit. Deliberately scoped to the artifact pattern rather than ignoring `.jackal/` wholesale, since `.jackal/harness-guidance.md` is committed config.
+
 ## [jackal-hook-credential-preflight] 1.0.0
 
 New plugin. Warns before an agent dispatch when the harness's own AWS SSO token cannot survive it.
