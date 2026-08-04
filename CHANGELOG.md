@@ -1,6 +1,6 @@
 # Changelog
 
-## [ed3d-plan-and-execute] [1.13.0]
+## [ed3d-plan-and-execute] [1.14.0]
 
 Run design, implementation planning, and execution as one Fable-orchestrated workflow, with optional autonomous decisions.
 
