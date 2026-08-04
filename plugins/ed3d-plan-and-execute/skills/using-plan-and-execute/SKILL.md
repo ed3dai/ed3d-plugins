@@ -4,6 +4,10 @@ description: Use when starting any conversation - establishes mandatory workflow
 user-invocable: false
 ---
 
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
+
 <EXTREMELY-IMPORTANT>
 If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST read the skill.
 

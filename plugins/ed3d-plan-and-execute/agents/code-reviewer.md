@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Reviews completed project steps against plans and enforces coding standards. Use when a numbered step from a plan is complete, a major feature is implemented, or before creating a PR. Validates plan alignment, code quality, test coverage, and architecture. Blocks merges for Minor, Important, or Critical issues.
-model: opus
+model: fable
 color: cyan
 disallowedTools: Agent
 ---

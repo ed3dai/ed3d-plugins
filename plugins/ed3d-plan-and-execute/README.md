@@ -23,7 +23,7 @@ Rough Idea
 /execute-implementation-plan ──► Working Code (reviewed & committed)
 ```
 
-Each phase produces artifacts that feed the next. You clear context between phases to ensure fresh, focused work.
+Each phase produces artifacts that feed the next. The Fable orchestrator runs the complete workflow in one conversation, re-reading artifacts and using fresh subagents where independent context is valuable.
 
 ---
 
@@ -127,7 +127,7 @@ After all tasks:
 
 **Code review at every step.** Issues caught early are cheaper than issues caught at PR review. The review-fix loop runs until zero issues, not until "good enough."
 
-**Fresh context between phases.** You /clear between design → plan and plan → execute. Each phase gets full context for its specific job.
+**One continuous orchestration context.** Design, planning, and execution run in the same conversation. Durable artifacts, just-in-time phase loading, and specialized subagents keep later phases grounded without discarding earlier decisions.
 
 ---
 
@@ -168,7 +168,8 @@ The plugin uses specialized subagents for different roles:
 | **codebase-investigator** | ed3d-research-agents | Verifies file paths, finds patterns, confirms assumptions |
 | **internet-researcher** | ed3d-research-agents | Finds current API docs, library patterns, best practices |
 | **task-implementor-fast** | ed3d-plan-and-execute | Implements tasks with TDD, runs verification, commits |
-| **code-reviewer** | ed3d-plan-and-execute | Enforces quality standards, blocks on issues |
+| **code-reviewer** | ed3d-plan-and-execute | Fable reviewer that enforces quality standards and blocks on issues; legitimate security-review safeguard failures fall back to Opus |
+| **autonomous-decision-escalator** | ed3d-plan-and-execute | Fresh-context Fable ruling for uncertain, contested, or difficult-to-reverse autonomous decisions |
 | **task-bug-fixer** | ed3d-plan-and-execute | Fixes issues identified by code reviewer |
 | **test-analyst** | ed3d-plan-and-execute | Validates test coverage against acceptance criteria, generates human test plans |
 | **project-claude-librarian** | ed3d-extending-claude | Updates CLAUDE.md files when contracts change |
@@ -186,17 +187,32 @@ You interact with the main orchestrating agent. It dispatches subagents and show
 
 Claude will guide you through context gathering, brainstorming, and design documentation.
 
-When design is complete, you'll get instructions to copy the next command, then /clear:
+### Autonomous Mode
+
+Create `.ed3d/autonomous-mode.md` at the project root to run the research-design-plan-implement workflow without pausing for human answers. The file may be empty, or it may contain project-specific guidance for autonomous decisions.
+
+Every skill checks for the sentinel when it starts. While it is present:
+
+- Fable remains the workflow orchestrator.
+- Questions and approval gates that normally go to the human are instead answered by an `opus` subagent.
+- The orchestrator supplies Opus with the exact question, goals, prior decisions, relevant code and file paths, research findings, constraints, and known uncertainty.
+- Opus must independently inspect evidence, analyze alternatives, justify its answer, and challenge any orchestrator recommendation rather than agreeing reflexively.
+- Decisions with low confidence, contested evidence, major downstream impact, or poor reversibility receive a fresh-context Fable escalation review.
+- The selected answer is recorded and the workflow continues in the same conversation.
+
+Bounded implementation, bug fixing, test-requirement generation, test analysis, and project-context maintenance retain their existing models. Frontier capacity is concentrated at orchestration, final review, and exceptional decision boundaries.
+
+Remove the sentinel to restore the normal interactive workflow for subsequently started skills.
+
+When design is complete, the Fable orchestrator can continue directly into implementation planning and execution in the same conversation. The phase commands remain available as standalone entry points:
 
 ```bash
-# Copy this command first, then run /clear, then paste it
 /start-implementation-plan @docs/design-plans/2025-01-14-your-feature.md .
 ```
 
 After planning, same pattern:
 
 ```bash
-# Copy this command first, then run /clear, then paste it
 /execute-implementation-plan @docs/implementation-plans/2025-01-14-your-feature .
 ```
 
@@ -223,6 +239,7 @@ Provide project-specific guidance by creating files in a `.ed3d/` directory:
 
 - `.ed3d/design-plan-guidance.md` — Loaded before clarification in `/start-design-plan`. Define domain terminology, architectural constraints, technology preferences, and scope boundaries.
 - `.ed3d/implementation-plan-guidance.md` — Loaded when creating implementation plans and during final code review. Specify coding standards, testing requirements, and review criteria.
+- `.ed3d/autonomous-mode.md` — Enables autonomous decisions through independent, evidence-grounded Opus subagents. Optional file contents provide additional decision guidance.
 
 Run `/how-to-customize` for details and example files.
 

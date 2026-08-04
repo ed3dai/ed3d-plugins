@@ -2,7 +2,12 @@
 name: starting-a-design-plan
 description: Use when beginning any design process - orchestrates gathering context, clarifying requirements, brainstorming solutions, and documenting validated designs to create implementation-ready design documents
 user-invocable: false
+model: fable
 ---
+
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
 
 # Starting a Design Plan
 
@@ -23,7 +28,7 @@ Orchestrate the complete design workflow from initial idea to implementation-rea
 | **3. Definition of Done** | Synthesize and confirm deliverables before brainstorming | Confirmed success criteria |
 | **4. Brainstorming** | Invoke brainstorming skill | Validated design (in conversation) |
 | **5. Design Documentation** | Invoke writing-design-plans skill | Committed design document |
-| **6. Planning Handoff** | Offer to invoke writing-plans skill | Implementation plan (optional) |
+| **6. Continue to Planning** | Confirm readiness, then invoke implementation planning in this context | Implementation plan (optional) |
 
 ## The Process
 
@@ -290,45 +295,25 @@ The writing-design-plans skill will:
 
 Mark Phase 5 as completed when design document is committed.
 
-### Phase 6: Planning Handoff
+### Phase 6: Continue to Planning
 
-After design is documented, guide user to create implementation plan in fresh context.
+After the design is documented, continue to implementation planning in the same conversation. Do not require or recommend `/clear`.
 
 Use TaskUpdate to mark Phase 6 as in_progress.
 
-**Do NOT create implementation plan directly.** The user needs to /clear context first.
+Announce that the design document was committed and ask whether to continue to implementation planning now. In autonomous mode, route this readiness decision to Opus using the autonomous-mode skill.
 
-Announce design completion and provide next steps:
+If the answer is yes:
 
-```
-Design complete! Design document committed to `docs/design-plans/[filename]`.
+1. Invoke `ed3d-plan-and-execute:starting-an-implementation-plan` directly.
+2. Pass the committed design document's exact path and the current project working directory.
+3. Preserve all decisions and evidence already established in this conversation; the planning skill must still re-read the design and independently verify current codebase state.
 
-Ready to create the implementation plan? This requires fresh context to work effectively.
+If the answer is no, report the standalone command the user can run later without instructing them to clear context:
 
-**IMPORTANT: Copy the command below BEFORE running /clear (it will erase this conversation).**
+`/ed3d-plan-and-execute:start-implementation-plan @docs/design-plans/[full-filename].md .`
 
-(1) Copy this command now:
-```
-/ed3d-plan-and-execute:start-implementation-plan @docs/design-plans/[full-filename].md .
-```
-(the `.` at the end is necessary or else Claude Code will eat the command and do the wrong thing.)
-
-(2) Clear your context:
-```
-/clear
-```
-
-(3) Paste and run the copied command.
-
-The start-implementation-plan command will create detailed tasks, set up a branch, and prepare for execution.
-```
-
-**Why /clear instead of continuing:**
-- Implementation planning needs fresh context for codebase investigation
-- Long conversations accumulate context that degrades quality
-- /clear gives the next phase a clean slate
-
-Mark Phase 6 as completed after providing instructions.
+Mark Phase 6 as completed after planning starts or the standalone command is provided.
 
 ## When to Revisit Earlier Phases
 
@@ -351,7 +336,7 @@ You can and should go backward when:
 | "I know what done looks like, skip confirmation" | Confirm Definition of Done explicitly. Always run Phase 3. |
 | "Simple idea, skip brainstorming" | Brainstorming explores alternatives. Always run Phase 4. |
 | "Design is in conversation, don't need documentation" | Documentation is contract with writing-implementation-plans. Always run Phase 5. |
-| "Can invoke implementation planning directly" | Must /clear first. Provide copy-then-clear workflow. |
+| "Planning must start in fresh context" | Continue in this context. Re-read artifacts and use subagents for independent verification. |
 | "I can combine phases for efficiency" | Each phase has distinct purpose. Run all six. |
 | "User knows what they want, less structure needed" | Structure ensures nothing is missed. Follow all phases. |
 

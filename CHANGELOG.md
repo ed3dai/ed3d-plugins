@@ -1,5 +1,27 @@
 # Changelog
 
+## [ed3d-plan-and-execute] [1.13.0]
+
+Run design, implementation planning, and execution as one Fable-orchestrated workflow, with optional autonomous decisions.
+
+**New:**
+- `.ed3d/autonomous-mode.md` sentinel activates autonomous mode at the start of every plugin skill
+- Human questions and approval gates are delegated to an independent Opus subagent with code-grounded decision context, explicit alternative analysis, and anti-agreement requirements
+- Low-confidence, evidence-contested, high-impact, and difficult-to-reverse autonomous decisions escalate to a fresh-context Fable reviewer
+- Legitimate defensive-security reviews that trigger Fable safeguards retry once with an Opus reviewer
+
+**Changed:**
+- Workflow entry commands and orchestration skills use the Fable model
+- Code review and final implementation-plan validation use Fable; bounded implementation, test analysis, test-requirement generation, and project-context maintenance retain their existing models
+- Design, planning, and execution continue in one conversation without requiring `/clear` between phases
+
+## [ed3d-session-reflection] [0.4.0]
+
+Use frontier reasoning for long-session causal analysis.
+
+**Changed:**
+- `conversation-reviewer` now uses Fable for individual session reviews; bounded cross-session synthesis remains on its existing model
+
 ## [ed3d-basic-agents] 1.2.0, [ed3d-extending-claude] 1.2.0, [ed3d-plan-and-execute] 1.12.0, [ed3d-playwright] 1.1.0, [ed3d-research-agents] 1.2.0, [ed3d-session-reflection] 0.3.0
 
 Nested subagent spawning is now explicitly disabled across repository subagents and workflow documentation.

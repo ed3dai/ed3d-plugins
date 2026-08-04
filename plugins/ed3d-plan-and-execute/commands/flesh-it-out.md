@@ -1,5 +1,6 @@
 ---
 description: Take a general idea and make it specific
+model: fable
 ---
 
 Help the user turn a general idea and make it something specific.

@@ -4,6 +4,10 @@ description: Use when about to claim work is complete, fixed, or passing, before
 user-invocable: false
 ---
 
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
+
 # Verification Before Completion
 
 ## Overview

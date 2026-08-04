@@ -2,7 +2,12 @@
 name: starting-an-implementation-plan
 description: Use when beginning implementation from a design plan - orchestrates branch creation, detailed planning, and hands off to execution with all necessary context
 user-invocable: false
+model: fable
 ---
+
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
 
 # Starting an Implementation Plan
 
@@ -36,7 +41,7 @@ This skill has three steps:
 
 1. **Branch Setup:** Select and create branch for implementation
 2. **Planning:** Create detailed implementation plan
-3. **Execution Handoff:** Direct user to execute the plan
+3. **Execution Continuation:** Invoke plan execution in this context when ready
 
 **Step 0: Create orchestration task tracker**
 
@@ -216,17 +221,15 @@ Or use the Read tool on the skill file path.
 
 Mark "Re-read starting-an-implementation-plan skill" task as completed.
 
-### Execution Handoff
+### Execution Continuation
 
 Mark "Execution handoff" task as in_progress.
 
-After planning is complete, hand off to execution.
-
-**Do NOT invoke execute-plan directly.** The user needs to /clear context first.
+After planning is complete, continue to execution in the same conversation. Do not require or recommend `/clear`.
 
 **Step 1: Capture and verify absolute paths**
 
-Before outputting the handoff instructions, you MUST run these commands to get real, verified paths:
+Before invoking execution or outputting a standalone command, you MUST run these commands to get real, verified paths:
 
 ```bash
 # Get absolute path to current working tree root
@@ -245,38 +248,17 @@ ls -d "${WORKING_ROOT}/docs/implementation-plans/YYYY-MM-DD-feature-name"
 
 **Both commands must succeed.** If the plan directory doesn't exist, something went wrong during planning — investigate before proceeding.
 
-**Step 2: Provide copy-paste instructions with verified absolute paths**
+**Step 2: Confirm readiness and invoke execution**
 
-Use the actual paths you captured and verified in Step 1. Example output:
+Ask whether to execute now. In autonomous mode, route this readiness decision to Opus using the autonomous-mode skill.
 
-```
-Implementation plan complete!
+If the answer is yes, invoke `ed3d-plan-and-execute:executing-an-implementation-plan` directly with the verified absolute `PLAN_DIRECTORY` and `WORKING_ROOT`. The execution skill must load phases just in time and use its own subagents; it does not need a cleared conversation.
 
-Ready to execute? This requires fresh context to work effectively.
+If the answer is no, provide the standalone command with the real verified paths so the user can run it later. Do not include `/clear` instructions:
 
-**IMPORTANT: Copy the command below BEFORE running /clear (it will erase this conversation).**
+`/ed3d-plan-and-execute:execute-implementation-plan [PLAN_DIRECTORY] [WORKING_ROOT]`
 
-(1) Copy this command now:
-
-/ed3d-plan-and-execute:execute-implementation-plan /Users/ed/project/.worktrees/oauth2-feature/docs/implementation-plans/2025-01-17-oauth2-feature/ /Users/ed/project/.worktrees/oauth2-feature/
-
-(2) Clear your context:
-
-/clear
-
-(3) Paste and run the copied command.
-
-The execute-implementation-plan command will implement the plan task-by-task with code review between tasks.
-```
-
-**Use the real paths from Step 1, not placeholders.** The example above shows the format — substitute your actual verified paths.
-
-**Why absolute paths:** After /clear, Claude Code returns to the original session directory (often the repo root, not the worktree). Absolute paths ensure execution happens in the correct directory regardless of where /clear returns.
-
-**Why /clear instead of continuing:**
-- Execution needs fresh context to work effectively
-- Long conversations accumulate context that degrades quality
-- /clear gives the execution phase a clean slate
+**Use the real paths from Step 1, not placeholders.**
 
 Mark "Execution handoff" task as completed.
 
@@ -284,13 +266,12 @@ Mark "Execution handoff" task as completed.
 
 | Mistake | Fix |
 |---------|-----|
-| Invoking execute-implementation-plan directly | Provide copy-paste instructions instead |
-| Not warning user to copy command before /clear | Always warn: "Copy this BEFORE running /clear" |
+| Refusing to invoke execution in the current context | Confirm readiness, then invoke the execution skill directly |
 | Using relative paths in handoff command | Run bash commands to get absolute paths, verify they exist |
 | Outputting placeholder paths like `[WORKING_ROOT]` | Output real paths from `git rev-parse --show-toplevel` and `ls -d` |
 | Not verifying plan directory exists | Always `ls -d` the full plan path before outputting command |
 | Passing phase_01.md instead of directory | Pass the directory so all phases execute |
-| Forgetting to mention /clear | Always tell user to /clear before execute |
+| Recommending `/clear` | Keep the complete workflow in one conversation |
 | Skipping "Re-read skill" step before handoff | Always re-read this skill to restore context post-compaction |
 | Not creating orchestration tasks at start | Create Branch setup, Planning, Re-read, Handoff tasks in Step 0 |
 | Not re-pointing "Re-read skill" after planning | Must update addBlockedBy to Finalization task, not "Create implementation plan" |
@@ -329,11 +310,10 @@ Starting Implementation Plan (this skill)
     -> Re-read this skill file
     -> Ensures handoff instructions are accurate post-compaction
 
-  -> Execution Handoff [tracked task]
+  -> Execution Continuation [tracked task]
     -> Run `git rev-parse --show-toplevel` for absolute paths
     -> Verify plan directory exists
-    -> Output command with verified absolute paths
-    -> Provide /clear command
+    -> Invoke execution with verified absolute paths, or output the standalone command for later
 
 Execute Implementation Plan (next step)
   -> Reads implementation plan

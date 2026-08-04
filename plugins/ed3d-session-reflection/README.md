@@ -14,9 +14,9 @@ A `SessionStart` hook injects the current session ID and transcript path into Cl
 
 Two skills for reviewing sessions:
 
-- **`/review-session`** — Deep qualitative review of the current session (or a specified transcript). Dispatches an Opus agent that reads the reduced transcript and writes structured findings covering what went well, what went wrong, and actionable recommendations.
+- **`/review-session`** — Deep qualitative review of the current session (or a specified transcript). Dispatches a Fable agent that reads the reduced transcript and writes structured findings covering what went well, what went wrong, and actionable recommendations.
 
-- **`/review-recent-sessions`** — Reviews the last N sessions (default 5) in the current project. Dispatches parallel Opus reviewers (one per session), then synthesizes cross-session patterns with a Sonnet agent. Identifies recurring issues and highest-impact recommendations.
+- **`/review-recent-sessions`** — Reviews the last N sessions (default 5) in the current project. Dispatches parallel Fable reviewers (one per session), then synthesizes cross-session patterns with a Sonnet agent. Identifies recurring issues and highest-impact recommendations.
 
 ### Transcript Reduction
 
@@ -38,7 +38,7 @@ A preprocessing script (`reduce-transcript.py`) strips Claude Code JSONL transcr
 |-----------|------|-------------|
 | `session-start.py` | Hook (SessionStart) | Injects session ID and transcript path into context |
 | `reduce-transcript.py` | Script | Strips JSONL to token-efficient text for analysis |
-| `conversation-reviewer` | Agent (Opus) | Reads reduced transcript, writes findings to disk |
+| `conversation-reviewer` | Agent (Fable) | Reads reduced transcripts, identifies causal patterns, and writes findings to disk |
 | `review-session` | Skill | Single-session review orchestration |
 | `review-recent-sessions` | Skill | Multi-session parallel review with synthesis |
 

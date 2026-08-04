@@ -4,6 +4,10 @@ description: Use when completing tasks, implementing major features, or before m
 user-invocable: false
 ---
 
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
+
 # Requesting Code Review
 
 Dispatch ed3d-plan-and-execute:code-reviewer subagent to catch issues before they cascade.
@@ -84,6 +88,12 @@ HEAD_SHA=$(git rev-parse HEAD)
 ```
 
 **Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment
+
+### Security Safeguard Fallback
+
+The primary reviewer uses Fable. If it refuses, is blocked, or returns an incomplete review because security safeguards were triggered during legitimate defensive code review, retry once with `ed3d-basic-agents:opus-general-purpose` using the same complete review packet and the template at `requesting-code-review/code-reviewer.md`.
+
+Label the retry as a safeguard fallback, require the Opus agent to perform the review directly without subagents, and preserve the same zero-issue exit condition. Do not fall back merely because Fable found difficult issues or gave an unfavorable result.
 
 ## Step 2: Handle Reviewer Response
 

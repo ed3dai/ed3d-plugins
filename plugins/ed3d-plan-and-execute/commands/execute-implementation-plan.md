@@ -1,6 +1,7 @@
 ---
 description: Execute implementation plan task-by-task with subagents
-argument-hint: [absolute-plan-dir] [absolute-working-dir]
+argument-hint: "[absolute-plan-dir] [absolute-working-dir]"
+model: fable
 ---
 
 # Execute Implementation Plan

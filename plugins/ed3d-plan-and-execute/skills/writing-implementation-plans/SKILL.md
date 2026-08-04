@@ -4,6 +4,10 @@ description: Use when design is complete and you need detailed implementation ta
 user-invocable: false
 ---
 
+## Autonomous Mode Check
+
+Before doing anything else, resolve the project root (`git rev-parse --show-toplevel`, falling back to the current working directory) and check for `.ed3d/autonomous-mode.md`. If present, invoke `ed3d-plan-and-execute:autonomous-mode` and follow it for every would-be human question in this skill.
+
 # Writing Implementation Plans
 
 ## Overview
@@ -884,6 +888,8 @@ After all phase D tasks are completed, mark the Finalization task as in_progress
 </parameter>
 </invoke>
 ```
+
+The primary plan reviewer uses Fable. If it refuses, is blocked, or cannot complete a legitimate defensive-security review because its security safeguards trigger, retry once with `ed3d-basic-agents:opus-general-purpose`. Give Opus the identical complete review packet and require it to perform the review directly without subagents. Do not use fallback to evade valid Fable findings.
 
 ### Step 2: Fix ALL issues (including minor ones)
 

@@ -2,7 +2,7 @@
 name: conversation-reviewer
 description: Use when reviewing a Claude Code session transcript for quality — analyzes human prompting effectiveness, agent performance patterns, and environment/tooling gaps, then writes structured findings to a specified output file. Requires a reduced transcript path and output path.
 tools: Read, Write, Bash, Grep, Glob, Skill
-model: opus
+model: fable
 disallowedTools: Agent
 ---
 
