@@ -1,4 +1,12 @@
 # ed3d-plugins
+---
+## Hi! This repository is no longer maintained. I have moved away from Claude Code as a tool. I might not-so-humbly suggest [Polytoken](https://polytoken.dev), the harness I maintain, as a nice, happy, multi-provider harness for both coding and other tasks.
+
+## Also, [I have a YouTube channel](https://www.youtube.com/@ed3dnet) where I talk about computery stuff and how to effectively use AI. Here's a sample.
+
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/q257UmHSP5E/0.jpg)](http://www.youtube.com/watch?v=q257UmHSP5E "Chasing big models is a curse. Fix your workflows instead.
+")
+---
 
 This is my collection of plugins that I use on a day-to-day basis for getting stuff done with Claude Code. Most of these are development-oriented in some way or another, but also often end up being useful for other things. Product design, general research, accidentally becoming my homelab sysadmin—these are a lot of what I've learned so far and what I've found helpful.
 
